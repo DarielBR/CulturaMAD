@@ -5,6 +5,8 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -246,3 +248,15 @@ fun UIDeclaration(
         }
     }
 }
+
+private data class DrawableStringPair(
+    @DrawableRes val drawable: Int,
+    @StringRes val text: Int
+)
+
+private val categoriesData = listOf(
+    R.drawable.dance_image to R.string.category_dance,
+    R.drawable.painting_image to R.string.category_painting,
+    R.drawable.music_image to R.string.category_music,
+    R.drawable.teatro_image to R.string.category_theatre
+).map { DrawableStringPair(it.first, it.second) }
