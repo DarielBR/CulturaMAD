@@ -1,3 +1,21 @@
 <resources>
     <string name="app_name">culturaMAD</string>
+    <string name="placeholder_search">Buscar</string>
+    <string name="category_dance">Danza</string>
+    <string name="category_music">Música</string>
+    <string name="category_painting">Pintura</string>
+    <string name="category_theatre">Teatro</string>
+    <string name="button_action_close">Cerrar</string>
+    <string name="event_share">Compartir</string>
+    <string name="event_start_date">Inicio:</string>
+    <string name="event_end_date">Fin:</string>
+    <string name="event_hours">Horario:</string>
+    <string name="event_price">Precio:</string>
+    <string name="event_free">Gratis</string>
+    <string name="event_excluded_days">Días excluídos:</string>
+    <string name="event_days">Días:</string>
+    <string name="event_frequency">Frecuencia:</string>
+    <string name="event_location">Lugar:</string>
+    <string name="event_address">Dirección:</string>
+    <string name="tip">Tip: haga un tap sobre la información de un marcador para ir a la publicación o un tap largo para compartir.</string>
 </resources>
