@@ -44,6 +44,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
+import com.upmgeoinfo.culturamad.ui.composables.MapScreen
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 class MainActivity : ComponentActivity() {
@@ -211,7 +212,7 @@ fun UIDeclaration(
         var searchValue by remember { mutableStateOf("") }
         val keyboardController = LocalSoftwareKeyboardController.current //necessary to close keyboard after a search is prompted.
         
-        //MapScreen()
+        MapScreen(searchValue)
         
         Column {
 
