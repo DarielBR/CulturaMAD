@@ -67,34 +67,107 @@ fun CreateMarker(
  */
 @Composable
 fun RefreshMarkers(
-    searchValue: String
+    searchValue: String,
+    categoryDance: Boolean,
+    categoryMusic: Boolean,
+    categoryPainting: Boolean,
+    categoryTheatre: Boolean
 ) {
     val culturalEvents = MarkerData.dataList
-    for (culturalEvent in culturalEvents) {
+    for (culturalEvent in culturalEvents) {//First filter for valid culturalEvent
         if (culturalEvent.location != null
+            && culturalEvent.address.district != null
+            && culturalEvent.category != null
+        ) {//Filter by categories if any.
+            if(categoryDance && culturalEvent.category.contains("DanzaBaile")){
+                if (searchValue == "") {
+                    CreateMarker(culturalEvent = culturalEvent)
+                } else if (culturalEvent.category.contains(searchValue, true)
+                    || culturalEvent.title.contains(searchValue, true)
+                    || culturalEvent.dtstart.contains(searchValue, true)
+                    || culturalEvent.address.district.Id.contains(searchValue, true)
+                    || culturalEvent.description.contains(searchValue, true)
+                ) {
+                    CreateMarker(
+                        culturalEvent = culturalEvent
+                    )
+                }
+            }
+            else if(categoryMusic && culturalEvent.category.contains("Musica")){
+                if (searchValue == "") {
+                    CreateMarker(culturalEvent = culturalEvent)
+                } else if (culturalEvent.category.contains(searchValue, true)
+                    || culturalEvent.title.contains(searchValue, true)
+                    || culturalEvent.dtstart.contains(searchValue, true)
+                    || culturalEvent.address.district.Id.contains(searchValue, true)
+                    || culturalEvent.description.contains(searchValue, true)
+                ) {
+                    CreateMarker(
+                        culturalEvent = culturalEvent
+                    )
+                }
+            }
+            else if(categoryPainting && culturalEvent.category.contains("Exposiciones")){
+                if (searchValue == "") {
+                    CreateMarker(culturalEvent = culturalEvent)
+                } else if (culturalEvent.category.contains(searchValue, true)
+                    || culturalEvent.title.contains(searchValue, true)
+                    || culturalEvent.dtstart.contains(searchValue, true)
+                    || culturalEvent.address.district.Id.contains(searchValue, true)
+                    || culturalEvent.description.contains(searchValue, true)
+                ) {
+                    CreateMarker(
+                        culturalEvent = culturalEvent
+                    )
+                }
+            }
+            else if(categoryTheatre && culturalEvent.category.contains("TeatroPerformance")){
+                if (searchValue == "") {
+                    CreateMarker(culturalEvent = culturalEvent)
+                } else if (culturalEvent.category.contains(searchValue, true)
+                    || culturalEvent.title.contains(searchValue, true)
+                    || culturalEvent.dtstart.contains(searchValue, true)
+                    || culturalEvent.address.district.Id.contains(searchValue, true)
+                    || culturalEvent.description.contains(searchValue, true)
+                ) {
+                    CreateMarker(
+                        culturalEvent = culturalEvent
+                    )
+                }
+            }else if (!categoryDance && !categoryMusic && !categoryPainting && !categoryTheatre){
+                if (searchValue == "") {
+                    CreateMarker(culturalEvent = culturalEvent)
+                } else if (culturalEvent.category.contains(searchValue, true)
+                    || culturalEvent.title.contains(searchValue, true)
+                    || culturalEvent.dtstart.contains(searchValue, true)
+                    || culturalEvent.address.district.Id.contains(searchValue, true)
+                    || culturalEvent.description.contains(searchValue, true)
+                ) {
+                    CreateMarker(
+                        culturalEvent = culturalEvent
+                    )
+                }
+            }
+        }
+    }
+
+    /*culturalEvent.location != null
             && culturalEvent.category != null
             && culturalEvent.title != null
             && culturalEvent.dtstart != null
             && culturalEvent.address.district.Id != null
-            && culturalEvent.description != null
-        ) {
-            if (searchValue == "") {
-                CreateMarker(culturalEvent = culturalEvent)
-            } else if (culturalEvent.category.contains(searchValue, true)
-                || culturalEvent.title.contains(searchValue, true)
-                || culturalEvent.dtstart.contains(searchValue, true)
-                || culturalEvent.address.district.Id.contains(searchValue, true)
-                || culturalEvent.description.contains(searchValue, true)
-            ) {
-                CreateMarker(culturalEvent = culturalEvent)
-            }
-        }
-    }
+            && culturalEvent.description != null*/
 }
 
 @OptIn(ExperimentalPermissionsApi::class)//Necessary for using rememberPermissionState
 @Composable
-fun MapScreen(searchValue: String){
+fun MapScreen(
+    searchValue: String,
+    categoryDance: Boolean,
+    categoryMusic: Boolean,
+    categoryPainting: Boolean,
+    categoryTheatre: Boolean
+){
     val madrid = LatLng(40.4169087, -3.7035386)
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(madrid, 10f)
@@ -116,6 +189,12 @@ fun MapScreen(searchValue: String){
         properties = myProperties,
         uiSettings = myUiSettings,
     ) {
-        RefreshMarkers(searchValue = searchValue)
+        RefreshMarkers(
+            searchValue = searchValue,
+            categoryDance = categoryDance,
+            categoryMusic = categoryMusic,
+            categoryPainting = categoryPainting,
+            categoryTheatre = categoryTheatre
+        )
     }
 }

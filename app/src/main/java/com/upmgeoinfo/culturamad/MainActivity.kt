@@ -23,7 +23,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -36,14 +35,12 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.invalidateGroupsWithKey
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
@@ -234,7 +231,7 @@ fun UIDeclaration(
 
         val keyboardController = LocalSoftwareKeyboardController.current //necessary to close keyboard after a search is prompted.
         
-        MapScreen(searchValue)
+        MapScreen(searchValue, categoryDance, categoryMusic, categoryPainting, categoryTheatre)
         
         Column {
 
@@ -282,7 +279,12 @@ fun UIDeclaration(
                     elevation = 5.dp,
                     modifier = Modifier
                         .padding(start = 2.dp, end = 2.dp)
-                        .clickable { categoryDance = !categoryDance }
+                        .clickable {
+                            categoryDance = !categoryDance
+                            categoryMusic = false
+                            categoryPainting = false
+                            categoryTheatre = false
+                        }
                 ){
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -330,7 +332,12 @@ fun UIDeclaration(
                     elevation = 5.dp,
                     modifier = Modifier
                         .padding(start = 2.dp, end = 2.dp)
-                        .clickable { categoryMusic = !categoryMusic }
+                        .clickable {
+                            categoryDance = false
+                            categoryMusic = !categoryMusic
+                            categoryPainting = false
+                            categoryTheatre = false
+                        }
                 ){
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -378,7 +385,12 @@ fun UIDeclaration(
                     elevation = 5.dp,
                     modifier = Modifier
                         .padding(start = 2.dp, end = 2.dp)
-                        .clickable { categoryPainting = !categoryPainting }
+                        .clickable {
+                            categoryDance = false
+                            categoryMusic = false
+                            categoryPainting = !categoryPainting
+                            categoryTheatre = false
+                        }
                 ){
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -426,7 +438,12 @@ fun UIDeclaration(
                     elevation = 5.dp,
                     modifier = Modifier
                         .padding(start = 2.dp, end = 2.dp)
-                        .clickable { categoryTheatre = !categoryTheatre }
+                        .clickable {
+                            categoryDance = false
+                            categoryMusic = false
+                            categoryPainting = false
+                            categoryTheatre = !categoryTheatre
+                        }
                 ){
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -471,15 +488,3 @@ fun UIDeclaration(
         }
     }
 }
-
-private data class DrawableStringPair(
-    @DrawableRes val drawable: Int,
-    @StringRes val text: Int
-)
-
-private val categoriesData = listOf(
-    R.drawable.dance_image to R.string.category_dance,
-    R.drawable.painting_image to R.string.category_painting,
-    R.drawable.music_image to R.string.category_music,
-    R.drawable.teatro_image to R.string.category_theatre
-).map { DrawableStringPair(it.first, it.second) }
