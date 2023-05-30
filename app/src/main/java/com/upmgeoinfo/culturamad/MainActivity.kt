@@ -7,18 +7,26 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -28,14 +36,21 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.invalidateGroupsWithKey
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -212,6 +227,11 @@ fun UIDeclaration(
 ){
     CulturaMADTheme {
         var searchValue by remember { mutableStateOf("") }
+        var categoryDance by remember { mutableStateOf(false) }
+        var categoryMusic by remember { mutableStateOf(false) }
+        var categoryPainting by remember { mutableStateOf(false) }
+        var categoryTheatre by remember { mutableStateOf(false) }
+
         val keyboardController = LocalSoftwareKeyboardController.current //necessary to close keyboard after a search is prompted.
         
         MapScreen(searchValue)
@@ -244,7 +264,210 @@ fun UIDeclaration(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            //CategoryFilters()
+            Spacer(modifier = Modifier.height(8.dp))
+
+            /**
+             * Declaring category filtering buttons
+             */
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .padding(start = 4.dp, end = 4.dp)
+            ){
+                androidx.compose.material.Card(
+                    backgroundColor =   if(!categoryDance) MaterialTheme.colorScheme.surfaceVariant
+                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                    shape = MaterialTheme.shapes.large,
+                    elevation = 5.dp,
+                    modifier = Modifier
+                        .padding(start = 2.dp, end = 2.dp)
+                        .clickable { categoryDance = !categoryDance }
+                ){
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                        ){
+                            Image(
+                                painter = painterResource(id = R.drawable.dance_image),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                colorFilter = ColorFilter.colorMatrix(ColorMatrix().apply {
+                                    if(!categoryDance) setToSaturation(2f)
+                                    else setToSaturation(0f)
+                                }),
+                                modifier = Modifier
+                                    .padding(4.dp)
+                                    .size(30.dp)
+                                    .clip(CircleShape)
+                            )
+                            if(categoryDance){
+                                Icon(
+                                    Icons.Filled.Check,
+                                    null,
+                                    tint = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
+                        }
+                        androidx.compose.material.Text(
+                            text = stringResource(R.string.category_dance),
+                            color = if (!categoryDance) MaterialTheme.colorScheme.onSurfaceVariant
+                            else MaterialTheme.colorScheme.surfaceVariant,
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier
+                                .padding(end = 8.dp)
+                        )
+                    }
+                }
+                androidx.compose.material.Card(
+                    backgroundColor =   if(!categoryMusic) MaterialTheme.colorScheme.surfaceVariant
+                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                    shape = MaterialTheme.shapes.large,
+                    elevation = 5.dp,
+                    modifier = Modifier
+                        .padding(start = 2.dp, end = 2.dp)
+                        .clickable { categoryMusic = !categoryMusic }
+                ){
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                        ){
+                            Image(
+                                painter = painterResource(id = R.drawable.music_image),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                colorFilter = ColorFilter.colorMatrix(ColorMatrix().apply {
+                                    if(!categoryMusic) setToSaturation(2f)
+                                    else setToSaturation(0f)
+                                }),
+                                modifier = Modifier
+                                    .padding(4.dp)
+                                    .size(30.dp)
+                                    .clip(CircleShape)
+                            )
+                            if(categoryMusic){
+                                androidx.compose.material.Icon(
+                                    Icons.Filled.Check,
+                                    null,
+                                    tint = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
+                        }
+                        androidx.compose.material.Text(
+                            text = stringResource(R.string.category_music),
+                            color = if (!categoryMusic) MaterialTheme.colorScheme.onSurfaceVariant
+                            else MaterialTheme.colorScheme.surfaceVariant,
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier
+                                .padding(4.dp)
+                        )
+                    }
+                }
+                androidx.compose.material.Card(
+                    backgroundColor =   if(!categoryPainting) MaterialTheme.colorScheme.surfaceVariant
+                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                    shape = MaterialTheme.shapes.large,
+                    elevation = 5.dp,
+                    modifier = Modifier
+                        .padding(start = 2.dp, end = 2.dp)
+                        .clickable { categoryPainting = !categoryPainting }
+                ){
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                        ){
+                            Image(
+                                painter = painterResource(id = R.drawable.painting_image),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                colorFilter = ColorFilter.colorMatrix(ColorMatrix().apply {
+                                    if(!categoryPainting) setToSaturation(2f)
+                                    else setToSaturation(0f)
+                                }),
+                                modifier = Modifier
+                                    .padding(4.dp)
+                                    .size(30.dp)
+                                    .clip(CircleShape)
+                            )
+                            if(categoryPainting){
+                                androidx.compose.material.Icon(
+                                    Icons.Filled.Check,
+                                    null,
+                                    tint = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
+                        }
+                        androidx.compose.material.Text(
+                            text = stringResource(R.string.category_painting),
+                            color = if (!categoryPainting) MaterialTheme.colorScheme.onSurfaceVariant
+                            else MaterialTheme.colorScheme.surfaceVariant,
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier
+                                .padding(4.dp)
+                        )
+                    }
+                }
+                androidx.compose.material.Card(
+                    backgroundColor =   if(!categoryTheatre) MaterialTheme.colorScheme.surfaceVariant
+                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                    shape = MaterialTheme.shapes.large,
+                    elevation = 5.dp,
+                    modifier = Modifier
+                        .padding(start = 2.dp, end = 2.dp)
+                        .clickable { categoryTheatre = !categoryTheatre }
+                ){
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                        ){
+                            Image(
+                                painter = painterResource(id = R.drawable.teatro_image),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                colorFilter = ColorFilter.colorMatrix(ColorMatrix().apply {
+                                    if(!categoryTheatre) setToSaturation(2f)
+                                    else setToSaturation(0f)
+                                }),
+                                modifier = Modifier
+                                    .padding(4.dp)
+                                    .size(30.dp)
+                                    .clip(CircleShape)
+                            )
+                            if(categoryTheatre){
+                                androidx.compose.material.Icon(
+                                    Icons.Filled.Check,
+                                    null,
+                                    tint = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
+                        }
+                        androidx.compose.material.Text(
+                            text = stringResource(R.string.category_theatre),
+                            color = if (!categoryTheatre) MaterialTheme.colorScheme.onSurfaceVariant
+                            else MaterialTheme.colorScheme.surfaceVariant,
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier
+                                .padding(4.dp)
+                        )
+                    }
+                }
+            }
         }
     }
 }
