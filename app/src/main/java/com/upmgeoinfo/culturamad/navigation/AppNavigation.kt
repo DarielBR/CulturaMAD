@@ -1,0 +1,27 @@
+package com.upmgeoinfo.culturamad.navigation
+
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavHost
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.upmgeoinfo.culturamad.MainScreen
+import com.upmgeoinfo.culturamad.ui.composables.SplashScreen
+
+@Composable
+fun AppNavigation(){
+    val navController = rememberNavController()
+    NavHost(
+        navController = navController,
+        startDestination = AppScreens.SplashScreen.route,
+        builder = {
+            composable(AppScreens.SplashScreen.route){
+                SplashScreen(navController)
+            }
+            composable(AppScreens.MainScreen.route){
+                MainScreen(modifier = Modifier)
+            }
+        }
+    )
+}

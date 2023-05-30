@@ -81,6 +81,22 @@ private val DarkColors = darkColorScheme(
 )
 
 
+
+@Composable
+fun CulturaMADTheme(
+    useDarkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
+) {
+    val colors = if(!useDarkTheme) LightColors else DarkColors
+
+    MaterialTheme(
+        colorScheme = colors,
+        typography = Typography,
+        content = content
+    )
+}
+
+/* Original version was not using defined colors
 @Composable
 fun CulturaMADTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -97,6 +113,7 @@ fun CulturaMADTheme(
         darkTheme -> DarkColors
         else -> LightColors
     }
+
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
@@ -111,4 +128,4 @@ fun CulturaMADTheme(
         typography = Typography,
         content = content
     )
-}
+}*/

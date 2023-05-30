@@ -51,6 +51,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -58,6 +59,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
+import com.upmgeoinfo.culturamad.navigation.AppNavigation
 import com.upmgeoinfo.culturamad.ui.composables.MapScreen
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
@@ -68,9 +70,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             CulturaMADTheme {
-                RequestInternetPermission()
-                RequestLocationPermission()
-                UIDeclaration()
+                AppNavigation()
             }
         }
     }
@@ -319,7 +319,7 @@ fun UIDeclaration(
                             text = stringResource(R.string.category_dance),
                             color = if (!categoryDance) MaterialTheme.colorScheme.onSurfaceVariant
                             else MaterialTheme.colorScheme.surfaceVariant,
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleSmall,
                             modifier = Modifier
                                 .padding(end = 8.dp)
                         )
@@ -372,9 +372,9 @@ fun UIDeclaration(
                             text = stringResource(R.string.category_music),
                             color = if (!categoryMusic) MaterialTheme.colorScheme.onSurfaceVariant
                             else MaterialTheme.colorScheme.surfaceVariant,
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleSmall,
                             modifier = Modifier
-                                .padding(4.dp)
+                                .padding(8.dp)
                         )
                     }
                 }
@@ -425,9 +425,9 @@ fun UIDeclaration(
                             text = stringResource(R.string.category_painting),
                             color = if (!categoryPainting) MaterialTheme.colorScheme.onSurfaceVariant
                             else MaterialTheme.colorScheme.surfaceVariant,
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleSmall,
                             modifier = Modifier
-                                .padding(4.dp)
+                                .padding(8.dp)
                         )
                     }
                 }
@@ -478,13 +478,26 @@ fun UIDeclaration(
                             text = stringResource(R.string.category_theatre),
                             color = if (!categoryTheatre) MaterialTheme.colorScheme.onSurfaceVariant
                             else MaterialTheme.colorScheme.surfaceVariant,
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleSmall,
                             modifier = Modifier
-                                .padding(4.dp)
+                                .padding(8.dp)
                         )
                     }
                 }
             }
         }
+    }
+}
+
+/**
+ * Will be called from the onCreate function. Works with NavController
+ */
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun MainScreen(modifier: Modifier){
+    CulturaMADTheme {
+        RequestInternetPermission()
+        RequestLocationPermission()
+        UIDeclaration()
     }
 }
