@@ -9,6 +9,10 @@ import androidx.navigation.compose.rememberNavController
 import com.upmgeoinfo.culturamad.MainScreen
 import com.upmgeoinfo.culturamad.ui.composables.SplashScreen
 
+/**
+ * Handles the navigation within the application. Will show at first the Splash Screen followed by
+ * the main activity. Also cleanses the views while navigates towards the main activity.
+ */
 @Composable
 fun AppNavigation(){
     val navController = rememberNavController()

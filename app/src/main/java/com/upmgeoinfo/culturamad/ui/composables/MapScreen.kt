@@ -150,15 +150,12 @@ fun RefreshMarkers(
             }
         }
     }
-
-    /*culturalEvent.location != null
-            && culturalEvent.category != null
-            && culturalEvent.title != null
-            && culturalEvent.dtstart != null
-            && culturalEvent.address.district.Id != null
-            && culturalEvent.description != null*/
 }
 
+/**
+ * Creates an instance of GoogleMap as a composable function. Also configurates visual aspects of
+ * the map and calls [RefreshMarkers] to generate an update collection of markers.
+ */
 @OptIn(ExperimentalPermissionsApi::class)//Necessary for using rememberPermissionState
 @Composable
 fun MapScreen(

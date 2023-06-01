@@ -18,6 +18,9 @@ import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.navigation.AppScreens
 import kotlinx.coroutines.delay
 
+/**
+ * Calls the splash screen within a coroutine scope.
+ */
 @Composable
 fun SplashScreen(navController: NavHostController){
 
@@ -29,6 +32,9 @@ fun SplashScreen(navController: NavHostController){
     Splash()
 }
 
+/**
+ * A composable declaration of the splash screen
+ */
 @Composable
 fun Splash(){
     Column(
