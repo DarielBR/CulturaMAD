@@ -24,8 +24,10 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -59,18 +61,21 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.upmgeoinfo.culturamad.navigation.AppNavigation
 import com.upmgeoinfo.culturamad.ui.composables.MapScreen
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 class MainActivity : ComponentActivity() {
-
+    private lateinit var fuseLocationClient: FusedLocationProviderClient
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        fuseLocationClient = LocationServices.getFusedLocationProviderClient(this)
         setContent {
             CulturaMADTheme {
-                AppNavigation()
+                AppNavigation(fuseLocationClient)
             }
         }
     }
@@ -130,7 +135,7 @@ fun RequestInternetPermission() {
 fun RequestLocationPermission() {
     val permissionStates = rememberMultiplePermissionsState(
         permissions = listOf(
-            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION
         )
     )
@@ -220,6 +225,7 @@ fun RequestLocationPermission() {
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)//Necessary for using [LocalSoftwareKeyboardController.current]. Necessary for using Text Field.
 @Composable
 fun UIDeclaration(
+    fuseLocationClient: FusedLocationProviderClient,
     modifier: Modifier = Modifier
 ){
     CulturaMADTheme {
@@ -231,7 +237,7 @@ fun UIDeclaration(
 
         val keyboardController = LocalSoftwareKeyboardController.current //necessary to close keyboard after a search is prompted.
         
-        MapScreen(searchValue, categoryDance, categoryMusic, categoryPainting, categoryTheatre)
+        MapScreen(fuseLocationClient, searchValue, categoryDance, categoryMusic, categoryPainting, categoryTheatre)
         
         Column {
 
@@ -250,12 +256,27 @@ fun UIDeclaration(
                 },
                 shape = MaterialTheme.shapes.medium.copy(all = CornerSize(50)),
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                trailingIcon = {
+                    IconButton(
+                        onClick = {
+                            searchValue = ""
+                            keyboardController?.hide()
+                        }
+                    ) {
+                        Icon(
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            painter = painterResource(id = R.drawable.cmad_close),
+                            contentDescription = null
+                        )
+                    }
+
+                },
                 placeholder = { Text(stringResource(id = R.string.placeholder_search))},
                 colors = TextFieldDefaults.colors(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions( onSearch = { keyboardController?.hide() }),
                 modifier = Modifier
-                    .padding(start = 60.dp, end = 60.dp)
+                    .padding(start = 60.dp, end = 8.dp)
                     .fillMaxWidth()
             )
 
@@ -494,10 +515,10 @@ fun UIDeclaration(
  */
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun MainScreen(modifier: Modifier){
+fun MainScreen(fuseLocationClient: FusedLocationProviderClient,modifier: Modifier){
     CulturaMADTheme {
         RequestInternetPermission()
         RequestLocationPermission()
-        UIDeclaration()
+        UIDeclaration(fuseLocationClient)
     }
 }

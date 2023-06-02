@@ -2,10 +2,10 @@ package com.upmgeoinfo.culturamad.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHost
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.upmgeoinfo.culturamad.MainScreen
 import com.upmgeoinfo.culturamad.ui.composables.SplashScreen
 
@@ -14,7 +14,7 @@ import com.upmgeoinfo.culturamad.ui.composables.SplashScreen
  * the main activity. Also cleanses the views while navigates towards the main activity.
  */
 @Composable
-fun AppNavigation(){
+fun AppNavigation(fuseLocationClient: FusedLocationProviderClient,){
     val navController = rememberNavController()
     NavHost(
         navController = navController,
@@ -24,7 +24,7 @@ fun AppNavigation(){
                 SplashScreen(navController)
             }
             composable(AppScreens.MainScreen.route){
-                MainScreen(modifier = Modifier)
+                MainScreen(fuseLocationClient,modifier = Modifier)
             }
         }
     )
