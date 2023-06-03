@@ -2,6 +2,7 @@ package com.upmgeoinfo.culturamad
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.icu.text.ListFormatter.Width
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -277,7 +279,7 @@ fun UIDeclaration(
                 onValueChange = {newText: String ->
                     searchValue = newText
                 },
-                shape = MaterialTheme.shapes.medium.copy(all = CornerSize(50)),
+                shape = MaterialTheme.shapes.medium.copy(all = CornerSize(40)),
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                 trailingIcon = {
                     IconButton(
@@ -295,11 +297,16 @@ fun UIDeclaration(
 
                 },
                 placeholder = { Text(stringResource(id = R.string.placeholder_search))},
-                colors = TextFieldDefaults.colors(),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions( onSearch = { keyboardController?.hide() }),
                 modifier = Modifier
-                    .padding(start = 8.dp, end = 8.dp)
+                    .padding(start = 16.dp, end = 16.dp)
                     .fillMaxWidth()
             )
 

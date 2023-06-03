@@ -43,14 +43,17 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.zzi
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.MapView
+import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapEffect
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
@@ -81,6 +84,7 @@ fun CreateMarker(
         title = culturalEvent.title,
         draggable = false,
         icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW),
+        //icon = BitmapDescriptorFactory.fromResource(R.drawable.cmad_circle_marker),
         snippet = culturalEvent.description,
         onInfoWindowLongClick = {
             val intent = Intent(Intent.ACTION_SEND).apply {
@@ -230,7 +234,8 @@ fun MapScreen(
         mutableStateOf(
             MapUiSettings(
                 zoomControlsEnabled = false,
-                myLocationButtonEnabled = false
+                myLocationButtonEnabled = false,
+                compassEnabled = false
             )
         )
     }
@@ -245,7 +250,9 @@ fun MapScreen(
 
     GoogleMap(
         cameraPositionState = cameraPositionState,
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .padding(bottom = 35.dp)
+            .fillMaxSize(),
         properties = myProperties,
         uiSettings = myUiSettings,
     ) {
@@ -261,7 +268,7 @@ fun MapScreen(
         horizontalAlignment = Alignment.End,
         verticalArrangement = Arrangement.Bottom,
         modifier = Modifier
-            .padding(top = 8.dp, end = 11.dp, bottom = 58.dp)
+            .padding(top = 8.dp, end = 11.dp, bottom = 92.dp)
             .fillMaxSize()
     ) {
         var clickedOnce by remember { mutableStateOf(false) }

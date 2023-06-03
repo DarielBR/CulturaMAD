@@ -50,8 +50,8 @@ fun FilterItem(
 ){
     androidx.compose.material.Card(
         onClick = onClick,
-        backgroundColor =   if(!filterStatus) MaterialTheme.colorScheme.surfaceVariant
-        else MaterialTheme.colorScheme.onSurfaceVariant,
+        backgroundColor =   if(!filterStatus) MaterialTheme.colorScheme.surface
+        else MaterialTheme.colorScheme.onSurface,
         shape = MaterialTheme.shapes.large,
         elevation = 2.dp,
         modifier = Modifier
@@ -88,8 +88,8 @@ fun FilterItem(
             }
             Text(
                 text = stringResource(id = stringResource),
-                color = if (!filterStatus) MaterialTheme.colorScheme.onSurfaceVariant
-                else MaterialTheme.colorScheme.surfaceVariant,
+                color = if (!filterStatus) MaterialTheme.colorScheme.onSurface
+                else MaterialTheme.colorScheme.surface,
                 style = MaterialTheme.typography.titleSmall,
                 modifier = Modifier
                     .padding(end = 8.dp)
