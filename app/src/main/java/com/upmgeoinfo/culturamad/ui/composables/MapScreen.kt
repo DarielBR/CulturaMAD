@@ -26,10 +26,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.DefaultShadowColor
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -258,7 +261,7 @@ fun MapScreen(
         horizontalAlignment = Alignment.End,
         verticalArrangement = Arrangement.Bottom,
         modifier = Modifier
-            .padding(top = 8.dp, end = 8.dp, bottom = 8.dp)
+            .padding(top = 8.dp, end = 11.dp, bottom = 58.dp)
             .fillMaxSize()
     ) {
         var clickedOnce by remember { mutableStateOf(false) }
@@ -300,20 +303,23 @@ fun MapButton(
     modifier: Modifier = Modifier
 ) {
     Surface(
-        elevation = 2.dp,
-        shape = CircleShape,
+        elevation = 1.dp,
+        shape = RectangleShape,
+        color = Color.Transparent,
         modifier = Modifier
-            .padding(all = 4.dp)
+            .padding(all = 1.dp)
+            .alpha(0.8f)
     ) {
         IconButton(
             onClick = onClick,
             modifier = Modifier
-                .clip(CircleShape)
-                .size(40.dp)
-                .background(color = MaterialTheme.colorScheme.tertiaryContainer)
+                .clip(RectangleShape)
+                .size(37.dp)
+                .background(color = MaterialTheme.colorScheme.surface)
+                .alpha(1f)
         ) {
             Icon(
-                tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                tint = MaterialTheme.colorScheme.onSurface,
                 painter = painterResource(id = drawableResource),
                 contentDescription = null
             )

@@ -79,4 +79,6 @@ dependencies {
     implementation 'com.google.accompanist:accompanist-permissions:0.24.13-rc'
     //SplashScreen
     implementation("androidx.core:core-splashscreen:1.0.1")
+    //system bar customization
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.30.1"
 }
