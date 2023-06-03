@@ -12,6 +12,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,6 +20,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.KeyboardActions
@@ -64,6 +67,7 @@ import com.google.accompanist.permissions.shouldShowRationale
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.upmgeoinfo.culturamad.navigation.AppNavigation
+import com.upmgeoinfo.culturamad.ui.composables.FilterItem
 import com.upmgeoinfo.culturamad.ui.composables.MapScreen
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
@@ -230,14 +234,14 @@ fun UIDeclaration(
 ){
     CulturaMADTheme {
         var searchValue by remember { mutableStateOf("") }
-        var categoryDance by remember { mutableStateOf(false) }
-        var categoryMusic by remember { mutableStateOf(false) }
-        var categoryPainting by remember { mutableStateOf(false) }
-        var categoryTheatre by remember { mutableStateOf(false) }
+        var danceFilter by remember { mutableStateOf(false) }
+        var musicFilter by remember { mutableStateOf(false) }
+        var paintingFilter by remember { mutableStateOf(false) }
+        var theatreFilter by remember { mutableStateOf(false) }
 
         val keyboardController = LocalSoftwareKeyboardController.current //necessary to close keyboard after a search is prompted.
         
-        MapScreen(fuseLocationClient, searchValue, categoryDance, categoryMusic, categoryPainting, categoryTheatre)
+        MapScreen(fuseLocationClient, searchValue, danceFilter, musicFilter, paintingFilter, theatreFilter)
         
         Column {
 
@@ -288,7 +292,48 @@ fun UIDeclaration(
              * Declaring category filtering buttons
              */
 
-            Row(
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp)
+            ){
+                items(categoriesData){ item->
+                    when(stringResource(id = item.text)) {
+                        "Danza" -> {
+                            FilterItem(
+                                filterStatus = danceFilter,
+                                drawableResource = item.drawable,
+                                stringResource = item.text,
+                                onClick = { danceFilter = !danceFilter }
+                            )
+                        }
+                        "Música" -> {
+                            FilterItem(
+                                filterStatus = musicFilter,
+                                drawableResource = item.drawable,
+                                stringResource = item.text,
+                                onClick = { musicFilter = !musicFilter }
+                            )
+                        }
+                        "Pintura" -> {
+                            FilterItem(
+                                filterStatus = paintingFilter,
+                                drawableResource = item.drawable,
+                                stringResource = item.text,
+                                onClick = { paintingFilter = !paintingFilter }
+                            )
+                        }
+                        "Teatro" -> {
+                            FilterItem(
+                                filterStatus = theatreFilter,
+                                drawableResource = item.drawable,
+                                stringResource = item.text,
+                                onClick = { theatreFilter = !theatreFilter }
+                            )
+                        }
+                    }
+                }
+            }
+            /*Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .padding(start = 4.dp, end = 4.dp)
@@ -505,10 +550,22 @@ fun UIDeclaration(
                         )
                     }
                 }
-            }
+            }*/
         }
     }
 }
+
+private data class DrawableStringPair(
+    @DrawableRes val drawable: Int,
+    @StringRes val text: Int
+)
+
+private val categoriesData = listOf(
+    R.drawable.dance_image to R.string.category_dance,
+    R.drawable.painting_image to R.string.category_painting,
+    R.drawable.music_image to R.string.category_music,
+    R.drawable.teatro_image to R.string.category_theatre
+).map { DrawableStringPair(it.first, it.second) }
 
 /**
  * Will be called from the onCreate function. Works with NavController

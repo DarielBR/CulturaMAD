@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterialApi::class)
+
 package com.upmgeoinfo.culturamad.ui.composables
 
 import android.content.res.Configuration
@@ -47,13 +49,13 @@ fun FilterItem(
     modifier: Modifier = Modifier
 ){
     androidx.compose.material.Card(
+        onClick = onClick,
         backgroundColor =   if(!filterStatus) MaterialTheme.colorScheme.surfaceVariant
         else MaterialTheme.colorScheme.onSurfaceVariant,
         shape = MaterialTheme.shapes.large,
         elevation = 2.dp,
         modifier = Modifier
             .padding(start = 2.dp, end = 2.dp)
-            .clickable { onClick }
     ){
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -106,9 +108,7 @@ fun FilterItemPreview(){
             filterStatus = danceFilter,
             drawableResource = R.drawable.dance_image,
             stringResource = R.string.category_dance,
-            onClick = {
-                danceFilter = !danceFilter
-            }
+            onClick = { danceFilter = !danceFilter }
         )
     }
 }
@@ -127,11 +127,40 @@ fun FilterItems(
         contentPadding = PaddingValues(horizontal = 16.dp)
     ){
         items(categoriesData){item->
-            FilterItem(
-                filterStatus = danceFilter,
-                drawableResource = item.drawable,
-                stringResource = item.text,
-                onClick = { danceFilter = !danceFilter })
+            when(stringResource(id = item.text)) {
+                "Danza" -> {
+                    FilterItem(
+                        filterStatus = danceFilter,
+                        drawableResource = item.drawable,
+                        stringResource = item.text,
+                        onClick = { danceFilter = !danceFilter }
+                    )
+                }
+                "Música" -> {
+                    FilterItem(
+                        filterStatus = musicFilter,
+                        drawableResource = item.drawable,
+                        stringResource = item.text,
+                        onClick = { musicFilter = !musicFilter }
+                    )
+                }
+                "Pintura" -> {
+                    FilterItem(
+                        filterStatus = paintingFilter,
+                        drawableResource = item.drawable,
+                        stringResource = item.text,
+                        onClick = { paintingFilter = !paintingFilter }
+                    )
+                }
+                "Teatro" -> {
+                    FilterItem(
+                        filterStatus = theatreFilter,
+                        drawableResource = item.drawable,
+                        stringResource = item.text,
+                        onClick = { theatreFilter = !theatreFilter }
+                    )
+                }
+            }
         }
     }
 }
