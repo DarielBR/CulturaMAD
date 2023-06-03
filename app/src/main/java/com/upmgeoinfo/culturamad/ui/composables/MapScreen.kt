@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
@@ -24,6 +26,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.DefaultShadowColor
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
@@ -237,7 +244,7 @@ fun MapScreen(
         horizontalAlignment = Alignment.End,
         verticalArrangement = Arrangement.Bottom,
         modifier = Modifier
-            .padding(end = 8.dp, bottom = 8.dp)
+            //.padding(top = 8.dp, end = 8.dp, bottom = 8.dp)
             .fillMaxSize()
     ) {
         var clickedOnce by remember { mutableStateOf(false) }
@@ -251,22 +258,44 @@ fun MapScreen(
                     zoomLevel = 15f
                 }
                 cameraPositionState.position = CameraPosition(myLocation, zoomLevel, 0f, 0f)
-            }
+            },
+            drawableResource = R.drawable.cmad_mylocation,
+            0f
+        )
+        MapButton(
+            onClick = {
+                val currentCameraState = cameraPositionState
+                cameraPositionState.position = CameraPosition(
+                    currentCameraState.position.target,
+                    currentCameraState.position.zoom,
+                    currentCameraState.position.tilt,
+                    0.0f
+                )
+            },
+            drawableResource = R.drawable.cmad_compass,
+            rotation = cameraPositionState.position.bearing
         )
     }
 }
 
 @Composable
-fun MapButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun MapButton(
+    onClick: () -> Unit,
+    drawableResource: Int,
+    rotation: Float,
+    modifier: Modifier = Modifier
+) {
     IconButton(
         onClick = onClick,
         modifier = Modifier
             .clip(CircleShape)
-            .background(color = MaterialTheme.colorScheme.secondaryContainer)
+            .size(40.dp)
+            .background(color = MaterialTheme.colorScheme.tertiaryContainer)
+            .shadow(2.dp, CircleShape,false, DefaultShadowColor, DefaultShadowColor)
     ) {
         Icon(
-            tint = MaterialTheme.colorScheme.onSecondaryContainer,
-            painter = painterResource(id = R.drawable.cmad_mylocation),
+            tint = MaterialTheme.colorScheme.onTertiaryContainer,
+            painter = painterResource(id = drawableResource),
             contentDescription = null
         )
     }
