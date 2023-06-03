@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.Surface
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,10 +40,13 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
@@ -53,6 +57,8 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
 import com.upmgeoinfo.culturamad.datamodel.MarkerData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Creates a marker with the information taken form a cultural event.
@@ -204,7 +210,7 @@ fun MapScreen(
             }
         }
     }
-    val cameraPositionState = rememberCameraPositionState {
+    var cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(madrid, 10f)//usar madrid
     }
     val locationPermissionState =
@@ -223,6 +229,14 @@ fun MapScreen(
                 zoomControlsEnabled = false,
                 myLocationButtonEnabled = false
             )
+        )
+    }
+    val cameraToZeroBearing = rememberCameraPositionState{
+        position = CameraPosition(
+            cameraPositionState.position.target,
+            cameraPositionState.position.zoom,
+            cameraPositionState.position.tilt,
+            cameraPositionState.position.bearing
         )
     }
 
@@ -244,7 +258,7 @@ fun MapScreen(
         horizontalAlignment = Alignment.End,
         verticalArrangement = Arrangement.Bottom,
         modifier = Modifier
-            //.padding(top = 8.dp, end = 8.dp, bottom = 8.dp)
+            .padding(top = 8.dp, end = 8.dp, bottom = 8.dp)
             .fillMaxSize()
     ) {
         var clickedOnce by remember { mutableStateOf(false) }
@@ -285,19 +299,36 @@ fun MapButton(
     rotation: Float,
     modifier: Modifier = Modifier
 ) {
-    IconButton(
-        onClick = onClick,
+    Surface(
+        elevation = 2.dp,
+        shape = CircleShape,
         modifier = Modifier
-            .clip(CircleShape)
-            .size(40.dp)
-            .background(color = MaterialTheme.colorScheme.tertiaryContainer)
-            .shadow(2.dp, CircleShape,false, DefaultShadowColor, DefaultShadowColor)
+            .padding(all = 4.dp)
     ) {
-        Icon(
-            tint = MaterialTheme.colorScheme.onTertiaryContainer,
-            painter = painterResource(id = drawableResource),
-            contentDescription = null
-        )
+        IconButton(
+            onClick = onClick,
+            modifier = Modifier
+                .clip(CircleShape)
+                .size(40.dp)
+                .background(color = MaterialTheme.colorScheme.tertiaryContainer)
+        ) {
+            Icon(
+                tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                painter = painterResource(id = drawableResource),
+                contentDescription = null
+            )
+        }
     }
 }
 
+private suspend fun rollCamera(cameraPositionState: CameraPositionState) = withContext(Dispatchers.IO){
+    val currentCameraState = cameraPositionState
+    cameraPositionState.animate(CameraUpdateFactory.newCameraPosition(
+        CameraPosition(
+            currentCameraState.position.target,
+            currentCameraState.position.zoom,
+            currentCameraState.position.tilt,
+            0.0f
+        )
+    ),500)
+}
