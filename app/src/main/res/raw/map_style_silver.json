@@ -1,0 +1,11 @@
+[
+  {
+    "featureType": "water",
+    "elementType": "geometry.fill",
+    "stylers": [
+      {
+        "color": "#65b8ec"
+      }
+    ]
+  }
+]

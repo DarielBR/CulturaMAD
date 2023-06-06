@@ -1,5 +1,7 @@
 package com.upmgeoinfo.culturamad.ui.composables
 
+import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth

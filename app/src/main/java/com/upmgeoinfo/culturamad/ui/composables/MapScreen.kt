@@ -7,19 +7,14 @@ import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,32 +23,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.DefaultShadowColor
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.zzi
-import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.MapView
-import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapEffect
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
@@ -64,7 +49,36 @@ import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
 import com.upmgeoinfo.culturamad.datamodel.MarkerData
 import kotlinx.coroutines.Dispatchers
+import android.content.Context
+import android.content.res.Configuration
+import android.graphics.Insets
+import android.os.Build
+import android.util.Log
+import android.view.WindowInsets
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.areNavigationBarsVisible
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.paddingFrom
+import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.res.stringResource
+import androidx.core.view.ViewCompat
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.google.android.gms.maps.GoogleMapOptions
+import com.google.android.gms.maps.MapView
+import com.google.android.gms.maps.model.Marker
 import kotlinx.coroutines.withContext
+
 
 /**
  * Creates a marker with the information taken form a cultural event.
@@ -206,27 +220,43 @@ fun MapScreen(
     categoryPainting: Boolean,
     categoryTheatre: Boolean
 ) {
+    /**
+     * Creating location to move camera to when MapVire si created
+     */
     val madrid = LatLng(40.4169087, -3.7035386)
+    /**
+     * Obtaining Location, permission reques is done before [MapScreen] function os called.
+     * thus, will not be controlled here. ([@SuoressLint("MissingPermission")])
+     */
     var myLocation = LatLng(0.0, 0.0)
-    val permissionState =
+    val locationPermissionState =
         rememberPermissionState(permission = Manifest.permission.ACCESS_FINE_LOCATION)
-    if (permissionState.status.isGranted) {
+    if (locationPermissionState.status.isGranted) {
         fuseLocationClient.getLastLocation().addOnSuccessListener { location ->
             if (location != null) {
                 myLocation = LatLng(location.latitude, location.longitude)
             }
         }
     }
+    /**
+     * creating the camera position variable to be passed to the MapProperties
+     */
     var cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(madrid, 10f)//usar madrid
     }
-    val locationPermissionState =
-        rememberPermissionState(permission = Manifest.permission.ACCESS_FINE_LOCATION)
+    /**
+     *context and darkTheme will be used to configure the MapView and other logic ahead.
+     */
+    val context = LocalContext.current
+    val darkTheme: Boolean = isSystemInDarkTheme()
+
     val myProperties by remember {
         mutableStateOf(
             MapProperties(
                 mapType = MapType.NORMAL,
-                isMyLocationEnabled = locationPermissionState.status.isGranted
+                isMyLocationEnabled = locationPermissionState.status.isGranted,
+                mapStyleOptions =   if(!darkTheme) MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_silver)
+                                    else MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_dark)
             )
         )
     }
@@ -239,19 +269,25 @@ fun MapScreen(
             )
         )
     }
-    val cameraToZeroBearing = rememberCameraPositionState{
-        position = CameraPosition(
-            cameraPositionState.position.target,
-            cameraPositionState.position.zoom,
-            cameraPositionState.position.tilt,
-            cameraPositionState.position.bearing
-        )
-    }
+    /**
+     * Applying correct size to our window attending to the navigation mode set in the device
+     */
+    var isNavigationBarVisible by remember{ mutableStateOf(false) }
+    val resources = context.resources
+    val resourceId = resources.getIdentifier("config_navBarInteractionMode", "integer", "android")
+    val interactionMode = resources.getInteger(resourceId)
+    /**
+     * 0-> 3 button mode
+     * 1-> 2 button mode
+     * 2-> gesture mode
+     */
+    isNavigationBarVisible = interactionMode < 2
+    //gesture 84, buttons 168
 
     GoogleMap(
         cameraPositionState = cameraPositionState,
         modifier = Modifier
-            .padding(bottom = 35.dp)
+            .padding(bottom = if(!isNavigationBarVisible) 0.dp else 48.dp)
             .fillMaxSize(),
         properties = myProperties,
         uiSettings = myUiSettings,
@@ -268,7 +304,7 @@ fun MapScreen(
         horizontalAlignment = Alignment.End,
         verticalArrangement = Arrangement.Bottom,
         modifier = Modifier
-            .padding(top = 8.dp, end = 11.dp, bottom = 92.dp)
+            .padding(end = 11.dp, bottom = if (!isNavigationBarVisible) 58.dp else 108.dp)
             .fillMaxSize()
     ) {
         var clickedOnce by remember { mutableStateOf(false) }
@@ -332,16 +368,4 @@ fun MapButton(
             )
         }
     }
-}
-
-private suspend fun rollCamera(cameraPositionState: CameraPositionState) = withContext(Dispatchers.IO){
-    val currentCameraState = cameraPositionState
-    cameraPositionState.animate(CameraUpdateFactory.newCameraPosition(
-        CameraPosition(
-            currentCameraState.position.target,
-            currentCameraState.position.zoom,
-            currentCameraState.position.tilt,
-            0.0f
-        )
-    ),500)
 }

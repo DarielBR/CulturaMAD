@@ -2,37 +2,31 @@ package com.upmgeoinfo.culturamad
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.icu.text.ListFormatter.Width
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -49,18 +43,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ColorMatrix
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -79,6 +68,7 @@ import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 class MainActivity : ComponentActivity() {
     private lateinit var fuseLocationClient: FusedLocationProviderClient
+
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -235,7 +225,7 @@ fun RequestLocationPermission() {
 /**
  * Main UI declarative function.
  */
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)//Necessary for using [LocalSoftwareKeyboardController.current]. Necessary for using Text Field.
+@OptIn(ExperimentalComposeUiApi::class)//Necessary for using [LocalSoftwareKeyboardController.current]. Necessary for using Text Field.
 @Composable
 fun UIDeclaration(
     fuseLocationClient: FusedLocationProviderClient,
@@ -253,12 +243,18 @@ fun UIDeclaration(
         /**
          * Customizing the System Bar
          */
+        var darkTheme by remember { mutableStateOf(false) }
+        darkTheme = isSystemInDarkTheme()
         val systemUiController = rememberSystemUiController()
         SideEffect {
             systemUiController.setSystemBarsColor(
                 color = Color.Transparent,
-                darkIcons = true,
-                isNavigationBarContrastEnforced = true
+                darkIcons = !darkTheme
+               // isNavigationBarContrastEnforced = true
+            )
+            systemUiController.setNavigationBarColor(
+                color = Color.Transparent,
+                darkIcons = !darkTheme
             )
         }
 
@@ -274,41 +270,53 @@ fun UIDeclaration(
              * In particular the searchValue, will be used modified in the following declaration and
              * it will be used in other task furthermore.
              */
-            TextField(
-                value = searchValue, 
-                onValueChange = {newText: String ->
-                    searchValue = newText
-                },
+            Surface(
+                elevation = 2.dp,
                 shape = MaterialTheme.shapes.medium.copy(all = CornerSize(40)),
-                leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
-                trailingIcon = {
-                    IconButton(
-                        onClick = {
-                            searchValue = ""
-                            keyboardController?.hide()
-                        }
-                    ) {
-                        Icon(
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            painter = painterResource(id = R.drawable.cmad_close),
-                            contentDescription = null
-                        )
-                    }
-
-                },
-                placeholder = { Text(stringResource(id = R.string.placeholder_search))},
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                ),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions( onSearch = { keyboardController?.hide() }),
                 modifier = Modifier
                     .padding(start = 16.dp, end = 16.dp)
-                    .fillMaxWidth()
-            )
+            ) {
+                TextField(
+                    value = searchValue,
+                    onValueChange = { newText: String ->
+                        searchValue = newText
+                    },
+                    shape = MaterialTheme.shapes.medium.copy(all = CornerSize(40)),
+                    leadingIcon = {
+                        Icon(
+                            Icons.Filled.Search,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface
+                        ) },
+                    trailingIcon = {
+                        IconButton(
+                            onClick = {
+                                searchValue = ""
+                                keyboardController?.hide()
+                            }
+                        ) {
+                            Icon(
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                painter = painterResource(id = R.drawable.cmad_close),
+                                contentDescription = null
+                            )
+                        }
+
+                    },
+                    placeholder = { Text(stringResource(id = R.string.placeholder_search)) },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardActions = KeyboardActions(onSearch = { keyboardController?.hide() }),
+                    modifier = Modifier
+                        //.padding(start = 16.dp, end = 16.dp)
+                        .fillMaxWidth()
+                )
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
