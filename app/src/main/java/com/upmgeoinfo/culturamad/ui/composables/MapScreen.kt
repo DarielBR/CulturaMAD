@@ -32,12 +32,10 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
-import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
@@ -48,36 +46,11 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
 import com.upmgeoinfo.culturamad.datamodel.MarkerData
-import kotlinx.coroutines.Dispatchers
-import android.content.Context
-import android.content.res.Configuration
-import android.graphics.Insets
-import android.os.Build
-import android.util.Log
-import android.view.WindowInsets
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.areNavigationBarsVisible
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.paddingFrom
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.res.stringResource
-import androidx.core.view.ViewCompat
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.google.android.gms.maps.GoogleMapOptions
-import com.google.android.gms.maps.MapView
-import com.google.android.gms.maps.model.Marker
-import kotlinx.coroutines.withContext
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.rounded.CheckCircle
 
 
 /**
@@ -97,8 +70,8 @@ fun CreateMarker(
         ),
         title = culturalEvent.title,
         draggable = false,
-        icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW),
-        //icon = BitmapDescriptorFactory.fromResource(R.drawable.cmad_circle_marker),
+        icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE),
+        //icon = BitmapDescriptorFactory.fromResource(R.drawable.cmad_starmarker),
         snippet = culturalEvent.description,
         onInfoWindowLongClick = {
             val intent = Intent(Intent.ACTION_SEND).apply {
