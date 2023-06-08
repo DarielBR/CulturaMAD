@@ -2,6 +2,7 @@ package com.upmgeoinfo.culturamad.ui.composables
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -47,10 +48,13 @@ import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
 import com.upmgeoinfo.culturamad.datamodel.MarkerData
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.rounded.CheckCircle
+import com.google.android.gms.maps.GoogleMap
+import com.google.maps.android.clustering.Cluster
+import com.google.maps.android.clustering.ClusterItem
+import com.google.maps.android.clustering.ClusterManager
+import com.google.maps.android.clustering.view.DefaultClusterRenderer
+import com.google.maps.android.compose.MapEffect
+import com.google.maps.android.compose.MapsComposeExperimentalApi
 
 
 /**
@@ -214,7 +218,7 @@ fun MapScreen(
     /**
      * creating the camera position variable to be passed to the MapProperties
      */
-    var cameraPositionState = rememberCameraPositionState {
+    val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(madrid, 10f)//usar madrid
     }
     /**
@@ -260,7 +264,7 @@ fun MapScreen(
     GoogleMap(
         cameraPositionState = cameraPositionState,
         modifier = Modifier
-            .padding(bottom = if(!isNavigationBarVisible) 0.dp else 48.dp)
+            .padding(bottom = if (!isNavigationBarVisible) 0.dp else 48.dp)
             .fillMaxSize(),
         properties = myProperties,
         uiSettings = myUiSettings,
@@ -342,3 +346,87 @@ fun MapButton(
         }
     }
 }
+
+/**
+ * TEST*******
+ * Map with Cluster
+ */
+
+data class CustomClusterItem(
+    val culturalEventMadrid: CulturalEventMadrid
+): ClusterItem {
+    override fun getPosition(): LatLng {
+        return LatLng(
+            culturalEventMadrid.location.latitude,
+            culturalEventMadrid.location.longitude
+        )
+    }
+
+    override fun getTitle(): String {
+        return culturalEventMadrid.title
+    }
+
+    override fun getSnippet(): String {
+        return culturalEventMadrid.link
+    }
+}
+
+private fun generateClustersFromList(
+    culturalEvents: List<CulturalEventMadrid>
+): List<CustomClusterItem>{
+    val customClusterItems = mutableListOf<CustomClusterItem>()
+    for (culturalEvent in culturalEvents){
+        val customClusterItem = CustomClusterItem(culturalEvent)
+        customClusterItems.add(customClusterItem)
+    }
+    return customClusterItems.toList()
+}
+
+class CustomClusterRenderer(
+    context: Context,
+    map: GoogleMap,
+    clusterManager: ClusterManager<CustomClusterItem>
+): DefaultClusterRenderer<CustomClusterItem>(context, map, clusterManager){
+    override fun shouldRenderAsCluster(cluster: Cluster<CustomClusterItem>): Boolean {
+        return cluster.size >=2
+    }
+}
+
+@OptIn(MapsComposeExperimentalApi::class)
+@Composable
+fun MapScreenWithCuster(
+    culturalEvents: List<CulturalEventMadrid>
+) {
+    val madrid = LatLng(40.4169087, -3.7035386)
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(madrid, 10f)//usar madrid
+    }
+    //val culturalEventsItems = generateClustersFromList(culturalEvents = culturalEvents)
+    val culturalEventsItems = mutableListOf<CustomClusterItem>(
+        CustomClusterItem(),
+        CustomClusterItem(),
+        CustomClusterItem()
+    )
+    GoogleMap(
+        cameraPositionState = cameraPositionState
+    ){
+        val context = LocalContext.current
+        var clusterManager by remember { mutableStateOf<ClusterManager<CustomClusterItem>?>(null) }
+
+        MapEffect(culturalEventsItems){ map ->
+            if (clusterManager == null){
+                clusterManager = ClusterManager<CustomClusterItem>(context, map).apply {
+                    renderer = CustomClusterRenderer(context, map,this)
+                }
+            }
+            clusterManager?.run{
+                clearItems()
+                for(item in culturalEventsItems){
+                    addItem(item)
+                }
+                cluster()
+            }
+        }
+    }
+}
+

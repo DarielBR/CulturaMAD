@@ -61,24 +61,29 @@ import com.google.accompanist.permissions.shouldShowRationale
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
+import com.upmgeoinfo.culturamad.datamodel.MarkerData
 import com.upmgeoinfo.culturamad.navigation.AppNavigation
 import com.upmgeoinfo.culturamad.ui.composables.FilterItem
 import com.upmgeoinfo.culturamad.ui.composables.MapScreen
+import com.upmgeoinfo.culturamad.ui.composables.MapScreenWithCuster
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 class MainActivity : ComponentActivity() {
     private lateinit var fuseLocationClient: FusedLocationProviderClient
+    private lateinit var culturalEvents: List<CulturalEventMadrid>
 
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //Necessary to use current location
         fuseLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        culturalEvents = MarkerData.dataList
         //API accompanist funtionality to allow the app to go from edge to edge
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             CulturaMADTheme {
-                AppNavigation(fuseLocationClient)
+                AppNavigation(fuseLocationClient, culturalEvents)
             }
         }
     }
@@ -229,6 +234,7 @@ fun RequestLocationPermission() {
 @Composable
 fun UIDeclaration(
     fuseLocationClient: FusedLocationProviderClient,
+    culturalEvents: List<CulturalEventMadrid>,
     modifier: Modifier = Modifier
 ){
     CulturaMADTheme {
@@ -257,9 +263,13 @@ fun UIDeclaration(
                 darkIcons = !darkTheme
             )
         }
+        /**
+         * Composable with GoogleMap
+         */
+        //MapScreen(fuseLocationClient, searchValue, danceFilter, musicFilter, paintingFilter, theatreFilter)
+        MapScreenWithCuster(culturalEvents)
 
-        MapScreen(fuseLocationClient, searchValue, danceFilter, musicFilter, paintingFilter, theatreFilter)
-        
+
         Column {
 
             Spacer(modifier = Modifier.height(45.dp))
@@ -385,10 +395,10 @@ private val categoriesData = listOf(
  */
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun MainScreen(fuseLocationClient: FusedLocationProviderClient,modifier: Modifier){
+fun MainScreen(fuseLocationClient: FusedLocationProviderClient, culturalEvents: List<CulturalEventMadrid>,modifier: Modifier){
     CulturaMADTheme {
         RequestInternetPermission()
         RequestLocationPermission()
-        UIDeclaration(fuseLocationClient)
+        UIDeclaration(fuseLocationClient, culturalEvents)
     }
 }
