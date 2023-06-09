@@ -2,12 +2,10 @@ package com.upmgeoinfo.culturamad
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
-import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -28,7 +26,6 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -66,24 +63,22 @@ import com.upmgeoinfo.culturamad.datamodel.MarkerData
 import com.upmgeoinfo.culturamad.navigation.AppNavigation
 import com.upmgeoinfo.culturamad.ui.composables.FilterItem
 import com.upmgeoinfo.culturamad.ui.composables.MapScreen
-import com.upmgeoinfo.culturamad.ui.composables.MapScreenWithCuster
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 class MainActivity : ComponentActivity() {
     private lateinit var fuseLocationClient: FusedLocationProviderClient
     private lateinit var culturalEvents: List<CulturalEventMadrid>
 
-    @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //Necessary to use current location
         fuseLocationClient = LocationServices.getFusedLocationProviderClient(this)
         culturalEvents = MarkerData.dataList
-        //API accompanist funtionality to allow the app to go from edge to edge
+        //API accompanist functionality to allow the app to go from edge to edge
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             CulturaMADTheme {
-                AppNavigation(fuseLocationClient, culturalEvents)
+                AppNavigation(fuseLocationClient)
             }
         }
     }
@@ -171,7 +166,7 @@ fun RequestLocationPermission() {
         verticalArrangement = Arrangement.Top
     )
     {
-        permissionStates.permissions.forEach { it ->
+        permissionStates.permissions.forEach {
             when (it.permission) {
                 Manifest.permission.READ_EXTERNAL_STORAGE -> {
                     when {
@@ -233,9 +228,7 @@ fun RequestLocationPermission() {
 @OptIn(ExperimentalComposeUiApi::class)//Necessary for using [LocalSoftwareKeyboardController.current]. Necessary for using Text Field.
 @Composable
 fun UIDeclaration(
-    fuseLocationClient: FusedLocationProviderClient,
-    culturalEvents: List<CulturalEventMadrid>,
-    modifier: Modifier = Modifier
+    fuseLocationClient: FusedLocationProviderClient
 ){
     CulturaMADTheme {
         var searchValue by remember { mutableStateOf("") }
@@ -266,9 +259,7 @@ fun UIDeclaration(
         /**
          * Composable with GoogleMap
          */
-        //MapScreen(fuseLocationClient, searchValue, danceFilter, musicFilter, paintingFilter, theatreFilter)
-        MapScreenWithCuster(culturalEvents)
-
+        MapScreen(fuseLocationClient, searchValue, danceFilter, musicFilter, paintingFilter, theatreFilter)
 
         Column {
 
@@ -395,10 +386,10 @@ private val categoriesData = listOf(
  */
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun MainScreen(fuseLocationClient: FusedLocationProviderClient, culturalEvents: List<CulturalEventMadrid>,modifier: Modifier){
+fun MainScreen(fuseLocationClient: FusedLocationProviderClient){
     CulturaMADTheme {
         RequestInternetPermission()
         RequestLocationPermission()
-        UIDeclaration(fuseLocationClient, culturalEvents)
+        UIDeclaration(fuseLocationClient)
     }
 }

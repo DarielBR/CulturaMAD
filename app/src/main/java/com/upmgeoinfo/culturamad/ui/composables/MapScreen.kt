@@ -2,7 +2,6 @@ package com.upmgeoinfo.culturamad.ui.composables
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -48,14 +47,6 @@ import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
 import com.upmgeoinfo.culturamad.datamodel.MarkerData
 import androidx.compose.foundation.isSystemInDarkTheme
-import com.google.android.gms.maps.GoogleMap
-import com.google.maps.android.clustering.Cluster
-import com.google.maps.android.clustering.ClusterItem
-import com.google.maps.android.clustering.ClusterManager
-import com.google.maps.android.clustering.view.DefaultClusterRenderer
-import com.google.maps.android.compose.MapEffect
-import com.google.maps.android.compose.MapsComposeExperimentalApi
-
 
 /**
  * Creates a marker with the information taken form a cultural event.
@@ -95,7 +86,7 @@ fun CreateMarker(
 }
 
 /**
- * Recovers the data from all cultural events extrated from the web and creates a marker for each
+ * Recovers the data from all cultural events extracted from the web and creates a marker for each
  * valid cultural event that match with the search values.
  */
 @Composable
@@ -183,7 +174,7 @@ fun RefreshMarkers(
 }
 
 /**
- * Creates an instance of GoogleMap as a composable function. Also configurates visual aspects of
+ * Creates an instance of GoogleMap as a composable function. Also sets visual aspects of
  * the map and calls [RefreshMarkers] to generate an update collection of markers.
  */
 @SuppressLint("MissingPermission")
@@ -202,8 +193,8 @@ fun MapScreen(
      */
     val madrid = LatLng(40.4169087, -3.7035386)
     /**
-     * Obtaining Location, permission reques is done before [MapScreen] function os called.
-     * thus, will not be controlled here. ([@SuoressLint("MissingPermission")])
+     * Obtaining Location, permission requests is done before [MapScreen] function os called.
+     * thus, will not be controlled here. ([@suppressLint("MissingPermission")])
      */
     var myLocation = LatLng(0.0, 0.0)
     val locationPermissionState =
@@ -296,8 +287,7 @@ fun MapScreen(
                 }
                 cameraPositionState.position = CameraPosition(myLocation, zoomLevel, 0f, 0f)
             },
-            drawableResource = R.drawable.cmad_mylocation,
-            0f
+            drawableResource = R.drawable.cmad_mylocation
         )
         MapButton(
             onClick = {
@@ -309,8 +299,7 @@ fun MapScreen(
                     0.0f
                 )
             },
-            drawableResource = R.drawable.cmad_compass,
-            rotation = cameraPositionState.position.bearing
+            drawableResource = R.drawable.cmad_compass
         )
     }
 }
@@ -318,9 +307,7 @@ fun MapScreen(
 @Composable
 fun MapButton(
     onClick: () -> Unit,
-    drawableResource: Int,
-    rotation: Float,
-    modifier: Modifier = Modifier
+    drawableResource: Int
 ) {
     Surface(
         elevation = 1.dp,
@@ -346,87 +333,3 @@ fun MapButton(
         }
     }
 }
-
-/**
- * TEST*******
- * Map with Cluster
- */
-
-data class CustomClusterItem(
-    val culturalEventMadrid: CulturalEventMadrid
-): ClusterItem {
-    override fun getPosition(): LatLng {
-        return LatLng(
-            culturalEventMadrid.location.latitude,
-            culturalEventMadrid.location.longitude
-        )
-    }
-
-    override fun getTitle(): String {
-        return culturalEventMadrid.title
-    }
-
-    override fun getSnippet(): String {
-        return culturalEventMadrid.link
-    }
-}
-
-private fun generateClustersFromList(
-    culturalEvents: List<CulturalEventMadrid>
-): List<CustomClusterItem>{
-    val customClusterItems = mutableListOf<CustomClusterItem>()
-    for (culturalEvent in culturalEvents){
-        val customClusterItem = CustomClusterItem(culturalEvent)
-        customClusterItems.add(customClusterItem)
-    }
-    return customClusterItems.toList()
-}
-
-class CustomClusterRenderer(
-    context: Context,
-    map: GoogleMap,
-    clusterManager: ClusterManager<CustomClusterItem>
-): DefaultClusterRenderer<CustomClusterItem>(context, map, clusterManager){
-    override fun shouldRenderAsCluster(cluster: Cluster<CustomClusterItem>): Boolean {
-        return cluster.size >=2
-    }
-}
-
-@OptIn(MapsComposeExperimentalApi::class)
-@Composable
-fun MapScreenWithCuster(
-    culturalEvents: List<CulturalEventMadrid>
-) {
-    val madrid = LatLng(40.4169087, -3.7035386)
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(madrid, 10f)//usar madrid
-    }
-    //val culturalEventsItems = generateClustersFromList(culturalEvents = culturalEvents)
-    val culturalEventsItems = mutableListOf<CustomClusterItem>(
-        CustomClusterItem(),
-        CustomClusterItem(),
-        CustomClusterItem()
-    )
-    GoogleMap(
-        cameraPositionState = cameraPositionState
-    ){
-        val context = LocalContext.current
-        var clusterManager by remember { mutableStateOf<ClusterManager<CustomClusterItem>?>(null) }
-
-        MapEffect(culturalEventsItems){ map ->
-            if (clusterManager == null){
-                clusterManager = ClusterManager<CustomClusterItem>(context, map).apply {
-                    renderer = CustomClusterRenderer(context, map,this)
-                }
-            }
-            clusterManager?.run{
-                clearItems()
-                for(item in culturalEventsItems){
-                    addItem(item)
-                }
-                cluster()
-            }
-        }
-    }
-}
-
