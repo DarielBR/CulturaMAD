@@ -63,6 +63,7 @@ import com.upmgeoinfo.culturamad.datamodel.MarkerData
 import com.upmgeoinfo.culturamad.navigation.AppNavigation
 import com.upmgeoinfo.culturamad.ui.composables.FilterItem
 import com.upmgeoinfo.culturamad.ui.composables.MapScreen
+import com.upmgeoinfo.culturamad.ui.composables.MapScreenWithCluster
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 class MainActivity : ComponentActivity() {
@@ -259,7 +260,8 @@ fun UIDeclaration(
         /**
          * Composable with GoogleMap
          */
-        MapScreen(fuseLocationClient, searchValue, danceFilter, musicFilter, paintingFilter, theatreFilter)
+        //MapScreen(fuseLocationClient, searchValue, danceFilter, musicFilter, paintingFilter, theatreFilter)
+        MapScreenWithCluster()
 
         Column {
 
