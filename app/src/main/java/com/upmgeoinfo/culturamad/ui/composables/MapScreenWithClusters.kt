@@ -1,19 +1,34 @@
 package com.upmgeoinfo.culturamad.ui.composables
 
 import android.content.res.Configuration
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import com.google.maps.android.clustering.ClusterItem
 import com.google.maps.android.clustering.ClusterManager
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapEffect
 import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.upmgeoinfo.culturamad.datamodel.Address
+import com.upmgeoinfo.culturamad.datamodel.Area
+import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
+import com.upmgeoinfo.culturamad.datamodel.District
+import com.upmgeoinfo.culturamad.datamodel.Location
 import com.upmgeoinfo.culturamad.datamodel.MarkerData
+import com.upmgeoinfo.culturamad.datamodel.Organization
+import com.upmgeoinfo.culturamad.datamodel.Recurrence
+import com.upmgeoinfo.culturamad.datamodel.References
+import com.upmgeoinfo.culturamad.datamodel.Relation
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 @Preview(showBackground = true)
@@ -25,6 +40,7 @@ fun MapScreenWithClusterPreview(){
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @MapsComposeExperimentalApi
 @Composable
 fun MapScreenWithCluster(){
@@ -34,6 +50,35 @@ fun MapScreenWithCluster(){
     }
     val context = LocalContext.current
     lateinit var clusterManager: ClusterManager<CulturalEventItem>
+    var currentEventToShow by remember { mutableStateOf<CulturalEventMadrid>(
+        CulturalEventMadrid(
+            address = Address(Area(postalCode = "", streetAddress = "", locality = "", Id = ""), District(Id = "")),
+            references = References(Id = ""),
+            category = "",
+            link = "",
+            description = "",
+            title = "",
+            relation = Relation(Id = ""),
+            recurrence = Recurrence(days = "", interval = 0, frequency = ""),
+            uid = "",
+            price = "",
+            eventLocation = "",
+            organization = Organization(accesibility = "", organizationName = ""),
+            excludedDays = "",
+            location = Location(latitude = 0.0, longitude = 0.0),
+            aid = "",
+            id = "",
+            time = "",
+            free = 1,
+            dtend = "",
+            dtstart = ""
+        )
+    ) }
+    var openBottomSheet by remember { mutableStateOf(false) }
+    val skipPartiallyExpanded by remember { mutableStateOf(false) }
+    val bottomSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = skipPartiallyExpanded
+    )
 
     GoogleMap(
         cameraPositionState = cameraPositionState
@@ -44,6 +89,27 @@ fun MapScreenWithCluster(){
             map.setOnMarkerClickListener(clusterManager)
 
             addCulturalEventItems(clusterManager)
+            clusterManager.setOnClusterItemInfoWindowClickListener(){
+                val culturalEventsMadrid = MarkerData.dataList
+                currentEventToShow = culturalEventsMadrid[0]
+                for(event in culturalEventsMadrid){
+                    if(event.location != null){
+                        if(event.id == it.snippet){
+                            currentEventToShow = event
+                            openBottomSheet = true
+                            break
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if(openBottomSheet){
+        ModalBottomSheet(
+            onDismissRequest = { openBottomSheet = false },
+            sheetState = bottomSheetState
+        ) {
+            EventCard(culturalEventMadrid = currentEventToShow)
         }
     }
 }

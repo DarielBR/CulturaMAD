@@ -39,7 +39,7 @@ import com.upmgeoinfo.culturamad.datamodel.MarkerData
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 @Composable
-fun EventCard(
+fun MockEventCard(
     //culturalEventMadrid: CulturalEventMadrid,
     modifier: Modifier = Modifier
 ){
@@ -189,9 +189,9 @@ fun EventCard(
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun EventCardPreview(){
+fun MockEventCardPreview(){
     CulturaMADTheme {
-        EventCard(/*culturalEventMadrid = MarkerData.dataList[0]*/)
+        MockEventCard(/*culturalEventMadrid = MarkerData.dataList[0]*/)
     }
 }
 
@@ -234,5 +234,154 @@ fun ActionButtonPreview(){
             icon = R.drawable.cmad_link,
             onClick = {}
         )
+    }
+}
+
+/**
+ * Actual function called from the application
+ */
+
+@Composable
+fun EventCard(
+    culturalEventMadrid: CulturalEventMadrid,
+    modifier: Modifier = Modifier
+){
+    Card(
+        shape = MaterialTheme.shapes.large,
+        elevation = CardDefaults.cardElevation(2.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        modifier = Modifier
+    ) {
+        Column(
+            modifier = Modifier
+        ) {
+            Row (
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.teatro_image),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .clip(MaterialTheme.shapes.medium)
+                        .size(75.dp)
+                )
+                Column(
+                    horizontalAlignment = Alignment.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Text(//Title
+                        text = culturalEventMadrid.title,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier
+                            .padding(bottom = 2.dp)
+                    )
+                    Text(//Address
+                        text = culturalEventMadrid.address.area.streetAddress,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier
+                            .padding(top = 2.dp,bottom = 2.dp)
+                    )
+                    val isFree = (culturalEventMadrid.price == "")
+                    Surface(
+                        shape = MaterialTheme.shapes.extraSmall,
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        modifier = Modifier
+                            .padding(top = 2.dp)
+                    ){
+                        Text(//Price
+                            text = if(isFree) "Free" else culturalEventMadrid.price,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.labelMedium,
+                            modifier = Modifier
+                                .padding(2.dp)
+                        )
+                    }
+                }
+            }
+            val scrollState = rememberScrollState()
+            LaunchedEffect(Unit) { scrollState.animateScrollTo(100) }
+            Surface(
+                tonalElevation = 3.dp,
+                shape = MaterialTheme.shapes.small,
+                modifier = Modifier
+                    .padding(8.dp)
+            ){
+                Column(
+                    modifier = Modifier
+                        .padding(6.dp)
+                        .fillMaxWidth()
+                        .height(100.dp)
+                        .verticalScroll(scrollState)
+                ) {
+                    Text(//Description
+                        text = culturalEventMadrid.description,
+                        //text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Justify,
+                        //overflow = TextOverflow.Ellipsis,
+                        minLines = 4,
+                        maxLines = 6,
+                        modifier = Modifier
+                    )
+                }
+            }
+            if(culturalEventMadrid.recurrence != null){
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    val start = culturalEventMadrid.dtstart
+                    val end = culturalEventMadrid.dtend
+                    val excluded = culturalEventMadrid.excludedDays
+                    val freqs = culturalEventMadrid.recurrence.days
+                    Column(
+                        modifier = Modifier
+                            .padding(8.dp)
+                    ) {
+                        Text(//Dates
+                            text = "Desde el $start, hasta el $end, excepto: $excluded .",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(//Freq
+                            text = freqs,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                var favorite by remember { mutableStateOf(false) }
+                ActionButton(//Bookmark
+                    icon =  if(favorite) R.drawable.cmad_bookmark_true
+                    else R.drawable.cmad_bookmark_false,
+                    onClick = { favorite = !favorite }
+                )
+                ActionButton(//Share
+                    icon = R.drawable.cmad_share,
+                    onClick = { }
+                )
+                ActionButton(//go to
+                    icon = R.drawable.cmad_link,
+                    onClick = {}
+                )
+                ActionButton(
+                    icon = R.drawable.cmad_calendar,
+                    onClick = {}
+                )
+            }
+        }
     }
 }
