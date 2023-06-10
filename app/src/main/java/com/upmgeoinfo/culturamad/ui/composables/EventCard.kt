@@ -1,6 +1,8 @@
 package com.upmgeoinfo.culturamad.ui.composables
 
+import android.content.Intent
 import android.content.res.Configuration
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,10 +31,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.maps.android.clustering.ClusterItem
 import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
 import com.upmgeoinfo.culturamad.datamodel.MarkerData
@@ -243,7 +247,7 @@ fun ActionButtonPreview(){
 
 @Composable
 fun EventCard(
-    culturalEventMadrid: CulturalEventMadrid,
+    culturalEventMadridItem: CulturalEventMadridItem,
     modifier: Modifier = Modifier
 ){
     Card(
@@ -261,7 +265,13 @@ fun EventCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.teatro_image),
+                    painter = if(culturalEventMadridItem.getExtraCategory().contains("DanzaBaile"))
+                        painterResource(id = R.drawable.dance_image)
+                    else if(culturalEventMadridItem.getExtraCategory().contains("Musica"))
+                        painterResource(id = R.drawable.music_image)
+                    else if(culturalEventMadridItem.getExtraCategory().contains("Exposiciones"))
+                        painterResource(id = R.drawable.painting_image)
+                    else painterResource(id = R.drawable.teatro_image),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -275,20 +285,20 @@ fun EventCard(
                         .fillMaxWidth()
                 ) {
                     Text(//Title
-                        text = culturalEventMadrid.title,
+                        text = culturalEventMadridItem.title!!,
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier
                             .padding(bottom = 2.dp)
                     )
                     Text(//Address
-                        text = culturalEventMadrid.address.area.streetAddress,
+                        text = culturalEventMadridItem.getExtraAddress(),
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier
                             .padding(top = 2.dp,bottom = 2.dp)
                     )
-                    val isFree = (culturalEventMadrid.price == "")
+                    val isFree = (culturalEventMadridItem.getExtraPrice() == "")
                     Surface(
                         shape = MaterialTheme.shapes.extraSmall,
                         color = MaterialTheme.colorScheme.surfaceVariant,
@@ -296,7 +306,7 @@ fun EventCard(
                             .padding(top = 2.dp)
                     ){
                         Text(//Price
-                            text = if(isFree) "Free" else culturalEventMadrid.price,
+                            text = if(isFree) "Free" else culturalEventMadridItem.getExtraPrice(),
                             color = MaterialTheme.colorScheme.onSurface,
                             style = MaterialTheme.typography.labelMedium,
                             modifier = Modifier
@@ -321,7 +331,7 @@ fun EventCard(
                         .verticalScroll(scrollState)
                 ) {
                     Text(//Description
-                        text = culturalEventMadrid.description,
+                        text = culturalEventMadridItem.getExtraDescription(),
                         //text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodyMedium,
@@ -333,30 +343,28 @@ fun EventCard(
                     )
                 }
             }
-            if(culturalEventMadrid.recurrence != null){
-                Row(
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                val start = culturalEventMadridItem.getExtraStart()
+                val end = culturalEventMadridItem.getExtraEnd()
+                val excluded = culturalEventMadridItem.getExtraExcludedDays()
+                val freqs = culturalEventMadridItem.getExtraFrequency()
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .padding(8.dp)
                 ) {
-                    val start = culturalEventMadrid.dtstart
-                    val end = culturalEventMadrid.dtend
-                    val excluded = culturalEventMadrid.excludedDays
-                    val freqs = culturalEventMadrid.recurrence.days
-                    Column(
-                        modifier = Modifier
-                            .padding(8.dp)
-                    ) {
-                        Text(//Dates
-                            text = "Desde el $start, hasta el $end, excepto: $excluded .",
-                            color = MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Text(//Freq
-                            text = freqs,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
+                    Text(//Dates
+                        text = "Desde el $start, hasta el $end, excepto: $excluded .",
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Text(//Freq
+                        text = freqs,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
                 }
             }
             Row(
@@ -369,13 +377,24 @@ fun EventCard(
                     else R.drawable.cmad_bookmark_false,
                     onClick = { favorite = !favorite }
                 )
+                val context = LocalContext.current
                 ActionButton(//Share
                     icon = R.drawable.cmad_share,
-                    onClick = { }
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_TITLE, culturalEventMadridItem.title)
+                            putExtra(Intent.EXTRA_TEXT, culturalEventMadridItem.getExtraLink())
+                        }
+                        context.startActivity(Intent.createChooser(intent, "Compartir"))
+                    }
                 )
                 ActionButton(//go to
                     icon = R.drawable.cmad_link,
-                    onClick = {}
+                    onClick = {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(culturalEventMadridItem.getExtraLink()))
+                        context.startActivity(intent)
+                    }
                 )
                 ActionButton(
                     icon = R.drawable.cmad_calendar,

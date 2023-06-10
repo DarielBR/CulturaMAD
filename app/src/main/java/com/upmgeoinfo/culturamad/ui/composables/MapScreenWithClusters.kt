@@ -109,7 +109,7 @@ fun MapScreenWithCluster(){
             onDismissRequest = { openBottomSheet = false },
             sheetState = bottomSheetState
         ) {
-            EventCard(culturalEventMadrid = currentEventToShow)
+            //EventCard(culturalEventMadrid = currentEventToShow)
         }
     }
 }

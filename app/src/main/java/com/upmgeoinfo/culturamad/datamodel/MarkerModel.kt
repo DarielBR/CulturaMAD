@@ -1,6 +1,8 @@
 package com.upmgeoinfo.culturamad.datamodel
 
+import com.google.android.gms.maps.model.LatLng
 import com.google.gson.annotations.SerializedName
+import com.google.maps.android.clustering.ClusterItem
 import kotlinx.coroutines.runBlocking
 
 data class CulturalEventMadrid(

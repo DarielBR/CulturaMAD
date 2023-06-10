@@ -61,6 +61,7 @@ import com.google.android.gms.location.LocationServices
 import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
 import com.upmgeoinfo.culturamad.datamodel.MarkerData
 import com.upmgeoinfo.culturamad.navigation.AppNavigation
+import com.upmgeoinfo.culturamad.ui.composables.ClusterMapScreen
 import com.upmgeoinfo.culturamad.ui.composables.FilterItem
 import com.upmgeoinfo.culturamad.ui.composables.MapScreen
 import com.upmgeoinfo.culturamad.ui.composables.MapScreenWithCluster
@@ -261,7 +262,15 @@ fun UIDeclaration(
          * Composable with GoogleMap
          */
         //MapScreen(fuseLocationClient, searchValue, danceFilter, musicFilter, paintingFilter, theatreFilter)
-        MapScreenWithCluster()
+        //MapScreenWithCluster()
+        ClusterMapScreen(
+            fuseLocationClient = fuseLocationClient,
+            searchValue = searchValue,
+            categoryDance = danceFilter,
+            categoryMusic = musicFilter,
+            categoryPainting = paintingFilter,
+            categoryTheatre = theatreFilter
+        )
 
         Column {
 
