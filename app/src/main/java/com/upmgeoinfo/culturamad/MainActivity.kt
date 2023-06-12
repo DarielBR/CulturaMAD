@@ -407,10 +407,10 @@ private val categoriesData = listOf(
 @MapsComposeExperimentalApi
 @Composable
 fun MainScreen(fuseLocationClient: FusedLocationProviderClient){
-    CulturaMADTheme {
+    //CulturaMADTheme {
         RequestInternetPermission()
         RequestLocationPermission()
         //UIDeclaration(fuseLocationClient)
         ClusterMapScreen(fuseLocationClient = fuseLocationClient)
-    }
+    //}
 }

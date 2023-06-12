@@ -5,6 +5,19 @@ import android.annotation.SuppressLint
 import android.content.res.Configuration
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,8 +57,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -63,6 +78,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.clustering.ClusterItem
 import com.google.maps.android.clustering.ClusterManager
+import com.google.maps.android.clustering.ClusterManager.OnClusterItemClickListener
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapEffect
 import com.google.maps.android.compose.MapProperties
@@ -96,7 +112,7 @@ fun ClusterMapScreenPreview(){
 
 @SuppressLint("MissingPermission")
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class,
-    ExperimentalComposeUiApi::class
+    ExperimentalComposeUiApi::class, ExperimentalAnimationApi::class
 )
 @MapsComposeExperimentalApi
 @Composable
@@ -108,348 +124,459 @@ fun ClusterMapScreen(
     categoryPainting: Boolean,
     categoryTheatre: Boolean*/
 ){
-    /**
-     * Filter values
-     */
-    var searchValue by remember { mutableStateOf("") }
-    var danceFilter by remember { mutableStateOf(false) }
-    var musicFilter by remember { mutableStateOf(false) }
-    var paintingFilter by remember { mutableStateOf(false) }
-    var theatreFilter by remember { mutableStateOf(false) }
-    /**
-     * Keyboard Controller value to control keyboard behavior when using the search bar.
-     */
-    val keyboardController = LocalSoftwareKeyboardController.current
-    /**
-     * Obtaining Location, permission requests is done before [MapScreen] function os called.
-     * thus, will not be controlled here. ([@suppressLint("MissingPermission")])
-     */
-    var myLocation = LatLng(0.0, 0.0)
-    val locationPermissionState =
-        rememberPermissionState(permission = Manifest.permission.ACCESS_FINE_LOCATION)
-    if (locationPermissionState.status.isGranted) {
-        fuseLocationClient.getLastLocation().addOnSuccessListener { location ->
-            if (location != null) {
-                myLocation = LatLng(location.latitude, location.longitude)
-            }
-        }
-    }
-    /**
-     * Creating location and a CameraPositionState to move our map camera to Plaza del Sol :)
-     */
-    val madrid = LatLng(40.4169087, -3.7035386)
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(madrid, 10f)//usar madrid
-    }
-    /**
-     *context and darkTheme will be used to configure the MapView and other logic ahead.
-     */
-    val context = LocalContext.current
-    val darkTheme: Boolean = isSystemInDarkTheme()
-    /**
-     * Customizing the SystemBars
-     */
-    val systemUiController = rememberSystemUiController()
-    SideEffect {
-        systemUiController.setSystemBarsColor(
-            color = Color.Transparent,
-            darkIcons = !darkTheme
-            // isNavigationBarContrastEnforced = true
-        )
-        systemUiController.setNavigationBarColor(
-            color = Color.Transparent,
-            darkIcons = !darkTheme
-        )
-    }
-    /**
-     * Map Properties and UISettings
-     */
-    val myProperties by remember {
-        mutableStateOf(
-            MapProperties(
-                mapType = MapType.NORMAL,
-                isMyLocationEnabled = locationPermissionState.status.isGranted,
-                mapStyleOptions =   if(!darkTheme) MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_silver)
-                else MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_dark)
-            )
-        )
-    }
-    val myUiSettings by remember {
-        mutableStateOf(
-            MapUiSettings(
-                zoomControlsEnabled = false,
-                myLocationButtonEnabled = false,
-                compassEnabled = false,
-                mapToolbarEnabled = false
-            )
-        )
-    }
-    /**
-     * Cluster Manager
-     */
-    var clusterManager by remember { mutableStateOf<ClusterManager<CulturalEventMadridItem>?>(null) }
-    //lateinit var clusterManager: ClusterManager<CulturalEventMadridItem>
-    var refreshClusterItems by remember { mutableStateOf(true) }
-    /**
-     * ModalBottomSheet handling values and variables
-     */
-    var currentEventToShow by remember { mutableStateOf<CulturalEventMadridItem>(createEmptyCulturalEvent()) }
-    var openEventCard by remember { mutableStateOf(false) }
-    /**
-     * Applying correct size to our window attending to the navigation mode set in the device
-     */
-    var isNavigationBarVisible by remember{ mutableStateOf(false) }
-    val resources = context.resources
-    val resourceId = resources.getIdentifier("config_navBarInteractionMode", "integer", "android")
-    val interactionMode = resources.getInteger(resourceId)
+    CulturaMADTheme(){
+        /**
+         * Filter values
+         */
+        /**
+         * Filter values
+         */
+        var searchValue by remember { mutableStateOf("") }
+        var danceFilter by remember { mutableStateOf(false) }
+        var musicFilter by remember { mutableStateOf(false) }
+        var paintingFilter by remember { mutableStateOf(false) }
+        var theatreFilter by remember { mutableStateOf(false) }
 
-    /**
-     * 0-> 3 button mode
-     * 1-> 2 button mode
-     * 2-> gesture mode
-     *
-     * gesture 84, buttons 168
-     */
-    isNavigationBarVisible = interactionMode < 2
-    /**
-     * GoogleMap declaration
-     */
-    GoogleMap(
+        /**
+         * Keyboard Controller value to control keyboard behavior when using the search bar.
+         */
+        /**
+         * Keyboard Controller value to control keyboard behavior when using the search bar.
+         */
+        val keyboardController = LocalSoftwareKeyboardController.current
 
-        cameraPositionState = cameraPositionState,
-        modifier = Modifier
-            .padding(bottom = if (!isNavigationBarVisible) 0.dp else 48.dp)
-            .fillMaxSize(),
-        properties = myProperties,
-        uiSettings = myUiSettings,
-    ){
-        if(refreshClusterItems){
-            MapEffect() { map ->
-                if(clusterManager == null)clusterManager = ClusterManager(context, map)
-                map.setOnCameraIdleListener(clusterManager)
-                map.setOnMarkerClickListener(clusterManager)
-                /**
-                 * Populating the ClusterItems list with the filtering options
-                 */
-                val items = getCulturalEvents(
-                    searchValue = searchValue,
-                    categoryDance = danceFilter,
-                    categoryMusic = musicFilter,
-                    categoryPainting = paintingFilter,
-                    categoryTheatre = theatreFilter
-                )
-
-                clusterManager?.clearItems()
-                clusterManager?.addItems(items)
-                clusterManager?.cluster()
-                /**
-                 * flag state change
-                 */
-                refreshClusterItems = false
-
-                clusterManager?.setOnClusterItemInfoWindowClickListener() {
-                    currentEventToShow = it
-                    openEventCard = true
+        /**
+         * Obtaining Location, permission requests is done before [MapScreen] function os called.
+         * thus, will not be controlled here. ([@suppressLint("MissingPermission")])
+         */
+        /**
+         * Obtaining Location, permission requests is done before [MapScreen] function os called.
+         * thus, will not be controlled here. ([@suppressLint("MissingPermission")])
+         */
+        var myLocation = LatLng(0.0, 0.0)
+        val locationPermissionState =
+            rememberPermissionState(permission = Manifest.permission.ACCESS_FINE_LOCATION)
+        if (locationPermissionState.status.isGranted) {
+            fuseLocationClient.getLastLocation().addOnSuccessListener { location ->
+                if (location != null) {
+                    myLocation = LatLng(location.latitude, location.longitude)
                 }
             }
         }
-    }
-    /**
-     * Filtering Elements
-     */
-    Column(
-        horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.Top,
-    ) {
+        /**
+         * Creating location and a CameraPositionState to move our map camera to Plaza del Sol :)
+         */
+        /**
+         * Creating location and a CameraPositionState to move our map camera to Plaza del Sol :)
+         */
+        val madrid = LatLng(40.4169087, -3.7035386)
+        val cameraPositionState = rememberCameraPositionState {
+            position = CameraPosition.fromLatLngZoom(madrid, 10f)//usar madrid
+        }
 
-        Spacer(
+        /**
+         *context and darkTheme will be used to configure the MapView and other logic ahead.
+         */
+        /**
+         *context and darkTheme will be used to configure the MapView and other logic ahead.
+         */
+        val context = LocalContext.current
+        val darkTheme: Boolean = isSystemInDarkTheme()
 
-            modifier = Modifier
-                .height(45.dp)
+        /**
+         * Customizing the SystemBars
+         */
+        /**
+         * Customizing the SystemBars
+         */
+        val systemUiController = rememberSystemUiController()
+        SideEffect {
+            systemUiController.setSystemBarsColor(
+                color = Color.Transparent,
+                darkIcons = !darkTheme
+                // isNavigationBarContrastEnforced = true
+            )
+            systemUiController.setNavigationBarColor(
+                color = Color.Transparent,
+                darkIcons = !darkTheme
+            )
+        }
+        /**
+         * Map Properties and UISettings
+         */
+        /**
+         * Map Properties and UISettings
+         */
+        val myProperties by remember {
+            mutableStateOf(
+                MapProperties(
+                    mapType = MapType.NORMAL,
+                    isMyLocationEnabled = locationPermissionState.status.isGranted,
+                    mapStyleOptions = if (!darkTheme) MapStyleOptions.loadRawResourceStyle(
+                        context,
+                        R.raw.map_style_silver
+                    )
+                    else MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_dark)
+                )
+            )
+        }
+        val myUiSettings by remember {
+            mutableStateOf(
+                MapUiSettings(
+                    zoomControlsEnabled = false,
+                    myLocationButtonEnabled = false,
+                    compassEnabled = false,
+                    mapToolbarEnabled = false
+                )
+            )
+        }
 
+        /**
+         * Cluster Manager
+         */
+        /**
+         * Cluster Manager
+         */
+        var clusterManager by remember {
+            mutableStateOf<ClusterManager<CulturalEventMadridItem>?>(
+                null
+            )
+        }
+        //lateinit var clusterManager: ClusterManager<CulturalEventMadridItem>
+        var refreshClusterItems by remember { mutableStateOf(true) }
+
+        /**
+         * ModalBottomSheet handling values and variables
+         */
+        /**
+         * ModalBottomSheet handling values and variables
+         */
+        var currentEventToShow by remember {
+            mutableStateOf<CulturalEventMadridItem>(
+                createEmptyCulturalEvent()
+            )
+        }
+        var openEventCard by remember { mutableStateOf(false) }
+        val skipPartiallyExpanded by remember { mutableStateOf(false) }
+        val bottomSheetState = rememberModalBottomSheetState(
+            skipPartiallyExpanded = skipPartiallyExpanded
         )
 
         /**
-         * Declaring a SearchBar on top of the screen. A Composable function won't be used in
-         * this case because si necessary to modify a variable external to the function's scope.
-         * In particular the searchValue, will be used modified in the following declaration and
-         * it will be used in other task furthermore.
+         * Applying correct size to our window attending to the navigation mode set in the device
          */
-        Surface(
-            elevation = 2.dp,
-            shape = MaterialTheme.shapes.medium.copy(all = CornerSize(40)),
+        /**
+         * Applying correct size to our window attending to the navigation mode set in the device
+         */
+        var isNavigationBarVisible by remember { mutableStateOf(false) }
+        val resources = context.resources
+        val resourceId =
+            resources.getIdentifier("config_navBarInteractionMode", "integer", "android")
+        val interactionMode = resources.getInteger(resourceId)
+
+        /**
+         * 0-> 3 button mode
+         * 1-> 2 button mode
+         * 2-> gesture mode
+         *
+         * gesture 84, buttons 168
+         */
+
+        /**
+         * 0-> 3 button mode
+         * 1-> 2 button mode
+         * 2-> gesture mode
+         *
+         * gesture 84, buttons 168
+         */
+        isNavigationBarVisible = interactionMode < 2
+        /**
+         * GoogleMap declaration
+         */
+        /**
+         * GoogleMap declaration
+         */
+        GoogleMap(
+            onMapClick = {openEventCard = false},
+            cameraPositionState = cameraPositionState,
             modifier = Modifier
-                .padding(start = 16.dp, end = 16.dp)
+                .padding(bottom = if (!isNavigationBarVisible) 0.dp else 48.dp)
+                .fillMaxSize(),
+            properties = myProperties,
+            uiSettings = myUiSettings,
         ) {
-            TextField(
-                value = searchValue,
-                onValueChange = { newText: String ->
-                    searchValue = newText
-                    refreshClusterItems = true
-                },
-                shape = MaterialTheme.shapes.medium.copy(all = CornerSize(40)),
-                leadingIcon = {
-                    Icon(
-                        Icons.Filled.Search,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface
-                    ) },
-                trailingIcon = {
-                    IconButton(
-                        onClick = {
-                            searchValue = ""
-                            keyboardController?.hide()
-                            refreshClusterItems = true
-                        }
-                    ) {
-                        Icon(
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            painter = painterResource(id = R.drawable.cmad_close),
-                            contentDescription = null
-                        )
-                    }
+            if (refreshClusterItems) {
+                MapEffect() { map ->
+                    if (clusterManager == null) clusterManager = ClusterManager(context, map)
+                    map.setOnCameraIdleListener(clusterManager)
+                    map.setOnMarkerClickListener(clusterManager)
+                    /**
+                     * Populating the ClusterItems list with the filtering options
+                     */
+                    /**
+                     * Populating the ClusterItems list with the filtering options
+                     */
+                    val items = getCulturalEvents(
+                        searchValue = searchValue,
+                        categoryDance = danceFilter,
+                        categoryMusic = musicFilter,
+                        categoryPainting = paintingFilter,
+                        categoryTheatre = theatreFilter
+                    )
 
-                },
-                placeholder = { Text(stringResource(id = R.string.placeholder_search)) },
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                ),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(onSearch = { keyboardController?.hide() }),
-                modifier = Modifier
-                    //.padding(start = 16.dp, end = 16.dp)
-                    .fillMaxWidth()
-            )
-        }
+                    clusterManager?.clearItems()
+                    clusterManager?.addItems(items)
+                    clusterManager?.cluster()
+                    /**
+                     * flag state change
+                     */
+                    /**
+                     * flag state change
+                     */
+                    refreshClusterItems = false
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        /**
-         * Declaring category filtering buttons
-         */
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp)
-        ){
-            items(categoriesPairsData){ item->
-                when(stringResource(id = item.text)) {
-                    "Danza" -> {
-                        FilterItem(
-                            filterStatus = danceFilter,
-                            drawableResource = item.drawable,
-                            stringResource = item.text,
-                            onClick = {
-                                danceFilter = !danceFilter
-                                refreshClusterItems = true
-                            }
-                        )
+                    clusterManager?.setOnClusterItemClickListener {
+                        currentEventToShow = it
+                        openEventCard = true
+                        return@setOnClusterItemClickListener false
                     }
-                    "Música" -> {
-                        FilterItem(
-                            filterStatus = musicFilter,
-                            drawableResource = item.drawable,
-                            stringResource = item.text,
-                            onClick = {
-                                musicFilter = !musicFilter
-                                refreshClusterItems = true
-                            }
-                        )
-                    }
-                    "Pintura" -> {
-                        FilterItem(
-                            filterStatus = paintingFilter,
-                            drawableResource = item.drawable,
-                            stringResource = item.text,
-                            onClick = {
-                                paintingFilter = !paintingFilter
-                                refreshClusterItems = true
-                            }
-                        )
-                    }
-                    "Teatro" -> {
-                        FilterItem(
-                            filterStatus = theatreFilter,
-                            drawableResource = item.drawable,
-                            stringResource = item.text,
-                            onClick = {
-                                theatreFilter = !theatreFilter
-                                refreshClusterItems = true
-                            }
-                        )
+                    clusterManager?.setOnClusterItemInfoWindowClickListener() {
+                        currentEventToShow = it
+                        openEventCard = true
                     }
                 }
             }
         }
-    }
-    /**
-     * MyLocation and Compass button declaration
-     */
-    Column(
-        horizontalAlignment = Alignment.End,
-        verticalArrangement = Arrangement.Bottom,
-        modifier = Modifier
-            .padding(end = 11.dp, bottom = if (!isNavigationBarVisible) 58.dp else 108.dp)
-            .fillMaxSize()
-    ) {
-        var clickedOnce by remember { mutableStateOf(false) }
-        MapButton(
-            onClick = {//mejorar el behavior del zoom, si ya esta en un 15f dejarlo ahi.
-                var zoomLevel = 12f
-                if (!clickedOnce) {
-                    clickedOnce = !clickedOnce
-                } else {
-                    clickedOnce = !clickedOnce
-                    zoomLevel = 15f
-                }
-                cameraPositionState.position = CameraPosition(myLocation, zoomLevel, 0f, 0f)
-            },
-            drawableResource = R.drawable.cmad_mylocation
-        )
-        MapButton(
-            onClick = {
-                val currentCameraState = cameraPositionState
-                cameraPositionState.position = CameraPosition(
-                    currentCameraState.position.target,
-                    currentCameraState.position.zoom,
-                    currentCameraState.position.tilt,
-                    0.0f
-                )
-            },
-            drawableResource = R.drawable.cmad_compass
-        )
-    }
-    /**
-     * ModalBottomSheet declaration
-     */
-    if(openEventCard){
+        /**
+         * Filtering Elements
+         */
+        /**
+         * Filtering Elements
+         */
         Column(
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Top,
+        ) {
+
+            Spacer(
+
+                modifier = Modifier
+                    .height(45.dp)
+
+            )
+
+            /**
+             * Declaring a SearchBar on top of the screen. A Composable function won't be used in
+             * this case because si necessary to modify a variable external to the function's scope.
+             * In particular the searchValue, will be used modified in the following declaration and
+             * it will be used in other task furthermore.
+             */
+
+            /**
+             * Declaring a SearchBar on top of the screen. A Composable function won't be used in
+             * this case because si necessary to modify a variable external to the function's scope.
+             * In particular the searchValue, will be used modified in the following declaration and
+             * it will be used in other task furthermore.
+             */
+            Surface(
+                elevation = 2.dp,
+                shape = MaterialTheme.shapes.medium.copy(all = CornerSize(40)),
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 16.dp)
+            ) {
+                TextField(
+                    value = searchValue,
+                    onValueChange = { newText: String ->
+                        searchValue = newText
+                        refreshClusterItems = true
+                    },
+                    shape = MaterialTheme.shapes.medium.copy(all = CornerSize(40)),
+                    leadingIcon = {
+                        Icon(
+                            Icons.Filled.Search,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    },
+                    trailingIcon = {
+                        IconButton(
+                            onClick = {
+                                searchValue = ""
+                                keyboardController?.hide()
+                                refreshClusterItems = true
+                            }
+                        ) {
+                            Icon(
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                painter = painterResource(id = R.drawable.cmad_close),
+                                contentDescription = null
+                            )
+                        }
+
+                    },
+                    placeholder = { Text(stringResource(id = R.string.placeholder_search)) },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardActions = KeyboardActions(onSearch = { keyboardController?.hide() }),
+                    modifier = Modifier
+                        //.padding(start = 16.dp, end = 16.dp)
+                        .fillMaxWidth()
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            /**
+             * Declaring category filtering buttons
+             */
+
+            /**
+             * Declaring category filtering buttons
+             */
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp)
+            ) {
+                items(categoriesPairsData) { item ->
+                    when (stringResource(id = item.text)) {
+                        "Danza" -> {
+                            FilterItem(
+                                filterStatus = danceFilter,
+                                drawableResource = item.drawable,
+                                stringResource = item.text,
+                                onClick = {
+                                    danceFilter = !danceFilter
+                                    refreshClusterItems = true
+                                }
+                            )
+                        }
+
+                        "Música" -> {
+                            FilterItem(
+                                filterStatus = musicFilter,
+                                drawableResource = item.drawable,
+                                stringResource = item.text,
+                                onClick = {
+                                    musicFilter = !musicFilter
+                                    refreshClusterItems = true
+                                }
+                            )
+                        }
+
+                        "Pintura" -> {
+                            FilterItem(
+                                filterStatus = paintingFilter,
+                                drawableResource = item.drawable,
+                                stringResource = item.text,
+                                onClick = {
+                                    paintingFilter = !paintingFilter
+                                    refreshClusterItems = true
+                                }
+                            )
+                        }
+
+                        "Teatro" -> {
+                            FilterItem(
+                                filterStatus = theatreFilter,
+                                drawableResource = item.drawable,
+                                stringResource = item.text,
+                                onClick = {
+                                    theatreFilter = !theatreFilter
+                                    refreshClusterItems = true
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        /**
+         * MyLocation and Compass button declaration
+         */
+        /**
+         * MyLocation and Compass button declaration
+         */
+        Column(
+            horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.Bottom,
             modifier = Modifier
-                .padding(
-                    start = 8.dp,
-                    end = 8.dp,
-                    bottom = if (!isNavigationBarVisible) 32.dp else 56.dp
-                )
+                .padding(end = 11.dp, bottom = if (!isNavigationBarVisible) 58.dp else 108.dp)
                 .fillMaxSize()
-        ){
-            EventCard(
-                culturalEventMadridItem = currentEventToShow,
-                closeClick = {openEventCard = false}
+        ) {
+            var clickedOnce by remember { mutableStateOf(false) }
+            MapButton(
+                onClick = {//mejorar el behavior del zoom, si ya esta en un 15f dejarlo ahi.
+                    var zoomLevel = 12f
+                    if (!clickedOnce) {
+                        clickedOnce = !clickedOnce
+                    } else {
+                        clickedOnce = !clickedOnce
+                        zoomLevel = 15f
+                    }
+                    cameraPositionState.position = CameraPosition(myLocation, zoomLevel, 0f, 0f)
+                },
+                drawableResource = R.drawable.cmad_mylocation
+            )
+            MapButton(
+                onClick = {
+                    val currentCameraState = cameraPositionState
+                    cameraPositionState.position = CameraPosition(
+                        currentCameraState.position.target,
+                        currentCameraState.position.zoom,
+                        currentCameraState.position.tilt,
+                        0.0f
+                    )
+                },
+                drawableResource = R.drawable.cmad_compass
             )
         }
-        /*ModalBottomSheet(
-            onDismissRequest = {
-                openBottomSheet = false
-            },
-            sheetState = bottomSheetState
-        ) {
-            EventCard(culturalEventMadridItem = currentEventToShow)
-            //MockEventCard()
-            //Text(text = "Esta es una prueba")
-        }*/
+        /**
+         * ModalBottomSheet declaration
+         */
+        /**
+         * ModalBottomSheet declaration
+         */
+        if (openEventCard) {
+            Column(
+                verticalArrangement = Arrangement.Bottom,
+                modifier = Modifier
+                    .padding(
+                        start = 8.dp,
+                        end = 8.dp,
+                        bottom = if (!isNavigationBarVisible) 32.dp else 56.dp
+                    )
+                    .fillMaxSize()
+            ) {
+                val density = LocalDensity.current
+                AnimatedVisibility(
+                    visible = openEventCard
+                ){
+                    EventCard(
+                        culturalEventMadridItem = currentEventToShow,
+                        closeClick = { openEventCard = false },
+                        visibility = openEventCard
+                    )
+                }
+            }
+            /* ModalBottomSheet(
+                 onDismissRequest = {
+                     refreshClusterItems = false
+                 },
+                 sheetState = bottomSheetState
+             ) {
+                 EventCard(
+                     culturalEventMadridItem = currentEventToShow,
+                     closeClick = {openEventCard = false}
+                 )
+                 //MockEventCard()
+                 //Text(text = "Esta es una prueba")
+             }*/
+        }
     }
 
 }//function end

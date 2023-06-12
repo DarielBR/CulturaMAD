@@ -3,6 +3,14 @@ package com.upmgeoinfo.culturamad.ui.composables
 import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,6 +30,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -53,7 +63,7 @@ fun MockEventCard(
         shape = MaterialTheme.shapes.large,
         elevation = CardDefaults.cardElevation(2.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(0.dp)
         ),
         modifier = Modifier
     ) {
@@ -279,15 +289,19 @@ fun CardButton(
 fun EventCard(
     culturalEventMadridItem: CulturalEventMadridItem,
     closeClick: () -> Unit,
+    visibility: Boolean,
     modifier: Modifier = Modifier
 ){
+    val alpha: Float by animateFloatAsState(if (visibility) 1f else 0.5f)
     Card(
         shape = MaterialTheme.shapes.large,
         elevation = CardDefaults.cardElevation(2.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.surface,
+            disabledContainerColor = MaterialTheme.colorScheme.surface
         ),
         modifier = Modifier
+            .graphicsLayer(alpha = alpha)
     ) {
         Column(
             modifier = Modifier
@@ -303,15 +317,19 @@ fun EventCard(
                     onClick = closeClick
                 )
             }
-            Row (
+            Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
-                    painter = if(culturalEventMadridItem.getExtraCategory().contains("DanzaBaile"))
+                    painter = if (culturalEventMadridItem.getExtraCategory()
+                            .contains("DanzaBaile")
+                    )
                         painterResource(id = R.drawable.dance_image)
-                    else if(culturalEventMadridItem.getExtraCategory().contains("Musica"))
+                    else if (culturalEventMadridItem.getExtraCategory().contains("Musica"))
                         painterResource(id = R.drawable.music_image)
-                    else if(culturalEventMadridItem.getExtraCategory().contains("Exposiciones"))
+                    else if (culturalEventMadridItem.getExtraCategory()
+                            .contains("Exposiciones")
+                    )
                         painterResource(id = R.drawable.painting_image)
                     else painterResource(id = R.drawable.teatro_image),
                     contentDescription = null,
@@ -338,7 +356,7 @@ fun EventCard(
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier
-                            .padding(top = 2.dp,bottom = 2.dp)
+                            .padding(top = 2.dp, bottom = 2.dp)
                     )
                     val isFree = (culturalEventMadridItem.getExtraPrice() == "")
                     Surface(
@@ -346,9 +364,9 @@ fun EventCard(
                         color = MaterialTheme.colorScheme.surfaceVariant,
                         modifier = Modifier
                             .padding(top = 2.dp)
-                    ){
+                    ) {
                         Text(//Price
-                            text = if(isFree) "Free" else culturalEventMadridItem.getExtraPrice(),
+                            text = if (isFree) "Free" else culturalEventMadridItem.getExtraPrice(),
                             color = MaterialTheme.colorScheme.onSurface,
                             style = MaterialTheme.typography.labelMedium,
                             modifier = Modifier
@@ -364,7 +382,7 @@ fun EventCard(
                 shape = MaterialTheme.shapes.small,
                 modifier = Modifier
                     .padding(8.dp)
-            ){
+            ) {
                 Column(
                     modifier = Modifier
                         .padding(6.dp)
@@ -415,7 +433,7 @@ fun EventCard(
             ) {
                 var favorite by remember { mutableStateOf(false) }
                 ActionButton(//Bookmark
-                    icon =  if(favorite) R.drawable.cmad_bookmark_true
+                    icon = if (favorite) R.drawable.cmad_bookmark_true
                     else R.drawable.cmad_bookmark_false,
                     onClick = { favorite = !favorite }
                 )
@@ -434,7 +452,10 @@ fun EventCard(
                 ActionButton(//go to
                     icon = R.drawable.cmad_link,
                     onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(culturalEventMadridItem.getExtraLink()))
+                        val intent = Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse(culturalEventMadridItem.getExtraLink())
+                        )
                         context.startActivity(intent)
                     }
                 )

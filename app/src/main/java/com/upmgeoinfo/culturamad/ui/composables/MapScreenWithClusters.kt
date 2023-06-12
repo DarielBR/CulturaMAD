@@ -110,6 +110,7 @@ fun MapScreenWithCluster(){
             sheetState = bottomSheetState
         ) {
             //EventCard(culturalEventMadrid = currentEventToShow)
+            MockEventCard()
         }
     }
 }
