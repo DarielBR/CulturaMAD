@@ -187,16 +187,14 @@ fun ClusterMapScreen(
     /**
      * Cluster Manager
      */
-    lateinit var clusterManager: ClusterManager<CulturalEventMadridItem>
+    var clusterManager by remember { mutableStateOf<ClusterManager<CulturalEventMadridItem>?>(null) }
+    //lateinit var clusterManager: ClusterManager<CulturalEventMadridItem>
+    var refreshClusterItems by remember { mutableStateOf(true) }
     /**
      * ModalBottomSheet handling values and variables
      */
     var currentEventToShow by remember { mutableStateOf<CulturalEventMadridItem>(createEmptyCulturalEvent()) }
     var openEventCard by remember { mutableStateOf(false) }
-    val skipPartiallyExpanded by remember { mutableStateOf(false) }
-    val bottomSheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = skipPartiallyExpanded
-    )
     /**
      * Applying correct size to our window attending to the navigation mode set in the device
      */
@@ -225,23 +223,34 @@ fun ClusterMapScreen(
         properties = myProperties,
         uiSettings = myUiSettings,
     ){
-        MapEffect() { map ->
-            clusterManager = ClusterManager(context,map)
-            map.setOnCameraIdleListener(clusterManager)
-            map.setOnMarkerClickListener(clusterManager)
+        if(refreshClusterItems){
+            MapEffect() { map ->
+                if(clusterManager == null)clusterManager = ClusterManager(context, map)
+                map.setOnCameraIdleListener(clusterManager)
+                map.setOnMarkerClickListener(clusterManager)
+                /**
+                 * Populating the ClusterItems list with the filtering options
+                 */
+                val items = getCulturalEvents(
+                    searchValue = searchValue,
+                    categoryDance = danceFilter,
+                    categoryMusic = musicFilter,
+                    categoryPainting = paintingFilter,
+                    categoryTheatre = theatreFilter
+                )
 
-            refreshCulturalEvents(
-                clusterManager = clusterManager,
-                searchValue = searchValue,
-                categoryDance = danceFilter,
-                categoryMusic = musicFilter,
-                categoryPainting = paintingFilter,
-                categoryTheatre = theatreFilter
-            )
+                clusterManager?.clearItems()
+                clusterManager?.addItems(items)
+                clusterManager?.cluster()
+                /**
+                 * flag state change
+                 */
+                refreshClusterItems = false
 
-            clusterManager.setOnClusterItemInfoWindowClickListener(){
-                currentEventToShow = it
-                openEventCard = true
+                clusterManager?.setOnClusterItemInfoWindowClickListener() {
+                    currentEventToShow = it
+                    openEventCard = true
+                }
             }
         }
     }
@@ -276,6 +285,7 @@ fun ClusterMapScreen(
                 value = searchValue,
                 onValueChange = { newText: String ->
                     searchValue = newText
+                    refreshClusterItems = true
                 },
                 shape = MaterialTheme.shapes.medium.copy(all = CornerSize(40)),
                 leadingIcon = {
@@ -289,6 +299,7 @@ fun ClusterMapScreen(
                         onClick = {
                             searchValue = ""
                             keyboardController?.hide()
+                            refreshClusterItems = true
                         }
                     ) {
                         Icon(
@@ -330,7 +341,10 @@ fun ClusterMapScreen(
                             filterStatus = danceFilter,
                             drawableResource = item.drawable,
                             stringResource = item.text,
-                            onClick = { danceFilter = !danceFilter }
+                            onClick = {
+                                danceFilter = !danceFilter
+                                refreshClusterItems = true
+                            }
                         )
                     }
                     "Música" -> {
@@ -338,7 +352,10 @@ fun ClusterMapScreen(
                             filterStatus = musicFilter,
                             drawableResource = item.drawable,
                             stringResource = item.text,
-                            onClick = { musicFilter = !musicFilter }
+                            onClick = {
+                                musicFilter = !musicFilter
+                                refreshClusterItems = true
+                            }
                         )
                     }
                     "Pintura" -> {
@@ -346,7 +363,10 @@ fun ClusterMapScreen(
                             filterStatus = paintingFilter,
                             drawableResource = item.drawable,
                             stringResource = item.text,
-                            onClick = { paintingFilter = !paintingFilter }
+                            onClick = {
+                                paintingFilter = !paintingFilter
+                                refreshClusterItems = true
+                            }
                         )
                     }
                     "Teatro" -> {
@@ -354,7 +374,10 @@ fun ClusterMapScreen(
                             filterStatus = theatreFilter,
                             drawableResource = item.drawable,
                             stringResource = item.text,
-                            onClick = { theatreFilter = !theatreFilter }
+                            onClick = {
+                                theatreFilter = !theatreFilter
+                                refreshClusterItems = true
+                            }
                         )
                     }
                 }
@@ -405,7 +428,11 @@ fun ClusterMapScreen(
         Column(
             verticalArrangement = Arrangement.Bottom,
             modifier = Modifier
-                .padding(start = 8.dp, end = 8.dp, bottom = if (!isNavigationBarVisible) 32.dp else 56.dp)
+                .padding(
+                    start = 8.dp,
+                    end = 8.dp,
+                    bottom = if (!isNavigationBarVisible) 32.dp else 56.dp
+                )
                 .fillMaxSize()
         ){
             EventCard(
@@ -517,6 +544,86 @@ fun refreshCulturalEvents(
             }
         }
     }
+}
+fun getCulturalEvents(
+    searchValue: String,
+    categoryDance: Boolean,
+    categoryMusic: Boolean,
+    categoryPainting: Boolean,
+    categoryTheatre: Boolean
+): List<CulturalEventMadridItem>{
+
+    val culturalEventsMadrid = MarkerData.dataList
+    val culturalEventItems = mutableListOf<CulturalEventMadridItem>()
+
+    for (culturalEvent in culturalEventsMadrid) {//First filter for valid culturalEvent
+        if (culturalEvent.location != null
+            && culturalEvent.address.district != null
+            && culturalEvent.category != null
+            && culturalEvent.recurrence != null
+            && culturalEvent.address != null
+            && culturalEvent.address.district != null
+            && culturalEvent.address.area != null
+        ) {//Filter by categories if any.
+            if (categoryDance && culturalEvent.category.contains("DanzaBaile")) {
+                if (searchValue == "") {
+                    culturalEventItems.add(createCulturalEventMadridItem(culturalEvent))
+                } else if (culturalEvent.category.contains(searchValue, true)
+                    || culturalEvent.title.contains(searchValue, true)
+                    || culturalEvent.dtstart.contains(searchValue, true)
+                    || culturalEvent.address.district.Id.contains(searchValue, true)
+                    || culturalEvent.description.contains(searchValue, true)
+                ) {
+                    culturalEventItems.add(createCulturalEventMadridItem(culturalEvent))
+                }
+            } else if (categoryMusic && culturalEvent.category.contains("Musica")) {
+                if (searchValue == "") {
+                    culturalEventItems.add(createCulturalEventMadridItem(culturalEvent))
+                } else if (culturalEvent.category.contains(searchValue, true)
+                    || culturalEvent.title.contains(searchValue, true)
+                    || culturalEvent.dtstart.contains(searchValue, true)
+                    || culturalEvent.address.district.Id.contains(searchValue, true)
+                    || culturalEvent.description.contains(searchValue, true)
+                ) {
+                    culturalEventItems.add(createCulturalEventMadridItem(culturalEvent))
+                }
+            } else if (categoryPainting && culturalEvent.category.contains("Exposiciones")) {
+                if (searchValue == "") {
+                    culturalEventItems.add(createCulturalEventMadridItem(culturalEvent))
+                } else if (culturalEvent.category.contains(searchValue, true)
+                    || culturalEvent.title.contains(searchValue, true)
+                    || culturalEvent.dtstart.contains(searchValue, true)
+                    || culturalEvent.address.district.Id.contains(searchValue, true)
+                    || culturalEvent.description.contains(searchValue, true)
+                ) {
+                    culturalEventItems.add(createCulturalEventMadridItem(culturalEvent))
+                }
+            } else if (categoryTheatre && culturalEvent.category.contains("TeatroPerformance")) {
+                if (searchValue == "") {
+                    culturalEventItems.add(createCulturalEventMadridItem(culturalEvent))
+                } else if (culturalEvent.category.contains(searchValue, true)
+                    || culturalEvent.title.contains(searchValue, true)
+                    || culturalEvent.dtstart.contains(searchValue, true)
+                    || culturalEvent.address.district.Id.contains(searchValue, true)
+                    || culturalEvent.description.contains(searchValue, true)
+                ) {
+                    culturalEventItems.add(createCulturalEventMadridItem(culturalEvent))
+                }
+            } else if (!categoryDance && !categoryMusic && !categoryPainting && !categoryTheatre) {
+                if (searchValue == "") {
+                    culturalEventItems.add(createCulturalEventMadridItem(culturalEvent))
+                } else if (culturalEvent.category.contains(searchValue, true)
+                    || culturalEvent.title.contains(searchValue, true)
+                    || culturalEvent.dtstart.contains(searchValue, true)
+                    || culturalEvent.address.district.Id.contains(searchValue, true)
+                    || culturalEvent.description.contains(searchValue, true)
+                ) {
+                    culturalEventItems.add(createCulturalEventMadridItem(culturalEvent))
+                }
+            }
+        }
+    }
+    return culturalEventItems.toList()
 }
 
 fun createCulturalEventMadridItem(culturalEvent: CulturalEventMadrid): CulturalEventMadridItem {
