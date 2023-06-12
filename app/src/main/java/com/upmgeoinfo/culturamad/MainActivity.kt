@@ -26,6 +26,7 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -58,13 +59,13 @@ import com.google.accompanist.permissions.shouldShowRationale
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
 import com.upmgeoinfo.culturamad.datamodel.MarkerData
 import com.upmgeoinfo.culturamad.navigation.AppNavigation
 import com.upmgeoinfo.culturamad.ui.composables.ClusterMapScreen
 import com.upmgeoinfo.culturamad.ui.composables.FilterItem
 import com.upmgeoinfo.culturamad.ui.composables.MapScreen
-import com.upmgeoinfo.culturamad.ui.composables.MapScreenWithCluster
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 class MainActivity : ComponentActivity() {
@@ -73,10 +74,14 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //Necessary to use current location
+        /**
+         * Initializing lateinit variables
+         */
         fuseLocationClient = LocationServices.getFusedLocationProviderClient(this)
         culturalEvents = MarkerData.dataList
-        //API accompanist functionality to allow the app to go from edge to edge
+        /**
+         * Displaying content Edge to Edge
+         */
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             CulturaMADTheme {
@@ -227,7 +232,9 @@ fun RequestLocationPermission() {
 /**
  * Main UI declarative function.
  */
+@ExperimentalMaterial3Api
 @OptIn(ExperimentalComposeUiApi::class)//Necessary for using [LocalSoftwareKeyboardController.current]. Necessary for using Text Field.
+@MapsComposeExperimentalApi
 @Composable
 fun UIDeclaration(
     fuseLocationClient: FusedLocationProviderClient
@@ -261,16 +268,16 @@ fun UIDeclaration(
         /**
          * Composable with GoogleMap
          */
-        //MapScreen(fuseLocationClient, searchValue, danceFilter, musicFilter, paintingFilter, theatreFilter)
+        MapScreen(fuseLocationClient, searchValue, danceFilter, musicFilter, paintingFilter, theatreFilter)
         //MapScreenWithCluster()
-        ClusterMapScreen(
+        /*ClusterMapScreen(
             fuseLocationClient = fuseLocationClient,
             searchValue = searchValue,
             categoryDance = danceFilter,
             categoryMusic = musicFilter,
             categoryPainting = paintingFilter,
             categoryTheatre = theatreFilter
-        )
+        )*/
 
         Column {
 
@@ -395,12 +402,15 @@ private val categoriesData = listOf(
 /**
  * Will be called from the onCreate function. Works with NavController
  */
+@ExperimentalMaterial3Api
 @OptIn(ExperimentalPermissionsApi::class)
+@MapsComposeExperimentalApi
 @Composable
 fun MainScreen(fuseLocationClient: FusedLocationProviderClient){
     CulturaMADTheme {
         RequestInternetPermission()
         RequestLocationPermission()
-        UIDeclaration(fuseLocationClient)
+        //UIDeclaration(fuseLocationClient)
+        ClusterMapScreen(fuseLocationClient = fuseLocationClient)
     }
 }

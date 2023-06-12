@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -241,6 +243,34 @@ fun ActionButtonPreview(){
     }
 }
 
+@Composable
+fun CardButton(
+    icon: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+){
+    Surface(
+        tonalElevation = 2.dp,
+        modifier = Modifier
+            .clip(CircleShape)
+    ){
+        IconButton(
+            onClick = onClick,
+            colors = IconButtonDefaults.iconButtonColors(
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            ),
+            modifier = Modifier
+            //.padding(8.dp)
+        ) {
+            Icon(
+                painterResource(id = icon),
+                contentDescription = null
+            )
+        }
+    }
+}
+
 /**
  * Actual function called from the application
  */
@@ -248,6 +278,7 @@ fun ActionButtonPreview(){
 @Composable
 fun EventCard(
     culturalEventMadridItem: CulturalEventMadridItem,
+    closeClick: () -> Unit,
     modifier: Modifier = Modifier
 ){
     Card(
@@ -261,6 +292,17 @@ fun EventCard(
         Column(
             modifier = Modifier
         ) {
+            Row(
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
+            ) {
+                CardButton(
+                    icon = R.drawable.cmad_close,
+                    onClick = closeClick
+                )
+            }
             Row (
                 verticalAlignment = Alignment.CenterVertically
             ) {

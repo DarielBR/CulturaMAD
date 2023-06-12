@@ -2,27 +2,62 @@ package com.upmgeoinfo.culturamad.ui.composables
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.res.Configuration
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFrom
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.Surface
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
@@ -46,30 +81,45 @@ import com.upmgeoinfo.culturamad.datamodel.Organization
 import com.upmgeoinfo.culturamad.datamodel.Recurrence
 import com.upmgeoinfo.culturamad.datamodel.References
 import com.upmgeoinfo.culturamad.datamodel.Relation
+import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
+import kotlinx.coroutines.coroutineScope
 
-/*@Preview(showBackground = false)
+@Preview(showBackground = false)
 @Preview(showBackground = false, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun ClusterMapScreenPreview(){
+    val fuseLocationClient = LocationServices.getFusedLocationProviderClient(LocalContext.current)
     CulturaMADTheme() {
-        fun ClusterMapScreen(
-
-        )
+        ClusterMapScreen(fuseLocationClient)
     }
-}*/
+}
 
 @SuppressLint("MissingPermission")
-@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class,
+    ExperimentalComposeUiApi::class
+)
 @MapsComposeExperimentalApi
 @Composable
 fun ClusterMapScreen(
     fuseLocationClient: FusedLocationProviderClient,
-    searchValue: String,
+    /*searchValue: String,
     categoryDance: Boolean,
     categoryMusic: Boolean,
     categoryPainting: Boolean,
-    categoryTheatre: Boolean
+    categoryTheatre: Boolean*/
 ){
+    /**
+     * Filter values
+     */
+    var searchValue by remember { mutableStateOf("") }
+    var danceFilter by remember { mutableStateOf(false) }
+    var musicFilter by remember { mutableStateOf(false) }
+    var paintingFilter by remember { mutableStateOf(false) }
+    var theatreFilter by remember { mutableStateOf(false) }
+    /**
+     * Keyboard Controller value to control keyboard behavior when using the search bar.
+     */
+    val keyboardController = LocalSoftwareKeyboardController.current
     /**
      * Obtaining Location, permission requests is done before [MapScreen] function os called.
      * thus, will not be controlled here. ([@suppressLint("MissingPermission")])
@@ -97,6 +147,21 @@ fun ClusterMapScreen(
     val context = LocalContext.current
     val darkTheme: Boolean = isSystemInDarkTheme()
     /**
+     * Customizing the SystemBars
+     */
+    val systemUiController = rememberSystemUiController()
+    SideEffect {
+        systemUiController.setSystemBarsColor(
+            color = Color.Transparent,
+            darkIcons = !darkTheme
+            // isNavigationBarContrastEnforced = true
+        )
+        systemUiController.setNavigationBarColor(
+            color = Color.Transparent,
+            darkIcons = !darkTheme
+        )
+    }
+    /**
      * Map Properties and UISettings
      */
     val myProperties by remember {
@@ -114,7 +179,8 @@ fun ClusterMapScreen(
             MapUiSettings(
                 zoomControlsEnabled = false,
                 myLocationButtonEnabled = false,
-                compassEnabled = false
+                compassEnabled = false,
+                mapToolbarEnabled = false
             )
         )
     }
@@ -125,7 +191,8 @@ fun ClusterMapScreen(
     /**
      * ModalBottomSheet handling values and variables
      */
-    var openBottomSheet by remember { mutableStateOf(false) }
+    var currentEventToShow by remember { mutableStateOf<CulturalEventMadridItem>(createEmptyCulturalEvent()) }
+    var openEventCard by remember { mutableStateOf(false) }
     val skipPartiallyExpanded by remember { mutableStateOf(false) }
     val bottomSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = skipPartiallyExpanded
@@ -137,7 +204,7 @@ fun ClusterMapScreen(
     val resources = context.resources
     val resourceId = resources.getIdentifier("config_navBarInteractionMode", "integer", "android")
     val interactionMode = resources.getInteger(resourceId)
-    var currentEventToShow by remember { mutableStateOf<CulturalEventMadridItem>(createEmptyCulturalEvent()) }
+
     /**
      * 0-> 3 button mode
      * 1-> 2 button mode
@@ -150,6 +217,7 @@ fun ClusterMapScreen(
      * GoogleMap declaration
      */
     GoogleMap(
+
         cameraPositionState = cameraPositionState,
         modifier = Modifier
             .padding(bottom = if (!isNavigationBarVisible) 0.dp else 48.dp)
@@ -165,14 +233,131 @@ fun ClusterMapScreen(
             refreshCulturalEvents(
                 clusterManager = clusterManager,
                 searchValue = searchValue,
-                categoryDance = categoryDance,
-                categoryMusic = categoryMusic,
-                categoryPainting = categoryPainting,
-                categoryTheatre = categoryTheatre
+                categoryDance = danceFilter,
+                categoryMusic = musicFilter,
+                categoryPainting = paintingFilter,
+                categoryTheatre = theatreFilter
             )
+
             clusterManager.setOnClusterItemInfoWindowClickListener(){
                 currentEventToShow = it
-                openBottomSheet = true
+                openEventCard = true
+            }
+        }
+    }
+    /**
+     * Filtering Elements
+     */
+    Column(
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.Top,
+    ) {
+
+        Spacer(
+
+            modifier = Modifier
+                .height(45.dp)
+
+        )
+
+        /**
+         * Declaring a SearchBar on top of the screen. A Composable function won't be used in
+         * this case because si necessary to modify a variable external to the function's scope.
+         * In particular the searchValue, will be used modified in the following declaration and
+         * it will be used in other task furthermore.
+         */
+        Surface(
+            elevation = 2.dp,
+            shape = MaterialTheme.shapes.medium.copy(all = CornerSize(40)),
+            modifier = Modifier
+                .padding(start = 16.dp, end = 16.dp)
+        ) {
+            TextField(
+                value = searchValue,
+                onValueChange = { newText: String ->
+                    searchValue = newText
+                },
+                shape = MaterialTheme.shapes.medium.copy(all = CornerSize(40)),
+                leadingIcon = {
+                    Icon(
+                        Icons.Filled.Search,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface
+                    ) },
+                trailingIcon = {
+                    IconButton(
+                        onClick = {
+                            searchValue = ""
+                            keyboardController?.hide()
+                        }
+                    ) {
+                        Icon(
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            painter = painterResource(id = R.drawable.cmad_close),
+                            contentDescription = null
+                        )
+                    }
+
+                },
+                placeholder = { Text(stringResource(id = R.string.placeholder_search)) },
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                keyboardActions = KeyboardActions(onSearch = { keyboardController?.hide() }),
+                modifier = Modifier
+                    //.padding(start = 16.dp, end = 16.dp)
+                    .fillMaxWidth()
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        /**
+         * Declaring category filtering buttons
+         */
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp)
+        ){
+            items(categoriesPairsData){ item->
+                when(stringResource(id = item.text)) {
+                    "Danza" -> {
+                        FilterItem(
+                            filterStatus = danceFilter,
+                            drawableResource = item.drawable,
+                            stringResource = item.text,
+                            onClick = { danceFilter = !danceFilter }
+                        )
+                    }
+                    "Música" -> {
+                        FilterItem(
+                            filterStatus = musicFilter,
+                            drawableResource = item.drawable,
+                            stringResource = item.text,
+                            onClick = { musicFilter = !musicFilter }
+                        )
+                    }
+                    "Pintura" -> {
+                        FilterItem(
+                            filterStatus = paintingFilter,
+                            drawableResource = item.drawable,
+                            stringResource = item.text,
+                            onClick = { paintingFilter = !paintingFilter }
+                        )
+                    }
+                    "Teatro" -> {
+                        FilterItem(
+                            filterStatus = theatreFilter,
+                            drawableResource = item.drawable,
+                            stringResource = item.text,
+                            onClick = { theatreFilter = !theatreFilter }
+                        )
+                    }
+                }
             }
         }
     }
@@ -216,16 +401,43 @@ fun ClusterMapScreen(
     /**
      * ModalBottomSheet declaration
      */
-    if(openBottomSheet){
-        ModalBottomSheet(
-            onDismissRequest = { openBottomSheet = false },
+    if(openEventCard){
+        Column(
+            verticalArrangement = Arrangement.Bottom,
+            modifier = Modifier
+                .padding(start = 8.dp, end = 8.dp, bottom = if (!isNavigationBarVisible) 32.dp else 56.dp)
+                .fillMaxSize()
+        ){
+            EventCard(
+                culturalEventMadridItem = currentEventToShow,
+                closeClick = {openEventCard = false}
+            )
+        }
+        /*ModalBottomSheet(
+            onDismissRequest = {
+                openBottomSheet = false
+            },
             sheetState = bottomSheetState
         ) {
             EventCard(culturalEventMadridItem = currentEventToShow)
-        }
+            //MockEventCard()
+            //Text(text = "Esta es una prueba")
+        }*/
     }
 
 }//function end
+
+private data class DrawableStringImagePair(
+    @DrawableRes val drawable: Int,
+    @StringRes val text: Int
+)
+
+private val categoriesPairsData = listOf(
+    R.drawable.dance_image to R.string.category_dance,
+    R.drawable.painting_image to R.string.category_painting,
+    R.drawable.music_image to R.string.category_music,
+    R.drawable.teatro_image to R.string.category_theatre
+).map { DrawableStringImagePair(it.first, it.second) }
 
 fun refreshCulturalEvents(
     clusterManager: ClusterManager<CulturalEventMadridItem>,
