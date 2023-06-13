@@ -11,10 +11,14 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -290,179 +294,194 @@ fun EventCard(
     culturalEventMadridItem: CulturalEventMadridItem,
     closeClick: () -> Unit,
     visibility: Boolean,
+    navigationBarVisible: Boolean,
     modifier: Modifier = Modifier
 ){
-    val alpha: Float by animateFloatAsState(if (visibility) 1f else 0.5f)
-    Card(
-        shape = MaterialTheme.shapes.large,
-        elevation = CardDefaults.cardElevation(2.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            disabledContainerColor = MaterialTheme.colorScheme.surface
-        ),
-        modifier = Modifier
-            .graphicsLayer(alpha = alpha)
-    ) {
+    AnimatedVisibility(
+        visible = visibility,
+        enter = slideInVertically(
+            animationSpec = tween(200),
+            initialOffsetY = {1000}
+        ) + fadeIn(),
+        exit = fadeOut()
+    ){
         Column(
+            verticalArrangement = Arrangement.Bottom,
             modifier = Modifier
+                .padding (start = 8.dp, end = 8.dp, bottom = if(navigationBarVisible) 56.dp else 32.dp)
+                .fillMaxSize()
         ) {
-            Row(
-                horizontalArrangement = Arrangement.End,
+            androidx.compose.material.Card(
+                shape = MaterialTheme.shapes.large,
+                elevation = 2.dp,
+                backgroundColor = MaterialTheme.colorScheme.surface,
                 modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth()
             ) {
-                CardButton(
-                    icon = R.drawable.cmad_close,
-                    onClick = closeClick
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = if (culturalEventMadridItem.getExtraCategory()
-                            .contains("DanzaBaile")
-                    )
-                        painterResource(id = R.drawable.dance_image)
-                    else if (culturalEventMadridItem.getExtraCategory().contains("Musica"))
-                        painterResource(id = R.drawable.music_image)
-                    else if (culturalEventMadridItem.getExtraCategory()
-                            .contains("Exposiciones")
-                    )
-                        painterResource(id = R.drawable.painting_image)
-                    else painterResource(id = R.drawable.teatro_image),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .clip(MaterialTheme.shapes.medium)
-                        .size(75.dp)
-                )
                 Column(
-                    horizontalAlignment = Alignment.Start,
                     modifier = Modifier
-                        .fillMaxWidth()
                 ) {
-                    Text(//Title
-                        text = culturalEventMadridItem.title!!,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.titleMedium,
+                    Row(
+                        horizontalArrangement = Arrangement.End,
                         modifier = Modifier
-                            .padding(bottom = 2.dp)
-                    )
-                    Text(//Address
-                        text = culturalEventMadridItem.getExtraAddress(),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier
-                            .padding(top = 2.dp, bottom = 2.dp)
-                    )
-                    val isFree = (culturalEventMadridItem.getExtraPrice() == "")
-                    Surface(
-                        shape = MaterialTheme.shapes.extraSmall,
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        modifier = Modifier
-                            .padding(top = 2.dp)
+                            .padding(8.dp)
+                            .fillMaxWidth()
                     ) {
-                        Text(//Price
-                            text = if (isFree) "Free" else culturalEventMadridItem.getExtraPrice(),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.labelMedium,
+                        CardButton(
+                            icon = R.drawable.cmad_close,
+                            onClick = closeClick
+                        )
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = if (culturalEventMadridItem.getExtraCategory()
+                                    .contains("DanzaBaile")
+                            )
+                                painterResource(id = R.drawable.dance_image)
+                            else if (culturalEventMadridItem.getExtraCategory().contains("Musica"))
+                                painterResource(id = R.drawable.music_image)
+                            else if (culturalEventMadridItem.getExtraCategory()
+                                    .contains("Exposiciones")
+                            )
+                                painterResource(id = R.drawable.painting_image)
+                            else painterResource(id = R.drawable.teatro_image),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
                             modifier = Modifier
-                                .padding(2.dp)
+                                .padding(8.dp)
+                                .clip(MaterialTheme.shapes.medium)
+                                .size(75.dp)
                         )
-                    }
-                }
-            }
-            val scrollState = rememberScrollState()
-            LaunchedEffect(Unit) { scrollState.animateScrollTo(100) }
-            Surface(
-                tonalElevation = 3.dp,
-                shape = MaterialTheme.shapes.small,
-                modifier = Modifier
-                    .padding(8.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(6.dp)
-                        .fillMaxWidth()
-                        .height(100.dp)
-                        .verticalScroll(scrollState)
-                ) {
-                    Text(//Description
-                        text = culturalEventMadridItem.getExtraDescription(),
-                        //text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Justify,
-                        //overflow = TextOverflow.Ellipsis,
-                        minLines = 4,
-                        maxLines = 6,
-                        modifier = Modifier
-                    )
-                }
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                val start = culturalEventMadridItem.getExtraStart()
-                val end = culturalEventMadridItem.getExtraEnd()
-                val excluded = culturalEventMadridItem.getExtraExcludedDays()
-                val freqs = culturalEventMadridItem.getExtraFrequency()
-                Column(
-                    modifier = Modifier
-                        .padding(8.dp)
-                ) {
-                    Text(//Dates
-                        text = "Desde el $start, hasta el $end, excepto: $excluded .",
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Text(//Freq
-                        text = freqs,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                var favorite by remember { mutableStateOf(false) }
-                ActionButton(//Bookmark
-                    icon = if (favorite) R.drawable.cmad_bookmark_true
-                    else R.drawable.cmad_bookmark_false,
-                    onClick = { favorite = !favorite }
-                )
-                val context = LocalContext.current
-                ActionButton(//Share
-                    icon = R.drawable.cmad_share,
-                    onClick = {
-                        val intent = Intent(Intent.ACTION_SEND).apply {
-                            type = "text/plain"
-                            putExtra(Intent.EXTRA_TITLE, culturalEventMadridItem.title)
-                            putExtra(Intent.EXTRA_TEXT, culturalEventMadridItem.getExtraLink())
+                        Column(
+                            horizontalAlignment = Alignment.Start,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ) {
+                            Text(//Title
+                                text = culturalEventMadridItem.title!!,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier
+                                    .padding(bottom = 2.dp)
+                            )
+                            Text(//Address
+                                text = culturalEventMadridItem.getExtraAddress(),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier
+                                    .padding(top = 2.dp, bottom = 2.dp)
+                            )
+                            val isFree = (culturalEventMadridItem.getExtraPrice() == "")
+                            Surface(
+                                shape = MaterialTheme.shapes.extraSmall,
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                modifier = Modifier
+                                    .padding(top = 2.dp)
+                            ) {
+                                Text(//Price
+                                    text = if (isFree) "Free" else culturalEventMadridItem.getExtraPrice(),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    modifier = Modifier
+                                        .padding(2.dp)
+                                )
+                            }
                         }
-                        context.startActivity(Intent.createChooser(intent, "Compartir"))
                     }
-                )
-                ActionButton(//go to
-                    icon = R.drawable.cmad_link,
-                    onClick = {
-                        val intent = Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse(culturalEventMadridItem.getExtraLink())
+                    val scrollState = rememberScrollState()
+                    LaunchedEffect(Unit) { scrollState.animateScrollTo(100) }
+                    Surface(
+                        tonalElevation = 3.dp,
+                        shape = MaterialTheme.shapes.small,
+                        modifier = Modifier
+                            .padding(8.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .padding(6.dp)
+                                .fillMaxWidth()
+                                .height(100.dp)
+                                .verticalScroll(scrollState)
+                        ) {
+                            Text(//Description
+                                text = culturalEventMadridItem.getExtraDescription(),
+                                //text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = TextAlign.Justify,
+                                //overflow = TextOverflow.Ellipsis,
+                                minLines = 4,
+                                maxLines = 6,
+                                modifier = Modifier
+                            )
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        val start = culturalEventMadridItem.getExtraStart()
+                        val end = culturalEventMadridItem.getExtraEnd()
+                        val excluded = culturalEventMadridItem.getExtraExcludedDays()
+                        val freqs = culturalEventMadridItem.getExtraFrequency()
+                        Column(
+                            modifier = Modifier
+                                .padding(8.dp)
+                        ) {
+                            Text(//Dates
+                                text = "Desde el $start, hasta el $end, excepto: $excluded .",
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Text(//Freq
+                                text = freqs,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        var favorite by remember { mutableStateOf(false) }
+                        ActionButton(//Bookmark
+                            icon = if (favorite) R.drawable.cmad_bookmark_true
+                            else R.drawable.cmad_bookmark_false,
+                            onClick = { favorite = !favorite }
                         )
-                        context.startActivity(intent)
+                        val context = LocalContext.current
+                        ActionButton(//Share
+                            icon = R.drawable.cmad_share,
+                            onClick = {
+                                val intent = Intent(Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(Intent.EXTRA_TITLE, culturalEventMadridItem.title)
+                                    putExtra(
+                                        Intent.EXTRA_TEXT,
+                                        culturalEventMadridItem.getExtraLink()
+                                    )
+                                }
+                                context.startActivity(Intent.createChooser(intent, "Compartir"))
+                            }
+                        )
+                        ActionButton(//go to
+                            icon = R.drawable.cmad_link,
+                            onClick = {
+                                val intent = Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse(culturalEventMadridItem.getExtraLink())
+                                )
+                                context.startActivity(intent)
+                            }
+                        )
+                        ActionButton(
+                            icon = R.drawable.cmad_calendar,
+                            onClick = {}
+                        )
                     }
-                )
-                ActionButton(
-                    icon = R.drawable.cmad_calendar,
-                    onClick = {}
-                )
+                }
             }
         }
     }

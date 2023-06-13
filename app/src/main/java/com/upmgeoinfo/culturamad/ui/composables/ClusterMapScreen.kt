@@ -73,6 +73,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
@@ -173,6 +174,8 @@ fun ClusterMapScreen(
         val cameraPositionState = rememberCameraPositionState {
             position = CameraPosition.fromLatLngZoom(madrid, 10f)//usar madrid
         }
+        var animateZoom by remember { mutableStateOf(false) }
+        var animateBearing by remember { mutableStateOf(false) }
 
         /**
          *context and darkTheme will be used to configure the MapView and other logic ahead.
@@ -305,7 +308,7 @@ fun ClusterMapScreen(
             properties = myProperties,
             uiSettings = myUiSettings,
         ) {
-            if (refreshClusterItems) {
+            if (refreshClusterItems || animateZoom || animateBearing) {
                 MapEffect() { map ->
                     if (clusterManager == null) clusterManager = ClusterManager(context, map)
                     map.setOnCameraIdleListener(clusterManager)
@@ -343,6 +346,28 @@ fun ClusterMapScreen(
                     clusterManager?.setOnClusterItemInfoWindowClickListener() {
                         currentEventToShow = it
                         openEventCard = true
+                    }
+                    if(animateZoom){
+                        map.animateCamera(
+                            CameraUpdateFactory.newLatLngZoom(myLocation, 15f)
+                        )
+                        animateZoom = false
+                    }
+                    if(animateBearing){
+                        val currentCameraLocation = LatLng(
+                            cameraPositionState.position.target.latitude,
+                            cameraPositionState.position.target.longitude
+                        )
+                        map.animateCamera(
+                            CameraUpdateFactory.newCameraPosition(
+                                CameraPosition(
+                                    currentCameraLocation,
+                                    cameraPositionState.position.zoom,
+                                    cameraPositionState.position.tilt,
+                                    0.0f)
+                            )
+                        )
+                        animateBearing = false
                     }
                 }
             }
@@ -509,28 +534,23 @@ fun ClusterMapScreen(
                 .fillMaxSize()
         ) {
             var clickedOnce by remember { mutableStateOf(false) }
-            MapButton(
+            MapButton(//MyLocation
                 onClick = {//mejorar el behavior del zoom, si ya esta en un 15f dejarlo ahi.
-                    var zoomLevel = 12f
+                          animateZoom = true
+                    /*var zoomLevel = 12f
                     if (!clickedOnce) {
                         clickedOnce = !clickedOnce
                     } else {
                         clickedOnce = !clickedOnce
                         zoomLevel = 15f
                     }
-                    cameraPositionState.position = CameraPosition(myLocation, zoomLevel, 0f, 0f)
+                    cameraPositionState.position = CameraPosition(myLocation, zoomLevel, 0f, 0f)*/
                 },
                 drawableResource = R.drawable.cmad_mylocation
             )
             MapButton(
                 onClick = {
-                    val currentCameraState = cameraPositionState
-                    cameraPositionState.position = CameraPosition(
-                        currentCameraState.position.target,
-                        currentCameraState.position.zoom,
-                        currentCameraState.position.tilt,
-                        0.0f
-                    )
+                    animateBearing = true
                 },
                 drawableResource = R.drawable.cmad_compass
             )
@@ -541,42 +561,39 @@ fun ClusterMapScreen(
         /**
          * ModalBottomSheet declaration
          */
-        if (openEventCard) {
-            Column(
-                verticalArrangement = Arrangement.Bottom,
-                modifier = Modifier
-                    .padding(
-                        start = 8.dp,
-                        end = 8.dp,
-                        bottom = if (!isNavigationBarVisible) 32.dp else 56.dp
-                    )
-                    .fillMaxSize()
-            ) {
-                val density = LocalDensity.current
-                AnimatedVisibility(
-                    visible = openEventCard
-                ){
-                    EventCard(
-                        culturalEventMadridItem = currentEventToShow,
-                        closeClick = { openEventCard = false },
-                        visibility = openEventCard
-                    )
-                }
-            }
-            /* ModalBottomSheet(
-                 onDismissRequest = {
-                     refreshClusterItems = false
-                 },
-                 sheetState = bottomSheetState
-             ) {
-                 EventCard(
-                     culturalEventMadridItem = currentEventToShow,
-                     closeClick = {openEventCard = false}
-                 )
-                 //MockEventCard()
-                 //Text(text = "Esta es una prueba")
-             }*/
-        }
+        EventCard(
+            culturalEventMadridItem = currentEventToShow,
+            closeClick = { openEventCard = false },
+            visibility = openEventCard,
+            navigationBarVisible = isNavigationBarVisible
+        )
+//        if (openEventCard) {
+//            Column(
+//                verticalArrangement = Arrangement.Bottom,
+//                modifier = Modifier
+//                    .padding(
+//                        start = 8.dp,
+//                        end = 8.dp,
+//                        bottom = if (!isNavigationBarVisible) 32.dp else 56.dp
+//                    )
+//                    .fillMaxSize()
+//            ) {
+//                TestCard(visible = openEventCard)
+//            }
+//             ModalBottomSheet(
+//                 onDismissRequest = {
+//                     refreshClusterItems = false
+//                 },
+//                 sheetState = bottomSheetState
+//             ) {
+//                 EventCard(
+//                     culturalEventMadridItem = currentEventToShow,
+//                     closeClick = {openEventCard = false}
+//                 )
+//                 //MockEventCard()
+//                 //Text(text = "Esta es una prueba")
+//             }
+//        }
     }
 
 }//function end
