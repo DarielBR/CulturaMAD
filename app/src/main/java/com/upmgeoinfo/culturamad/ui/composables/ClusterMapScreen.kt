@@ -2,25 +2,18 @@ package com.upmgeoinfo.culturamad.ui.composables
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.res.Configuration
+import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -28,7 +21,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFrom
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
@@ -41,13 +33,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,17 +46,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.drawable.toBitmap
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -74,12 +63,16 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.maps.android.clustering.ClusterItem
 import com.google.maps.android.clustering.ClusterManager
-import com.google.maps.android.clustering.ClusterManager.OnClusterItemClickListener
+import com.google.maps.android.clustering.view.DefaultClusterRenderer
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapEffect
 import com.google.maps.android.compose.MapProperties
@@ -88,18 +81,9 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.upmgeoinfo.culturamad.R
-import com.upmgeoinfo.culturamad.datamodel.Address
-import com.upmgeoinfo.culturamad.datamodel.Area
 import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
-import com.upmgeoinfo.culturamad.datamodel.District
-import com.upmgeoinfo.culturamad.datamodel.Location
 import com.upmgeoinfo.culturamad.datamodel.MarkerData
-import com.upmgeoinfo.culturamad.datamodel.Organization
-import com.upmgeoinfo.culturamad.datamodel.Recurrence
-import com.upmgeoinfo.culturamad.datamodel.References
-import com.upmgeoinfo.culturamad.datamodel.Relation
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
-import kotlinx.coroutines.coroutineScope
 
 @Preview(showBackground = false)
 @Preview(showBackground = false, uiMode = Configuration.UI_MODE_NIGHT_YES)
@@ -174,9 +158,11 @@ fun ClusterMapScreen(
         val cameraPositionState = rememberCameraPositionState {
             position = CameraPosition.fromLatLngZoom(madrid, 10f)//usar madrid
         }
+        /**
+         * State values to control camera animations from MyLocation and Compass buttons
+         */
         var animateZoom by remember { mutableStateOf(false) }
         var animateBearing by remember { mutableStateOf(false) }
-
         /**
          *context and darkTheme will be used to configure the MapView and other logic ahead.
          */
@@ -185,7 +171,6 @@ fun ClusterMapScreen(
          */
         val context = LocalContext.current
         val darkTheme: Boolean = isSystemInDarkTheme()
-
         /**
          * Customizing the SystemBars
          */
@@ -326,10 +311,11 @@ fun ClusterMapScreen(
                         categoryPainting = paintingFilter,
                         categoryTheatre = theatreFilter
                     )
+                    val cmadRenderer = CMADClusterMarkerRenderer(context, map, clusterManager!!)
+                    clusterManager?.renderer = cmadRenderer
 
                     clusterManager?.clearItems()
                     clusterManager?.addItems(items)
-                    //clusterManager?.markerCollection?.markers?.forEach { marker -> marker.hideInfoWindow() }
                     clusterManager?.cluster()
                     /**
                      * flag state change
@@ -344,10 +330,9 @@ fun ClusterMapScreen(
                         openEventCard = true
                         return@setOnClusterItemClickListener false
                     }
-                    /*clusterManager?.setOnClusterItemInfoWindowClickListener() {
-                        currentEventToShow = it
-                        openEventCard = true
-                    }*/
+                    /**
+                     * Camera animations when buttons MyLocation and Compass are pressed.
+                     */
                     if(animateZoom){
                         map.animateCamera(
                             CameraUpdateFactory.newLatLngZoom(myLocation, 15f)
@@ -961,6 +946,22 @@ class CulturalEventMadridItem(
         extraPrice = eventPrice
         extraLink = eventLink
 
+    }
+
+}
+
+class CMADClusterMarkerRenderer(
+    context: Context,
+    map: GoogleMap,
+    clusterManager: ClusterManager<CulturalEventMadridItem>
+    ): DefaultClusterRenderer<CulturalEventMadridItem>(context, map, clusterManager){
+
+    override fun onBeforeClusterItemRendered(
+        item: CulturalEventMadridItem,
+        markerOptions: MarkerOptions
+    ) {
+        super.onBeforeClusterItemRendered(item, markerOptions)
+        markerOptions!!.icon(BitmapDescriptorFactory.fromResource(R.drawable.cmad_single_marker_3))
     }
 
 }
