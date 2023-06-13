@@ -329,6 +329,7 @@ fun ClusterMapScreen(
 
                     clusterManager?.clearItems()
                     clusterManager?.addItems(items)
+                    //clusterManager?.markerCollection?.markers?.forEach { marker -> marker.hideInfoWindow() }
                     clusterManager?.cluster()
                     /**
                      * flag state change
@@ -343,10 +344,10 @@ fun ClusterMapScreen(
                         openEventCard = true
                         return@setOnClusterItemClickListener false
                     }
-                    clusterManager?.setOnClusterItemInfoWindowClickListener() {
+                    /*clusterManager?.setOnClusterItemInfoWindowClickListener() {
                         currentEventToShow = it
                         openEventCard = true
-                    }
+                    }*/
                     if(animateZoom){
                         map.animateCamera(
                             CameraUpdateFactory.newLatLngZoom(myLocation, 15f)
@@ -845,6 +846,7 @@ class CulturalEventMadridItem(
     /**
      * Extras
      */
+    private val extraTitle: String
     private val extraID: String
     private val extraDescription: String
     private val extraCategory: String
@@ -878,6 +880,9 @@ class CulturalEventMadridItem(
     /**
      * getters for extras
      */
+    fun getExtraTitle(): String{
+        return extraTitle
+    }
     fun getExtraID(): String{
         return extraID
     }
@@ -932,11 +937,12 @@ class CulturalEventMadridItem(
 
     init {
         location = eventLocation
-        title = eventTitle
-        snippet = eventPlace
+        title = ""
+        snippet = ""
         /**
          * extras
          */
+        extraTitle = eventTitle
         extraID = eventID
         extraDescription = eventDescription
         extraCategory = eventCategory

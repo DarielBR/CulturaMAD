@@ -359,7 +359,7 @@ fun EventCard(
                                 .fillMaxWidth()
                         ) {
                             Text(//Title
-                                text = culturalEventMadridItem.title!!,
+                                text = culturalEventMadridItem.getExtraTitle()!!,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 style = MaterialTheme.typography.titleMedium,
                                 modifier = Modifier
