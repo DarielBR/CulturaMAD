@@ -144,7 +144,8 @@ fun ClusterMapScreen(
          * Obtaining Location, permission requests is done before [MapScreen] function os called.
          * thus, will not be controlled here. ([@suppressLint("MissingPermission")])
          */
-        var myLocation = LatLng(0.0, 0.0)
+        //var myLocation = LatLng(0.0, 0.0)
+        var myLocation by remember { mutableStateOf(LatLng(0.0,0.0)) }
         val locationPermissionState =
             rememberPermissionState(permission = Manifest.permission.ACCESS_FINE_LOCATION)
         if (locationPermissionState.status.isGranted) {
@@ -557,7 +558,8 @@ fun ClusterMapScreen(
             culturalEventMadridItem = currentEventToShow,
             closeClick = { openEventCard = false },
             visibility = openEventCard,
-            navigationBarVisible = isNavigationBarVisible
+            navigationBarVisible = isNavigationBarVisible,
+            myLocation = myLocation
         )
 //        if (openEventCard) {
 //            Column(

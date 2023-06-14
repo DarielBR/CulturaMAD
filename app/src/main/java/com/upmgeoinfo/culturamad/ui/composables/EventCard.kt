@@ -53,6 +53,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.clustering.ClusterItem
 import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
@@ -61,7 +62,6 @@ import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 @Composable
 fun MockEventCard(
-    //culturalEventMadrid: CulturalEventMadrid,
     modifier: Modifier = Modifier
 ){
     Card(
@@ -212,7 +212,7 @@ fun MockEventCard(
 @Composable
 fun MockEventCardPreview(){
     CulturaMADTheme {
-        MockEventCard(/*culturalEventMadrid = MarkerData.dataList[0]*/)
+        MockEventCard()
     }
 }
 
@@ -296,6 +296,7 @@ fun EventCard(
     closeClick: () -> Unit,
     visibility: Boolean,
     navigationBarVisible: Boolean,
+    myLocation: LatLng,
     modifier: Modifier = Modifier
 ){
     AnimatedVisibility(
@@ -408,9 +409,9 @@ fun EventCard(
                                     .padding(6.dp)
                                     .fillMaxWidth()
                                     .height(
-                                        if(culturalEventMadridItem.getExtraDescription().length <= 54 ) 24.dp
+                                        if (culturalEventMadridItem.getExtraDescription().length <= 54) 24.dp
                                         else if (culturalEventMadridItem.getExtraDescription().length in 55..110) 48.dp
-                                        else if(culturalEventMadridItem.getExtraDescription().length in 111..165) 72.dp
+                                        else if (culturalEventMadridItem.getExtraDescription().length in 111..165) 72.dp
                                         else 96.dp
                                     )
                                     .verticalScroll(scrollState)
@@ -510,7 +511,7 @@ fun EventCard(
                                 context.startActivity(Intent.createChooser(intent, "Compartir"))
                             }
                         )
-                        ActionButton(//go to
+                        ActionButton(//link
                             icon = R.drawable.cmad_link,
                             onClick = {
                                 val intent = Intent(
@@ -520,9 +521,43 @@ fun EventCard(
                                 context.startActivity(intent)
                             }
                         )
-                        ActionButton(
+                        ActionButton(//calendar
                             icon = R.drawable.cmad_calendar,
                             onClick = {}
+                        )
+                        ActionButton(//directions
+                            icon = R.drawable.cmad_directions,
+                            onClick = {
+                                val myLat = myLocation.latitude
+                                val myLng = myLocation.longitude
+                                val latitude = culturalEventMadridItem.position.latitude
+                                val longitude = culturalEventMadridItem.position.longitude
+                                val intent = Intent(
+                                        Intent.ACTION_VIEW,
+                                        //Uri.parse("geo:$latitude,$longitude"
+                                        Uri.parse("http://maps.google.com/maps?saddr=$myLat,$myLng&daddr=$latitude,$longitude")
+                                    )
+                                intent.setPackage("com.google.android.apps.maps")
+                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                context.startActivity(intent)
+                            }
+                        )
+                        ActionButton(//open Maps
+                            icon = R.drawable.cmad_maps,
+                            onClick = {
+                                val myLat = myLocation.latitude
+                                val myLng = myLocation.longitude
+                                val latitude = culturalEventMadridItem.position.latitude
+                                val longitude = culturalEventMadridItem.position.longitude
+                                val intent = Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse("geo:$latitude,$longitude")
+                                    //Uri.parse("http://maps.google.com/maps?saddr=$myLat,$myLng&daddr=$latitude,$longitude")
+                                )
+                                intent.setPackage("com.google.android.apps.maps")
+                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                context.startActivity(intent)
+                            }
                         )
                     }
                 }
