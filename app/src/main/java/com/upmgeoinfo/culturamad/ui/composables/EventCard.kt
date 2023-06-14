@@ -1,5 +1,6 @@
 package com.upmgeoinfo.culturamad.ui.composables
 
+import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Resources
@@ -24,6 +25,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -486,82 +489,115 @@ fun EventCard(
                             }
                         }
                     }
-                    Row(
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(2.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                     ) {
-                        var favorite by remember { mutableStateOf(false) }
-                        ActionButton(//Bookmark
-                            icon = if (favorite) R.drawable.cmad_bookmark_true
-                            else R.drawable.cmad_bookmark_false,
-                            onClick = { favorite = !favorite }
-                        )
-                        val context = LocalContext.current
-                        ActionButton(//Share
-                            icon = R.drawable.cmad_share,
-                            onClick = {
-                                val intent = Intent(Intent.ACTION_SEND).apply {
-                                    type = "text/plain"
-                                    putExtra(Intent.EXTRA_TITLE, culturalEventMadridItem.title)
-                                    putExtra(
-                                        Intent.EXTRA_TEXT,
-                                        culturalEventMadridItem.getExtraLink()
+                        items(actionButtonsParams){item ->
+                            when(item.name){
+                                "bookmark" -> {
+                                    var favorite by remember { mutableStateOf(false) }
+                                    ActionButton(//Bookmark
+                                        icon = if (favorite) R.drawable.cmad_bookmark_true
+                                        else R.drawable.cmad_bookmark_false,
+                                        onClick = { favorite = !favorite }
                                     )
                                 }
-                                context.startActivity(Intent.createChooser(intent, "Compartir"))
-                            }
-                        )
-                        ActionButton(//link
-                            icon = R.drawable.cmad_link,
-                            onClick = {
-                                val intent = Intent(
-                                    Intent.ACTION_VIEW,
-                                    Uri.parse(culturalEventMadridItem.getExtraLink())
-                                )
-                                context.startActivity(intent)
-                            }
-                        )
-                        ActionButton(//calendar
-                            icon = R.drawable.cmad_calendar,
-                            onClick = {}
-                        )
-                        ActionButton(//directions
-                            icon = R.drawable.cmad_directions,
-                            onClick = {
-                                val myLat = myLocation.latitude
-                                val myLng = myLocation.longitude
-                                val latitude = culturalEventMadridItem.position.latitude
-                                val longitude = culturalEventMadridItem.position.longitude
-                                val intent = Intent(
-                                        Intent.ACTION_VIEW,
-                                        //Uri.parse("geo:$latitude,$longitude"
-                                        Uri.parse("http://maps.google.com/maps?saddr=$myLat,$myLng&daddr=$latitude,$longitude")
+                                "share" -> {
+                                    val context = LocalContext.current
+                                    ActionButton(//Share
+                                        icon = R.drawable.cmad_share,
+                                        onClick = {
+                                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                                type = "text/plain"
+                                                putExtra(Intent.EXTRA_TITLE, culturalEventMadridItem.title)
+                                                putExtra(
+                                                    Intent.EXTRA_TEXT,
+                                                    culturalEventMadridItem.getExtraLink()
+                                                )
+                                            }
+                                            context.startActivity(Intent.createChooser(intent, "Compartir"))
+                                        }
                                     )
-                                intent.setPackage("com.google.android.apps.maps")
-                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                context.startActivity(intent)
+                                }
+                                "link" -> {
+                                    val context = LocalContext.current
+                                    ActionButton(//link
+                                        icon = R.drawable.cmad_link,
+                                        onClick = {
+                                            val intent = Intent(
+                                                Intent.ACTION_VIEW,
+                                                Uri.parse(culturalEventMadridItem.getExtraLink())
+                                            )
+                                            context.startActivity(intent)
+                                        }
+                                    )
+                                }
+                                "calendar" -> {
+                                    ActionButton(//calendar
+                                        icon = R.drawable.cmad_calendar,
+                                        onClick = {}
+                                    )
+                                }
+                                "directions" -> {
+                                    val context = LocalContext.current
+                                    ActionButton(//directions
+                                        icon = R.drawable.cmad_directions,
+                                        onClick = {
+                                            val myLat = myLocation.latitude
+                                            val myLng = myLocation.longitude
+                                            val latitude = culturalEventMadridItem.position.latitude
+                                            val longitude = culturalEventMadridItem.position.longitude
+                                            val intent = Intent(
+                                                Intent.ACTION_VIEW,
+                                                //Uri.parse("geo:$latitude,$longitude"
+                                                Uri.parse("http://maps.google.com/maps?saddr=$myLat,$myLng&daddr=$latitude,$longitude")
+                                            )
+                                            intent.setPackage("com.google.android.apps.maps")
+                                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                            context.startActivity(intent)
+                                        }
+                                    )
+                                }
+                                "maps" -> {
+                                    val context = LocalContext.current
+                                    ActionButton(//open Maps
+                                        icon = R.drawable.cmad_maps,
+                                        onClick = {
+                                            val myLat = myLocation.latitude
+                                            val myLng = myLocation.longitude
+                                            val latitude = culturalEventMadridItem.position.latitude
+                                            val longitude = culturalEventMadridItem.position.longitude
+                                            val intent = Intent(
+                                                Intent.ACTION_VIEW,
+                                                Uri.parse("geo:$latitude,$longitude")
+                                                //Uri.parse("http://maps.google.com/maps?saddr=$myLat,$myLng&daddr=$latitude,$longitude")
+                                            )
+                                            intent.setPackage("com.google.android.apps.maps")
+                                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                            context.startActivity(intent)
+                                        }
+                                    )
+                                }
                             }
-                        )
-                        ActionButton(//open Maps
-                            icon = R.drawable.cmad_maps,
-                            onClick = {
-                                val myLat = myLocation.latitude
-                                val myLng = myLocation.longitude
-                                val latitude = culturalEventMadridItem.position.latitude
-                                val longitude = culturalEventMadridItem.position.longitude
-                                val intent = Intent(
-                                    Intent.ACTION_VIEW,
-                                    Uri.parse("geo:$latitude,$longitude")
-                                    //Uri.parse("http://maps.google.com/maps?saddr=$myLat,$myLng&daddr=$latitude,$longitude")
-                                )
-                                intent.setPackage("com.google.android.apps.maps")
-                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                context.startActivity(intent)
-                            }
-                        )
+                        }
                     }
                 }
             }
         }
     }
 }
+
+data class ActionButtonParams(
+    val name: String
+)
+
+private val actionButtonsParams = listOf<ActionButtonParams>(
+    ActionButtonParams("bookmark"),
+    ActionButtonParams("share"),
+    ActionButtonParams("link"),
+    ActionButtonParams("calendar"),
+    ActionButtonParams("directions"),
+    ActionButtonParams("maps")
+)
