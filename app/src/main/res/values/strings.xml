@@ -17,5 +17,11 @@
     <string name="event_frequency">Frecuencia:</string>
     <string name="event_location">Lugar:</string>
     <string name="event_address">Dirección:</string>
+    <string name="ui_schedule">Desde el %s hasta el %s</string>
+    <string name="ui_weekly">Semanal</string>
+    <string name="ui_monthly">Mensual</string>
+    <string name="ui_excluded_days">. Días excuídos: %s</string>
+    <string name="ui_frequency">Frecuencia: %s</string>
+    <string name="ui_hours">Horario: %s</string>
     <string name="tip">Tip: haga un tap sobre la información de un marcador para ir a la publicación o un tap largo para compartir.</string>
 </resources>

@@ -2,6 +2,7 @@ package com.upmgeoinfo.culturamad.ui.composables
 
 import android.content.Intent
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -308,7 +309,11 @@ fun EventCard(
         Column(
             verticalArrangement = Arrangement.Bottom,
             modifier = Modifier
-                .padding (start = 8.dp, end = 8.dp, bottom = if(navigationBarVisible) 56.dp else 32.dp)
+                .padding(
+                    start = 8.dp,
+                    end = 8.dp,
+                    bottom = if (navigationBarVisible) 56.dp else 32.dp
+                )
                 .fillMaxSize()
         ) {
             androidx.compose.material.Card(
@@ -389,56 +394,95 @@ fun EventCard(
                             }
                         }
                     }
-                    val scrollState = rememberScrollState()
-                    LaunchedEffect(Unit) { scrollState.animateScrollTo(100) }
-                    Surface(
-                        tonalElevation = 3.dp,
-                        shape = MaterialTheme.shapes.small,
-                        modifier = Modifier
-                            .padding(8.dp)
-                    ) {
-                        Column(
+                    if(culturalEventMadridItem.getExtraDescription() != ""){
+                        val scrollState = rememberScrollState()
+                        LaunchedEffect(Unit) { scrollState.animateScrollTo(100) }
+                        Surface(
+                            tonalElevation = 3.dp,
+                            shape = MaterialTheme.shapes.small,
                             modifier = Modifier
-                                .padding(6.dp)
-                                .fillMaxWidth()
-                                .height(100.dp)
-                                .verticalScroll(scrollState)
+                                .padding(8.dp)
                         ) {
-                            Text(//Description
-                                text = culturalEventMadridItem.getExtraDescription(),
-                                //text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-                                color = MaterialTheme.colorScheme.onSurface,
-                                style = MaterialTheme.typography.bodyMedium,
-                                textAlign = TextAlign.Justify,
-                                //overflow = TextOverflow.Ellipsis,
-                                minLines = 4,
-                                maxLines = 6,
+                            Column(
                                 modifier = Modifier
-                            )
+                                    .padding(6.dp)
+                                    .fillMaxWidth()
+                                    .height(
+                                        if(culturalEventMadridItem.getExtraDescription().length <= 54 ) 24.dp
+                                        else if (culturalEventMadridItem.getExtraDescription().length in 55..110) 48.dp
+                                        else if(culturalEventMadridItem.getExtraDescription().length in 111..165) 72.dp
+                                        else 96.dp
+                                    )
+                                    .verticalScroll(scrollState)
+                            ) {
+                                Text(//Description
+                                    text = culturalEventMadridItem.getExtraDescription(),
+                                    //text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    textAlign = TextAlign.Justify,
+                                    //overflow = TextOverflow.Ellipsis,
+                                    /*maxLines = if(culturalEventMadridItem.getExtraDescription().length <= 54 ) 1
+                                        else if (culturalEventMadridItem.getExtraDescription().length in 55..110) 2
+                                        else if(culturalEventMadridItem.getExtraDescription().length in 111..165) 3
+                                        else if(culturalEventMadridItem.getExtraDescription().length >= 166) 4
+                                        else 6,*/
+                                    //maxLines = 1,
+                                    modifier = Modifier
+                                )
+                            }
                         }
                     }
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                     ) {
-                        val start = culturalEventMadridItem.getExtraStart()
-                        val end = culturalEventMadridItem.getExtraEnd()
-                        val excluded = culturalEventMadridItem.getExtraExcludedDays()
-                        val freqs = culturalEventMadridItem.getExtraFrequency()
+                        val start = culturalEventMadridItem.getExtraStart().subSequence(0..9)
+                        val end = culturalEventMadridItem.getExtraEnd().subSequence(0..9)
+                        val schedule = LocalContext.current.getString(R.string.ui_schedule, start, end)
+                        val hours = if(culturalEventMadridItem.getExtraTime() == "") ""
+                            else LocalContext.current.getString(R.string.ui_hours, culturalEventMadridItem.getExtraTime())
+                        val excluded = if(culturalEventMadridItem.getExtraExcludedDays() == "")""
+                            else LocalContext.current.getString(R.string.ui_excluded_days, culturalEventMadridItem.getExtraExcludedDays())
+                        val frequency = if(culturalEventMadridItem.getExtraFrequency() == "") ""
+                            else if(culturalEventMadridItem.getExtraFrequency() == "WEEKLY")
+                                LocalContext.current.getString(R.string.ui_frequency, LocalContext.current.getString(R.string.ui_weekly))
+                        else LocalContext.current.getString(R.string.ui_frequency, culturalEventMadridItem.getExtraFrequency())
                         Column(
                             modifier = Modifier
                                 .padding(8.dp)
                         ) {
                             Text(//Dates
-                                text = "Desde el $start, hasta el $end, excepto: $excluded .",
+                                text = schedule,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 style = MaterialTheme.typography.bodyLarge
                             )
-                            Text(//Freq
-                                text = freqs,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            ){
+                                if(hours != ""){
+                                    Text(//Hours
+                                        text = hours,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                }
+                                if(excluded != ""){
+                                    Text(//Excluded Days
+                                        text = excluded,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                }
+                            }
+                            if(frequency != ""){
+                                Text(//frequency
+                                    text = frequency,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
                         }
                     }
                     Row(

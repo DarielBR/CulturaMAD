@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="30dp"
+    android:height="30dp"
+    android:viewportWidth="30"
+    android:viewportHeight="30">
+
+    <!-- Círculo blanco transparente al 70% -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillAlpha="0.6"
+        android:pathData="M15,15 m-10,0 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0" />
+
+    <!-- Círculo sólido de color #253e9c -->
+    <path
+        android:fillColor="#253e9c"
+        android:pathData="M15,15 m-8.5,0 a8.5,8.5 0 1,0 17,0 a8.5,8.5 0 1,0 -17,0" />
+</vector>

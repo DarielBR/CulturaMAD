@@ -2,6 +2,7 @@ package com.upmgeoinfo.culturamad.ui.composables
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Application
 import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
@@ -9,6 +10,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.VectorDrawable
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -38,7 +40,10 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,6 +61,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -955,13 +961,30 @@ class CMADClusterMarkerRenderer(
     map: GoogleMap,
     clusterManager: ClusterManager<CulturalEventMadridItem>
     ): DefaultClusterRenderer<CulturalEventMadridItem>(context, map, clusterManager){
-
+    val context = context
     override fun onBeforeClusterItemRendered(
         item: CulturalEventMadridItem,
         markerOptions: MarkerOptions
     ) {
         super.onBeforeClusterItemRendered(item, markerOptions)
-        markerOptions!!.icon(BitmapDescriptorFactory.fromResource(R.drawable.cmad_single_marker_3))
+        markerOptions!!.icon(getBitmapDescriptorFromVector(context, R.drawable.cmad_vestor_circle_marker))
+        //markerOptions!!.icon(BitmapDescriptorFactory.fromResource(R.drawable.cmad_circle_marker_2))
+    }
+
+    fun getBitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor? {
+        val vectorDrawable = VectorDrawableCompat.create(context.resources, vectorResId, null)
+        /*vectorDrawable?.setBounds(0, 0, vectorDrawable.intrinsicWidth, vectorDrawable.intrinsicHeight)
+
+        val bitmap = Bitmap.createBitmap(
+            vectorDrawable?.intrinsicWidth ?: 0,
+            vectorDrawable?.intrinsicHeight ?: 0,
+            Bitmap.Config.ARGB_8888
+        )
+
+        val canvas = Canvas(bitmap)
+        vectorDrawable?.draw(canvas)*/
+
+        return BitmapDescriptorFactory.fromBitmap(vectorDrawable!!.toBitmap())
     }
 
 }
