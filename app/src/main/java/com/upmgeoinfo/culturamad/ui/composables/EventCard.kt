@@ -5,6 +5,8 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.net.Uri
+import android.provider.CalendarContract
+import android.provider.CalendarContract.Events
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
@@ -52,6 +54,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.integerArrayResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -62,6 +65,7 @@ import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
 import com.upmgeoinfo.culturamad.datamodel.MarkerData
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
+import java.util.Calendar
 
 @Composable
 fun MockEventCard(
@@ -535,9 +539,54 @@ fun EventCard(
                                     )
                                 }
                                 "calendar" -> {
+                                    val context = LocalContext.current
                                     ActionButton(//calendar
                                         icon = R.drawable.cmad_calendar,
-                                        onClick = {}
+                                        onClick = {
+                                            val startYear = culturalEventMadridItem.getExtraStart().subSequence(0..3).toString()
+                                            val startMonth = culturalEventMadridItem.getExtraStart().subSequence(5..6).toString()
+                                            val startDay = culturalEventMadridItem.getExtraStart().subSequence(8..9).toString()
+                                            val hour: String
+                                            val minutes: String
+                                            if(culturalEventMadridItem.getExtraTime() != ""){
+                                                hour = culturalEventMadridItem.getExtraTime().subSequence(0..1).toString()
+                                                minutes = culturalEventMadridItem.getExtraTime().subSequence(3..4).toString()
+                                            }else{
+                                                hour = "00"
+                                                minutes = "00"
+                                            }
+
+                                            val calendar = Calendar.getInstance()
+                                            calendar.set(Calendar.YEAR, startYear.toInt())
+                                            calendar.set(Calendar.MONTH, startMonth.toInt())
+                                            calendar.set(Calendar.DAY_OF_MONTH, startDay.toInt())
+                                            if(culturalEventMadridItem.getExtraTime() != ""){
+                                                calendar.set(Calendar.HOUR_OF_DAY, hour.toInt())
+                                                calendar.set(Calendar.MINUTE, minutes.toInt())
+                                            }else{
+                                                calendar.set(Calendar.HOUR_OF_DAY, "00".toInt())
+                                                calendar.set(Calendar.MINUTE, "00".toInt())
+                                            }
+
+                                            val intent = Intent(Intent.ACTION_INSERT)
+                                            intent.data = CalendarContract.Events.CONTENT_URI
+                                            intent.putExtra(CalendarContract.Events.TITLE, culturalEventMadridItem.getExtraTitle())
+                                            intent.putExtra(CalendarContract.Events.EVENT_LOCATION, culturalEventMadridItem.getExtraAddress())
+                                            if(culturalEventMadridItem.getExtraTime() != ""){
+                                                intent.putExtra(
+                                                    CalendarContract.EXTRA_EVENT_BEGIN_TIME,
+                                                    calendar.timeInMillis
+                                                )
+                                                intent.putExtra(
+                                                    CalendarContract.EXTRA_EVENT_END_TIME,
+                                                    calendar.timeInMillis + 60 * 60 * 1000
+                                                )
+                                            }else {
+                                                intent.putExtra(CalendarContract.Events.ALL_DAY, true)
+                                            }
+
+                                            context.startActivity(intent)
+                                        }
                                     )
                                 }
                                 "directions" -> {
