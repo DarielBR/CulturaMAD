@@ -2,15 +2,7 @@ package com.upmgeoinfo.culturamad.ui.composables
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Application
 import android.content.Context
-import android.content.res.Configuration
-import android.content.res.Resources
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.VectorDrawable
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -40,10 +32,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,14 +40,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
@@ -67,7 +54,6 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptor
@@ -91,16 +77,6 @@ import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
 import com.upmgeoinfo.culturamad.datamodel.MarkerData
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
-@Preview(showBackground = false)
-@Preview(showBackground = false, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun ClusterMapScreenPreview(){
-    val fuseLocationClient = LocationServices.getFusedLocationProviderClient(LocalContext.current)
-    CulturaMADTheme() {
-        ClusterMapScreen(fuseLocationClient)
-    }
-}
-
 @SuppressLint("MissingPermission")
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class,
     ExperimentalComposeUiApi::class, ExperimentalAnimationApi::class
@@ -109,16 +85,8 @@ fun ClusterMapScreenPreview(){
 @Composable
 fun ClusterMapScreen(
     fuseLocationClient: FusedLocationProviderClient,
-    /*searchValue: String,
-    categoryDance: Boolean,
-    categoryMusic: Boolean,
-    categoryPainting: Boolean,
-    categoryTheatre: Boolean*/
 ){
     CulturaMADTheme(){
-        /**
-         * Filter values
-         */
         /**
          * Filter values
          */
@@ -131,20 +99,11 @@ fun ClusterMapScreen(
         /**
          * Keyboard Controller value to control keyboard behavior when using the search bar.
          */
-        /**
-         * Keyboard Controller value to control keyboard behavior when using the search bar.
-         */
         val keyboardController = LocalSoftwareKeyboardController.current
-
         /**
          * Obtaining Location, permission requests is done before [MapScreen] function os called.
          * thus, will not be controlled here. ([@suppressLint("MissingPermission")])
          */
-        /**
-         * Obtaining Location, permission requests is done before [MapScreen] function os called.
-         * thus, will not be controlled here. ([@suppressLint("MissingPermission")])
-         */
-        //var myLocation = LatLng(0.0, 0.0)
         var myLocation by remember { mutableStateOf(LatLng(0.0,0.0)) }
         val locationPermissionState =
             rememberPermissionState(permission = Manifest.permission.ACCESS_FINE_LOCATION)
@@ -155,9 +114,6 @@ fun ClusterMapScreen(
                 }
             }
         }
-        /**
-         * Creating location and a CameraPositionState to move our map camera to Plaza del Sol :)
-         */
         /**
          * Creating location and a CameraPositionState to move our map camera to Plaza del Sol :)
          */
@@ -173,14 +129,8 @@ fun ClusterMapScreen(
         /**
          *context and darkTheme will be used to configure the MapView and other logic ahead.
          */
-        /**
-         *context and darkTheme will be used to configure the MapView and other logic ahead.
-         */
         val context = LocalContext.current
         val darkTheme: Boolean = isSystemInDarkTheme()
-        /**
-         * Customizing the SystemBars
-         */
         /**
          * Customizing the SystemBars
          */
@@ -196,9 +146,6 @@ fun ClusterMapScreen(
                 darkIcons = !darkTheme
             )
         }
-        /**
-         * Map Properties and UISettings
-         */
         /**
          * Map Properties and UISettings
          */
@@ -225,10 +172,6 @@ fun ClusterMapScreen(
                 )
             )
         }
-
-        /**
-         * Cluster Manager
-         */
         /**
          * Cluster Manager
          */
@@ -237,14 +180,9 @@ fun ClusterMapScreen(
                 null
             )
         }
-        //lateinit var clusterManager: ClusterManager<CulturalEventMadridItem>
         var refreshClusterItems by remember { mutableStateOf(true) }
-
         /**
-         * ModalBottomSheet handling values and variables
-         */
-        /**
-         * ModalBottomSheet handling values and variables
+         * EventCard control values
          */
         var currentEventToShow by remember {
             mutableStateOf<CulturalEventMadridItem>(
@@ -252,42 +190,20 @@ fun ClusterMapScreen(
             )
         }
         var openEventCard by remember { mutableStateOf(false) }
-        val skipPartiallyExpanded by remember { mutableStateOf(false) }
-        val bottomSheetState = rememberModalBottomSheetState(
-            skipPartiallyExpanded = skipPartiallyExpanded
-        )
-
         /**
          * Applying correct size to our window attending to the navigation mode set in the device
-         */
-        /**
-         * Applying correct size to our window attending to the navigation mode set in the device
+         * * 0-> 3 button mode
+         * 1-> 2 button mode
+         * 2-> gesture mode
+         *
+         * gesture 84, buttons 168
          */
         var isNavigationBarVisible by remember { mutableStateOf(false) }
         val resources = context.resources
         val resourceId =
             resources.getIdentifier("config_navBarInteractionMode", "integer", "android")
         val interactionMode = resources.getInteger(resourceId)
-
-        /**
-         * 0-> 3 button mode
-         * 1-> 2 button mode
-         * 2-> gesture mode
-         *
-         * gesture 84, buttons 168
-         */
-
-        /**
-         * 0-> 3 button mode
-         * 1-> 2 button mode
-         * 2-> gesture mode
-         *
-         * gesture 84, buttons 168
-         */
         isNavigationBarVisible = interactionMode < 2
-        /**
-         * GoogleMap declaration
-         */
         /**
          * GoogleMap declaration
          */
@@ -308,9 +224,6 @@ fun ClusterMapScreen(
                     /**
                      * Populating the ClusterItems list with the filtering options
                      */
-                    /**
-                     * Populating the ClusterItems list with the filtering options
-                     */
                     val items = getCulturalEvents(
                         searchValue = searchValue,
                         categoryDance = danceFilter,
@@ -324,9 +237,6 @@ fun ClusterMapScreen(
                     clusterManager?.clearItems()
                     clusterManager?.addItems(items)
                     clusterManager?.cluster()
-                    /**
-                     * flag state change
-                     */
                     /**
                      * flag state change
                      */
@@ -368,28 +278,15 @@ fun ClusterMapScreen(
         /**
          * Filtering Elements
          */
-        /**
-         * Filtering Elements
-         */
         Column(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Top,
         ) {
 
             Spacer(
-
                 modifier = Modifier
                     .height(45.dp)
-
             )
-
-            /**
-             * Declaring a SearchBar on top of the screen. A Composable function won't be used in
-             * this case because si necessary to modify a variable external to the function's scope.
-             * In particular the searchValue, will be used modified in the following declaration and
-             * it will be used in other task furthermore.
-             */
-
             /**
              * Declaring a SearchBar on top of the screen. A Composable function won't be used in
              * this case because si necessary to modify a variable external to the function's scope.
@@ -442,16 +339,11 @@ fun ClusterMapScreen(
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions(onSearch = { keyboardController?.hide() }),
                     modifier = Modifier
-                        //.padding(start = 16.dp, end = 16.dp)
                         .fillMaxWidth()
                 )
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-
-            /**
-             * Declaring category filtering buttons
-             */
 
             /**
              * Declaring category filtering buttons
@@ -473,7 +365,6 @@ fun ClusterMapScreen(
                                 }
                             )
                         }
-
                         "Música" -> {
                             FilterItem(
                                 filterStatus = musicFilter,
@@ -485,7 +376,6 @@ fun ClusterMapScreen(
                                 }
                             )
                         }
-
                         "Pintura" -> {
                             FilterItem(
                                 filterStatus = paintingFilter,
@@ -497,7 +387,6 @@ fun ClusterMapScreen(
                                 }
                             )
                         }
-
                         "Teatro" -> {
                             FilterItem(
                                 filterStatus = theatreFilter,
@@ -516,9 +405,6 @@ fun ClusterMapScreen(
         /**
          * MyLocation and Compass button declaration
          */
-        /**
-         * MyLocation and Compass button declaration
-         */
         Column(
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.Bottom,
@@ -526,18 +412,9 @@ fun ClusterMapScreen(
                 .padding(end = 11.dp, bottom = if (!isNavigationBarVisible) 58.dp else 108.dp)
                 .fillMaxSize()
         ) {
-            var clickedOnce by remember { mutableStateOf(false) }
             MapButton(//MyLocation
-                onClick = {//mejorar el behavior del zoom, si ya esta en un 15f dejarlo ahi.
-                          animateZoom = true
-                    /*var zoomLevel = 12f
-                    if (!clickedOnce) {
-                        clickedOnce = !clickedOnce
-                    } else {
-                        clickedOnce = !clickedOnce
-                        zoomLevel = 15f
-                    }
-                    cameraPositionState.position = CameraPosition(myLocation, zoomLevel, 0f, 0f)*/
+                onClick = {
+                    animateZoom = true
                 },
                 drawableResource = R.drawable.cmad_mylocation
             )
@@ -549,10 +426,7 @@ fun ClusterMapScreen(
             )
         }
         /**
-         * ModalBottomSheet declaration
-         */
-        /**
-         * ModalBottomSheet declaration
+         * EventCard declaration
          */
         EventCard(
             culturalEventMadridItem = currentEventToShow,
@@ -561,36 +435,8 @@ fun ClusterMapScreen(
             navigationBarVisible = isNavigationBarVisible,
             myLocation = myLocation
         )
-//        if (openEventCard) {
-//            Column(
-//                verticalArrangement = Arrangement.Bottom,
-//                modifier = Modifier
-//                    .padding(
-//                        start = 8.dp,
-//                        end = 8.dp,
-//                        bottom = if (!isNavigationBarVisible) 32.dp else 56.dp
-//                    )
-//                    .fillMaxSize()
-//            ) {
-//                TestCard(visible = openEventCard)
-//            }
-//             ModalBottomSheet(
-//                 onDismissRequest = {
-//                     refreshClusterItems = false
-//                 },
-//                 sheetState = bottomSheetState
-//             ) {
-//                 EventCard(
-//                     culturalEventMadridItem = currentEventToShow,
-//                     closeClick = {openEventCard = false}
-//                 )
-//                 //MockEventCard()
-//                 //Text(text = "Esta es una prueba")
-//             }
-//        }
     }
-
-}//function end
+}//CusterMapScreen function end
 
 private data class DrawableStringImagePair(
     @DrawableRes val drawable: Int,
@@ -604,85 +450,6 @@ private val categoriesPairsData = listOf(
     R.drawable.teatro_image to R.string.category_theatre
 ).map { DrawableStringImagePair(it.first, it.second) }
 
-fun refreshCulturalEvents(
-    clusterManager: ClusterManager<CulturalEventMadridItem>,
-    searchValue: String,
-    categoryDance: Boolean,
-    categoryMusic: Boolean,
-    categoryPainting: Boolean,
-    categoryTheatre: Boolean
-){
-
-    val culturalEventsMadrid = MarkerData.dataList
-
-    for (culturalEvent in culturalEventsMadrid) {//First filter for valid culturalEvent
-        if (culturalEvent.location != null
-            && culturalEvent.address.district != null
-            && culturalEvent.category != null
-            && culturalEvent.recurrence != null
-            && culturalEvent.address != null
-            && culturalEvent.address.district != null
-            && culturalEvent.address.area != null
-        ) {//Filter by categories if any.
-            if (categoryDance && culturalEvent.category.contains("DanzaBaile")) {
-                if (searchValue == "") {
-                    clusterManager.addItem(createCulturalEventMadridItem(culturalEvent))
-                } else if (culturalEvent.category.contains(searchValue, true)
-                    || culturalEvent.title.contains(searchValue, true)
-                    || culturalEvent.dtstart.contains(searchValue, true)
-                    || culturalEvent.address.district.Id.contains(searchValue, true)
-                    || culturalEvent.description.contains(searchValue, true)
-                ) {
-                    clusterManager.addItem(createCulturalEventMadridItem(culturalEvent))
-                }
-            } else if (categoryMusic && culturalEvent.category.contains("Musica")) {
-                if (searchValue == "") {
-                    clusterManager.addItem(createCulturalEventMadridItem(culturalEvent))
-                } else if (culturalEvent.category.contains(searchValue, true)
-                    || culturalEvent.title.contains(searchValue, true)
-                    || culturalEvent.dtstart.contains(searchValue, true)
-                    || culturalEvent.address.district.Id.contains(searchValue, true)
-                    || culturalEvent.description.contains(searchValue, true)
-                ) {
-                    clusterManager.addItem(createCulturalEventMadridItem(culturalEvent))
-                }
-            } else if (categoryPainting && culturalEvent.category.contains("Exposiciones")) {
-                if (searchValue == "") {
-                    clusterManager.addItem(createCulturalEventMadridItem(culturalEvent))
-                } else if (culturalEvent.category.contains(searchValue, true)
-                    || culturalEvent.title.contains(searchValue, true)
-                    || culturalEvent.dtstart.contains(searchValue, true)
-                    || culturalEvent.address.district.Id.contains(searchValue, true)
-                    || culturalEvent.description.contains(searchValue, true)
-                ) {
-                    clusterManager.addItem(createCulturalEventMadridItem(culturalEvent))
-                }
-            } else if (categoryTheatre && culturalEvent.category.contains("TeatroPerformance")) {
-                if (searchValue == "") {
-                    clusterManager.addItem(createCulturalEventMadridItem(culturalEvent))
-                } else if (culturalEvent.category.contains(searchValue, true)
-                    || culturalEvent.title.contains(searchValue, true)
-                    || culturalEvent.dtstart.contains(searchValue, true)
-                    || culturalEvent.address.district.Id.contains(searchValue, true)
-                    || culturalEvent.description.contains(searchValue, true)
-                ) {
-                    clusterManager.addItem(createCulturalEventMadridItem(culturalEvent))
-                }
-            } else if (!categoryDance && !categoryMusic && !categoryPainting && !categoryTheatre) {
-                if (searchValue == "") {
-                    clusterManager.addItem(createCulturalEventMadridItem(culturalEvent))
-                } else if (culturalEvent.category.contains(searchValue, true)
-                    || culturalEvent.title.contains(searchValue, true)
-                    || culturalEvent.dtstart.contains(searchValue, true)
-                    || culturalEvent.address.district.Id.contains(searchValue, true)
-                    || culturalEvent.description.contains(searchValue, true)
-                ) {
-                    clusterManager.addItem(createCulturalEventMadridItem(culturalEvent))
-                }
-            }
-        }
-    }
-}
 fun getCulturalEvents(
     searchValue: String,
     categoryDance: Boolean,
@@ -699,8 +466,6 @@ fun getCulturalEvents(
             && culturalEvent.address.district != null
             && culturalEvent.category != null
             && culturalEvent.recurrence != null
-            && culturalEvent.address != null
-            && culturalEvent.address.district != null
             && culturalEvent.address.area != null
         ) {//Filter by categories if any.
             if (categoryDance && culturalEvent.category.contains("DanzaBaile")) {
@@ -970,21 +735,10 @@ class CMADClusterMarkerRenderer(
     ) {
         super.onBeforeClusterItemRendered(item, markerOptions)
         markerOptions!!.icon(getBitmapDescriptorFromVector(context, R.drawable.cmad_vestor_circle_marker))
-        //markerOptions!!.icon(BitmapDescriptorFactory.fromResource(R.drawable.cmad_circle_marker_2))
     }
 
     fun getBitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor? {
         val vectorDrawable = VectorDrawableCompat.create(context.resources, vectorResId, null)
-        /*vectorDrawable?.setBounds(0, 0, vectorDrawable.intrinsicWidth, vectorDrawable.intrinsicHeight)
-
-        val bitmap = Bitmap.createBitmap(
-            vectorDrawable?.intrinsicWidth ?: 0,
-            vectorDrawable?.intrinsicHeight ?: 0,
-            Bitmap.Config.ARGB_8888
-        )
-
-        val canvas = Canvas(bitmap)
-        vectorDrawable?.draw(canvas)*/
 
         return BitmapDescriptorFactory.fromBitmap(vectorDrawable!!.toBitmap())
     }

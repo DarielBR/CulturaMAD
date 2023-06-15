@@ -1,5 +1,8 @@
 package com.upmgeoinfo.culturamad.ui.composables
 
+/**
+ * DEPRECATED (marked for delete)
+ */
 import android.content.res.Configuration
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet

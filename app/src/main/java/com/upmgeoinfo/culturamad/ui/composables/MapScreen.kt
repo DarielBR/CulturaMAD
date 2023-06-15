@@ -1,5 +1,9 @@
 package com.upmgeoinfo.culturamad.ui.composables
 
+/**
+ * DEPRECATED (marked for delete)
+ */
+
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
