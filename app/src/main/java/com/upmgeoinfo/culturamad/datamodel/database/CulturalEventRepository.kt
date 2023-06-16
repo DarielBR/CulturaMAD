@@ -6,7 +6,7 @@ class CulturalEventRepository(
     private val culturalEventDao: CulturalEventDao
 ) {
 
-    suspend fun getCulturalEvent(): List<CulturalEvent>{
+    suspend fun getCulturalEvents(): List<CulturalEvent>{
         val entities = culturalEventDao.getCulturalEvents()
         return entities.map{
             CulturalEvent(
@@ -14,7 +14,8 @@ class CulturalEventRepository(
                 title = it.title,
                 category = it.category,
                 description = it.description,
-                location = it.location,
+                latitude = it.latitude,
+                longitude = it.longitude,
                 address = it.address,
                 district = it.district,
                 neighborhood = it.neighborhood,
@@ -41,7 +42,8 @@ class CulturalEventRepository(
             category = culturalEvent.category,
             title = culturalEvent.title,
             description = culturalEvent.description,
-            location = culturalEvent.location,
+            latitude = culturalEvent.latitude,
+            longitude = culturalEvent.longitude,
             address = culturalEvent.address,
             district = culturalEvent.district,
             neighborhood = culturalEvent.neighborhood,
@@ -59,5 +61,6 @@ class CulturalEventRepository(
             bookmark = false,
             review = 0
         )
+        culturalEventDao.insertCulturalEvent(entity)
     }
 }

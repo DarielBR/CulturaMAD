@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -51,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.room.Room
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -59,14 +61,21 @@ import com.google.accompanist.permissions.shouldShowRationale
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.MapsComposeExperimentalApi
+import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
 import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
+import com.upmgeoinfo.culturamad.datamodel.MainViewModel
 import com.upmgeoinfo.culturamad.datamodel.MarkerData
+import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventDatabase
+import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventRepository
 import com.upmgeoinfo.culturamad.navigation.AppNavigation
 import com.upmgeoinfo.culturamad.ui.composables.ClusterMapScreen
 import com.upmgeoinfo.culturamad.ui.composables.FilterItem
 import com.upmgeoinfo.culturamad.ui.composables.MapScreen
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
+import java.sql.Date
+import java.sql.Time
 
 class MainActivity : ComponentActivity() {
     private lateinit var fuseLocationClient: FusedLocationProviderClient
@@ -75,7 +84,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         /**
-         * Initializing lateinit variables
+         * Initializing late-init variables
          */
         fuseLocationClient = LocationServices.getFusedLocationProviderClient(this)
         culturalEvents = MarkerData.dataList
@@ -83,6 +92,74 @@ class MainActivity : ComponentActivity() {
          * Displaying content Edge to Edge
          */
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        /**
+         * [IN DEVELOPMENT]
+         * Database values
+         */
+        val database = Room.databaseBuilder(this, CulturalEventDatabase::class.java, "culturalEvents_db").build()
+        val dao = database.dao
+        val culturalEventRepository = CulturalEventRepository(dao)
+        val viewModel= MainViewModel(culturalEventRepository)
+        val culturalEventsMadrid = MarkerData.dataList
+        for(event in culturalEventsMadrid){
+
+            val culturalEvent = CulturalEvent(
+                id = event.id.toInt(),
+                category = if(event.category == null) ""
+                            else{
+                                event.category
+                                    .subSequence(
+                                        event.category.indexOfLast { it == '/' } + 1,
+                                        event.category.lastIndex + 1
+                                    ).toString()
+                            },
+                title = event.title,
+                description = event.description,
+                latitude = if(event.location == null) ""
+                        else event.location.latitude.toString(),
+                longitude = if(event.location == null) ""
+                        else event.location.longitude.toString(),
+                address = if(event.address == null || event.address.area == null) ""
+                        else{
+                            event.address.area.streetAddress
+                        },
+                district = if(event.address == null || event.address.district == null) ""
+                        else {
+                            event.address.district.Id
+                                .subSequence(
+                                    event.address.district.Id.indexOfLast { it == '/' } + 1,
+                                    event.address.district.Id.lastIndex + 1
+                                ).toString()
+                        },
+                neighborhood = if(event.address == null || event.address.area == null) ""
+                            else {
+                                event.address.area.Id
+                                    .subSequence(
+                                        event.address.area.Id.indexOfLast { it == '/' } + 1,
+                                        event.address.area.Id.lastIndex + 1
+                                    ).toString()
+                            },
+                days = if(event.recurrence == null) ""
+                        else event.recurrence.days,
+                frequency = if(event.recurrence == null) ""
+                            else event.recurrence.frequency,
+                interval = if(event.recurrence == null) 0
+                            else event.recurrence.interval.toInt(),
+                dateStart = event.dtstart,
+                dateEnd = event.dtend,
+                hours = event.time,
+                excludedDays = event.excludedDays,
+                place = event.eventLocation,
+                host = if(event.organization == null)""
+                        else event.organization.organizationName,
+                price = event.price,
+                link = event.link,
+                bookmark = false,
+                review = 0
+            )
+            viewModel.saveCulturalEvent(culturalEvent)
+        }
+
         setContent {
             CulturaMADTheme {
                 AppNavigation(fuseLocationClient)
