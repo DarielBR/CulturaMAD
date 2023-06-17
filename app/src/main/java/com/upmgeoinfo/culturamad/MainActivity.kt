@@ -162,7 +162,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CulturaMADTheme {
-                AppNavigation(fuseLocationClient)
+                AppNavigation(fuseLocationClient, viewModel)
             }
         }
     }
@@ -483,11 +483,14 @@ private val categoriesData = listOf(
 @OptIn(ExperimentalPermissionsApi::class)
 @MapsComposeExperimentalApi
 @Composable
-fun MainScreen(fuseLocationClient: FusedLocationProviderClient){
+fun MainScreen(fuseLocationClient: FusedLocationProviderClient, viewModel: MainViewModel){
     //CulturaMADTheme {
         RequestInternetPermission()
         RequestLocationPermission()
         //UIDeclaration(fuseLocationClient)
-        ClusterMapScreen(fuseLocationClient = fuseLocationClient)
+        ClusterMapScreen(
+            fuseLocationClient = fuseLocationClient,
+            viewModel = viewModel
+        )
     //}
 }

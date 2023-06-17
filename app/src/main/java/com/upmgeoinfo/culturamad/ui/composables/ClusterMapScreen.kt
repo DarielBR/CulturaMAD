@@ -90,6 +90,7 @@ import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 @Composable
 fun ClusterMapScreen(
     fuseLocationClient: FusedLocationProviderClient,
+    viewModel: MainViewModel
 ){
     CulturaMADTheme(){
         /**
@@ -237,6 +238,7 @@ fun ClusterMapScreen(
                         categoryTheatre = theatreFilter
                     )*/
                     val items = getCulturalEventsFromDatabase(
+                        viewModel = viewModel,
                         context = context,
                         searchValue = searchValue,
                         categoryDance = danceFilter,
@@ -543,6 +545,7 @@ fun getCulturalEvents(
 }
 
 private fun getCulturalEventsFromDatabase(
+    viewModel: MainViewModel,
     context: Context,
     searchValue: String,
     categoryDance: Boolean,
@@ -553,12 +556,14 @@ private fun getCulturalEventsFromDatabase(
     /**
      * Accessing the database.
      */
-    val database = Room.databaseBuilder(context, CulturalEventDatabase::class.java, "culturalEvents_db").build()
+    /*val database = Room.databaseBuilder(context, CulturalEventDatabase::class.java, "culturalEvents_db").build()
     val dao = database.dao
     val culturalEventRepository = CulturalEventRepository(dao)
-    val viewModel= MainViewModel(culturalEventRepository)
+    val viewModel= MainViewModel(culturalEventRepository)*/
 
-    val culturalEventsFromDB = viewModel.getCulturalEventsWithLocation()
+    val state = viewModel.state
+
+    val culturalEventsFromDB = state.items
     /**
      * function return
      */

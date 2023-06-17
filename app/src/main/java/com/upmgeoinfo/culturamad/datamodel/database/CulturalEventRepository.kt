@@ -38,7 +38,7 @@ class CulturalEventRepository(
 
     suspend fun getCulturalEventsWithLocation(): List<CulturalEvent>{
         val entities = culturalEventDao.getCulturalEventsWithLocation()
-        return entities.map{
+        val toReturn = entities.map{
             CulturalEvent(
                 id = it.id,
                 title = it.title,
@@ -64,6 +64,7 @@ class CulturalEventRepository(
                 review = it.review
             )
         }
+        return toReturn
     }
 
     suspend fun insertCulturalEvent(culturalEvent: CulturalEvent){

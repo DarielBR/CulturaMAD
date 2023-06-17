@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.upmgeoinfo.culturamad.MainScreen
+import com.upmgeoinfo.culturamad.datamodel.MainViewModel
 import com.upmgeoinfo.culturamad.ui.composables.SplashScreen
 
 /**
@@ -17,7 +18,7 @@ import com.upmgeoinfo.culturamad.ui.composables.SplashScreen
 @OptIn(ExperimentalMaterial3Api::class)
 @MapsComposeExperimentalApi
 @Composable
-fun AppNavigation(fuseLocationClient: FusedLocationProviderClient){
+fun AppNavigation(fuseLocationClient: FusedLocationProviderClient, viewModel: MainViewModel){
     val navController = rememberNavController()
     NavHost(
         navController = navController,
@@ -27,7 +28,7 @@ fun AppNavigation(fuseLocationClient: FusedLocationProviderClient){
                 SplashScreen(navController)
             }
             composable(AppScreens.MainScreen.route){
-                MainScreen(fuseLocationClient)
+                MainScreen(fuseLocationClient, viewModel)
             }
         }
     )
