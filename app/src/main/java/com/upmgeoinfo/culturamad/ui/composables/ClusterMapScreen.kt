@@ -48,6 +48,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import androidx.room.Room
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -73,8 +74,12 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.upmgeoinfo.culturamad.R
+import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
 import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
+import com.upmgeoinfo.culturamad.datamodel.MainViewModel
 import com.upmgeoinfo.culturamad.datamodel.MarkerData
+import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventDatabase
+import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventRepository
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 @SuppressLint("MissingPermission")
@@ -224,7 +229,15 @@ fun ClusterMapScreen(
                     /**
                      * Populating the ClusterItems list with the filtering options
                      */
-                    val items = getCulturalEvents(
+                    /*val items = getCulturalEvents(
+                        searchValue = searchValue,
+                        categoryDance = danceFilter,
+                        categoryMusic = musicFilter,
+                        categoryPainting = paintingFilter,
+                        categoryTheatre = theatreFilter
+                    )*/
+                    val items = getCulturalEventsFromDatabase(
+                        context = context,
                         searchValue = searchValue,
                         categoryDance = danceFilter,
                         categoryMusic = musicFilter,
@@ -529,6 +542,94 @@ fun getCulturalEvents(
     return culturalEventItems.toList()
 }
 
+private fun getCulturalEventsFromDatabase(
+    context: Context,
+    searchValue: String,
+    categoryDance: Boolean,
+    categoryMusic: Boolean,
+    categoryPainting: Boolean,
+    categoryTheatre: Boolean
+): List<CulturalEventMadridItem>{
+    /**
+     * Accessing the database.
+     */
+    val database = Room.databaseBuilder(context, CulturalEventDatabase::class.java, "culturalEvents_db").build()
+    val dao = database.dao
+    val culturalEventRepository = CulturalEventRepository(dao)
+    val viewModel= MainViewModel(culturalEventRepository)
+
+    val culturalEventsFromDB = viewModel.getCulturalEventsWithLocation()
+    /**
+     * function return
+     */
+    val culturalEventItems = mutableListOf<CulturalEventMadridItem>()
+
+    for (culturalEvent in culturalEventsFromDB) {
+            if (categoryDance && culturalEvent.category.contains("DanzaBaile")) {
+                if (searchValue == "") {
+                    culturalEventItems.add(transformCulturalEventToClusterItem(culturalEvent))
+                } else if (culturalEvent.category.contains(searchValue, true)
+                    || culturalEvent.title.contains(searchValue, true)
+                    || culturalEvent.dateStart.contains(searchValue, true)
+                    || culturalEvent.address.contains(searchValue, true)
+                    || culturalEvent.district.contains(searchValue, true)
+                    || culturalEvent.description.contains(searchValue, true)
+                ) {
+                    culturalEventItems.add(transformCulturalEventToClusterItem(culturalEvent))
+                }
+            } else if (categoryMusic && culturalEvent.category.contains("Musica")) {
+                if (searchValue == "") {
+                    culturalEventItems.add(transformCulturalEventToClusterItem(culturalEvent))
+                } else if (culturalEvent.category.contains(searchValue, true)
+                    || culturalEvent.title.contains(searchValue, true)
+                    || culturalEvent.dateStart.contains(searchValue, true)
+                    || culturalEvent.address.contains(searchValue, true)
+                    || culturalEvent.district.contains(searchValue, true)
+                    || culturalEvent.description.contains(searchValue, true)
+                ) {
+                    culturalEventItems.add(transformCulturalEventToClusterItem(culturalEvent))
+                }
+            } else if (categoryPainting && culturalEvent.category.contains("Exposiciones")) {
+                if (searchValue == "") {
+                    culturalEventItems.add(transformCulturalEventToClusterItem(culturalEvent))
+                } else if (culturalEvent.category.contains(searchValue, true)
+                    || culturalEvent.title.contains(searchValue, true)
+                    || culturalEvent.dateStart.contains(searchValue, true)
+                    || culturalEvent.address.contains(searchValue, true)
+                    || culturalEvent.district.contains(searchValue, true)
+                    || culturalEvent.description.contains(searchValue, true)
+                ) {
+                    culturalEventItems.add(transformCulturalEventToClusterItem(culturalEvent))
+                }
+            } else if (categoryTheatre && culturalEvent.category.contains("TeatroPerformance")) {
+                if (searchValue == "") {
+                    culturalEventItems.add(transformCulturalEventToClusterItem(culturalEvent))
+                } else if (culturalEvent.category.contains(searchValue, true)
+                    || culturalEvent.title.contains(searchValue, true)
+                    || culturalEvent.dateStart.contains(searchValue, true)
+                    || culturalEvent.address.contains(searchValue, true)
+                    || culturalEvent.district.contains(searchValue, true)
+                    || culturalEvent.description.contains(searchValue, true)
+                ) {
+                    culturalEventItems.add(transformCulturalEventToClusterItem(culturalEvent))
+                }
+            } else if (!categoryDance && !categoryMusic && !categoryPainting && !categoryTheatre) {
+                if (searchValue == "") {
+                    culturalEventItems.add(transformCulturalEventToClusterItem(culturalEvent))
+                } else if (culturalEvent.category.contains(searchValue, true)
+                    || culturalEvent.title.contains(searchValue, true)
+                    || culturalEvent.dateStart.contains(searchValue, true)
+                    || culturalEvent.address.contains(searchValue, true)
+                    || culturalEvent.district.contains(searchValue, true)
+                    || culturalEvent.description.contains(searchValue, true)
+                ) {
+                    culturalEventItems.add(transformCulturalEventToClusterItem(culturalEvent))
+                }
+            }
+    }
+    return culturalEventItems.toList()
+}
+
 fun createCulturalEventMadridItem(culturalEvent: CulturalEventMadrid): CulturalEventMadridItem {
     return CulturalEventMadridItem(
         eventID = culturalEvent.id,
@@ -548,6 +649,30 @@ fun createCulturalEventMadridItem(culturalEvent: CulturalEventMadrid): CulturalE
         eventTime = culturalEvent.time,
         eventPlace = culturalEvent.eventLocation,
         eventHost = culturalEvent.organization.organizationName,
+        eventPrice = culturalEvent.price,
+        eventLink = culturalEvent.link
+    )
+}
+
+fun transformCulturalEventToClusterItem(culturalEvent: CulturalEvent): CulturalEventMadridItem{
+    return CulturalEventMadridItem(
+        eventID = culturalEvent.id.toString(),
+        eventLocation = LatLng(culturalEvent.latitude.toDouble(), culturalEvent.longitude.toDouble()),
+        eventTitle = culturalEvent.title,
+        eventDescription = culturalEvent.description,
+        eventCategory = culturalEvent.category,
+        eventAddress = culturalEvent.address,
+        eventDistrict = culturalEvent.district,
+        eventNeighborhood = culturalEvent.neighborhood,
+        eventDays = culturalEvent.days,
+        eventFrequency = culturalEvent.frequency,
+        eventInterval = culturalEvent.interval.toInt(),
+        eventStart = culturalEvent.dateStart,
+        eventEnd = culturalEvent.dateEnd,
+        eventExcludedDays = culturalEvent.excludedDays,
+        eventTime = culturalEvent.hours,
+        eventPlace = culturalEvent.place,
+        eventHost = culturalEvent.host,
         eventPrice = culturalEvent.price,
         eventLink = culturalEvent.link
     )

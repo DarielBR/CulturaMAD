@@ -13,4 +13,12 @@ class MainViewModel(
             culturalEventRepository.insertCulturalEvent(culturalEvent = culturalEvent)
         }
     }
+
+    fun getCulturalEventsWithLocation(): List<CulturalEvent>{
+        var culturalEvents = mutableListOf<CulturalEvent>()
+        viewModelScope.launch {
+            culturalEvents = culturalEventRepository.getCulturalEventsWithLocation().toMutableList()
+        }
+        return culturalEvents.toList()
+    }
 }

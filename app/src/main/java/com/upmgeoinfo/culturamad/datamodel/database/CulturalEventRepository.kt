@@ -36,6 +36,36 @@ class CulturalEventRepository(
         }
     }
 
+    suspend fun getCulturalEventsWithLocation(): List<CulturalEvent>{
+        val entities = culturalEventDao.getCulturalEventsWithLocation()
+        return entities.map{
+            CulturalEvent(
+                id = it.id,
+                title = it.title,
+                category = it.category,
+                description = it.description,
+                latitude = it.latitude,
+                longitude = it.longitude,
+                address = it.address,
+                district = it.district,
+                neighborhood = it.neighborhood,
+                days = it.days,
+                frequency = it.frequency,
+                interval = it.interval,
+                dateStart = it.dateStart,
+                dateEnd = it.dateEnd,
+                hours = it.hours,
+                excludedDays = it.excludedDays,
+                place = it.place,
+                host = it.host,
+                price = it.price,
+                link = it.link,
+                bookmark = it.bookmark,
+                review = it.review
+            )
+        }
+    }
+
     suspend fun insertCulturalEvent(culturalEvent: CulturalEvent){
         val entity = CulturalEventEntity(
             id = culturalEvent.id,

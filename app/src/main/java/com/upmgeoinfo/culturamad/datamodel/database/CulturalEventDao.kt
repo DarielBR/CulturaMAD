@@ -14,4 +14,7 @@ interface CulturalEventDao {
     @Query("SELECT * FROM CulturalEventEntity")
     suspend fun getCulturalEvents(): List<CulturalEventEntity>
 
+    @Query("SELECT * FROM CulturalEventEntity WHERE latitude <> '' OR longitude <> ''")
+    suspend fun getCulturalEventsWithLocation(): List<CulturalEventEntity>
+
 }
