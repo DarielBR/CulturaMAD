@@ -56,6 +56,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.integerArrayResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -63,6 +64,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.clustering.ClusterItem
 import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
+import com.upmgeoinfo.culturamad.datamodel.MainViewModel
 import com.upmgeoinfo.culturamad.datamodel.MarkerData
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 import java.util.Calendar
@@ -299,6 +301,7 @@ fun CardButton(
 
 @Composable
 fun EventCard(
+    viewModel: MainViewModel,
     culturalEventMadridItem: CulturalEventMadridItem,
     closeClick: () -> Unit,
     visibility: Boolean,
@@ -314,6 +317,7 @@ fun EventCard(
         ) + fadeIn(),
         exit = fadeOut()
     ){
+        val culturalEvent = viewModel.state.items.find { it.id == viewModel.state.currentItem.toInt() }
         Column(
             verticalArrangement = Arrangement.Bottom,
             modifier = Modifier
@@ -372,20 +376,22 @@ fun EventCard(
                                 .fillMaxWidth()
                         ) {
                             Text(//Title
-                                text = culturalEventMadridItem.getExtraTitle()!!,
+                                text = culturalEvent!!.title,
+                                //text = culturalEventMadridItem.getExtraTitle()!!,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 style = MaterialTheme.typography.titleMedium,
                                 modifier = Modifier
                                     .padding(bottom = 2.dp)
                             )
                             Text(//Address
-                                text = culturalEventMadridItem.getExtraAddress(),
+                                text = culturalEvent.address,
+                                //text = culturalEventMadridItem.getExtraAddress(),
                                 color = MaterialTheme.colorScheme.onSurface,
                                 style = MaterialTheme.typography.bodyMedium,
                                 modifier = Modifier
                                     .padding(top = 2.dp, bottom = 2.dp)
                             )
-                            val isFree = (culturalEventMadridItem.getExtraPrice() == "")
+                            val isFree = (culturalEvent.price == "") //culturalEventMadridItem.getExtraPrice() == ""
                             Surface(
                                 shape = MaterialTheme.shapes.extraSmall,
                                 color = MaterialTheme.colorScheme.surfaceVariant,
@@ -393,7 +399,7 @@ fun EventCard(
                                     .padding(top = 2.dp)
                             ) {
                                 Text(//Price
-                                    text = if (isFree) "Free" else culturalEventMadridItem.getExtraPrice(),
+                                    text = if (isFree) "Free" else culturalEvent.price, //culturalEventMadridItem.getExtraPrice()
                                     color = MaterialTheme.colorScheme.onSurface,
                                     style = MaterialTheme.typography.labelMedium,
                                     modifier = Modifier
@@ -402,7 +408,7 @@ fun EventCard(
                             }
                         }
                     }
-                    if(culturalEventMadridItem.getExtraDescription() != ""){
+                    if(culturalEvent!!.description != ""){//culturalEventMadridItem.getExtraDescription()
                         val scrollState = rememberScrollState()
                         LaunchedEffect(Unit) { scrollState.animateScrollTo(100) }
                         Surface(
@@ -424,7 +430,8 @@ fun EventCard(
                                     .verticalScroll(scrollState)
                             ) {
                                 Text(//Description
-                                    text = culturalEventMadridItem.getExtraDescription(),
+                                    text = culturalEvent.description,
+                                    //text = culturalEventMadridItem.getExtraDescription(),
                                     //text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
                                     color = MaterialTheme.colorScheme.onSurface,
                                     style = MaterialTheme.typography.bodyMedium,
@@ -445,17 +452,17 @@ fun EventCard(
                         modifier = Modifier
                             .fillMaxWidth()
                     ) {
-                        val start = culturalEventMadridItem.getExtraStart().subSequence(0..9)
-                        val end = culturalEventMadridItem.getExtraEnd().subSequence(0..9)
+                        val start = culturalEvent.dateStart.subSequence(0..9)
+                        val end = culturalEvent.dateEnd.subSequence(0..9)
                         val schedule = LocalContext.current.getString(R.string.ui_schedule, start, end)
-                        val hours = if(culturalEventMadridItem.getExtraTime() == "") ""
-                            else LocalContext.current.getString(R.string.ui_hours, culturalEventMadridItem.getExtraTime())
-                        val excluded = if(culturalEventMadridItem.getExtraExcludedDays() == "")""
-                            else LocalContext.current.getString(R.string.ui_excluded_days, culturalEventMadridItem.getExtraExcludedDays())
-                        val frequency = if(culturalEventMadridItem.getExtraFrequency() == "") ""
+                        val hours = if(culturalEvent.hours == "") ""
+                            else LocalContext.current.getString(R.string.ui_hours, culturalEvent.hours)
+                        val excluded = if(culturalEvent.excludedDays == "")""
+                            else LocalContext.current.getString(R.string.ui_excluded_days, culturalEvent.excludedDays)
+                        val frequency = if(culturalEvent.frequency == "") ""
                             else if(culturalEventMadridItem.getExtraFrequency() == "WEEKLY")
                                 LocalContext.current.getString(R.string.ui_frequency, LocalContext.current.getString(R.string.ui_weekly))
-                        else LocalContext.current.getString(R.string.ui_frequency, culturalEventMadridItem.getExtraFrequency())
+                        else LocalContext.current.getString(R.string.ui_frequency, culturalEvent.frequency)
                         Column(
                             modifier = Modifier
                                 .padding(8.dp)
@@ -501,11 +508,17 @@ fun EventCard(
                         items(actionButtonsParams){item ->
                             when(item.name){
                                 "bookmark" -> {
-                                    var favorite by remember { mutableStateOf(false) }
+                                    var favorite by remember { mutableStateOf(culturalEvent.bookmark) }
+                                    //favorite = culturalEvent.bookmark
                                     ActionButton(//Bookmark
-                                        icon = if (favorite) R.drawable.cmad_bookmark_true
+                                        icon = if (favorite) R.drawable.cmad_bookmark_true//favorite
                                         else R.drawable.cmad_bookmark_false,
-                                        onClick = { favorite = !favorite }
+                                        onClick = {
+                                            favorite = !favorite
+                                            viewModel.changeBookmarkState(culturalEvent, favorite)
+                                            val index = viewModel.state.items.indexOfFirst { it.id == viewModel.state.currentItem.toInt() }
+                                            viewModel.state.items[index].bookmark = favorite
+                                        }//favorite = !favorite
                                     )
                                 }
                                 "share" -> {
@@ -515,13 +528,14 @@ fun EventCard(
                                         onClick = {
                                             val intent = Intent(Intent.ACTION_SEND).apply {
                                                 type = "text/plain"
-                                                putExtra(Intent.EXTRA_TITLE, culturalEventMadridItem.title)
+                                                putExtra(Intent.EXTRA_TITLE, culturalEvent.title)
                                                 putExtra(
                                                     Intent.EXTRA_TEXT,
-                                                    culturalEventMadridItem.getExtraLink()
+                                                    culturalEvent.link
                                                 )
                                             }
-                                            context.startActivity(Intent.createChooser(intent, "Compartir"))
+                                            val title = context.resources.getString(R.string.event_share)
+                                            context.startActivity(Intent.createChooser(intent, title))
                                         }
                                     )
                                 }
@@ -532,7 +546,7 @@ fun EventCard(
                                         onClick = {
                                             val intent = Intent(
                                                 Intent.ACTION_VIEW,
-                                                Uri.parse(culturalEventMadridItem.getExtraLink())
+                                                Uri.parse(culturalEvent.link)
                                             )
                                             context.startActivity(intent)
                                         }
@@ -543,14 +557,14 @@ fun EventCard(
                                     ActionButton(//calendar
                                         icon = R.drawable.cmad_calendar,
                                         onClick = {
-                                            val startYear = culturalEventMadridItem.getExtraStart().subSequence(0..3).toString()
-                                            val startMonth = culturalEventMadridItem.getExtraStart().subSequence(5..6).toString()
-                                            val startDay = culturalEventMadridItem.getExtraStart().subSequence(8..9).toString()
+                                            val startYear = culturalEvent.dateStart.subSequence(0..3).toString()
+                                            val startMonth = culturalEvent.dateStart.subSequence(5..6).toString()
+                                            val startDay = culturalEvent.dateStart.subSequence(8..9).toString()
                                             val hour: String
                                             val minutes: String
-                                            if(culturalEventMadridItem.getExtraTime() != ""){
-                                                hour = culturalEventMadridItem.getExtraTime().subSequence(0..1).toString()
-                                                minutes = culturalEventMadridItem.getExtraTime().subSequence(3..4).toString()
+                                            if(culturalEvent.hours != ""){
+                                                hour = culturalEvent.hours.subSequence(0..1).toString()
+                                                minutes = culturalEvent.hours.subSequence(3..4).toString()
                                             }else{
                                                 hour = "00"
                                                 minutes = "00"
@@ -560,7 +574,7 @@ fun EventCard(
                                             calendar.set(Calendar.YEAR, startYear.toInt())
                                             calendar.set(Calendar.MONTH, startMonth.toInt())
                                             calendar.set(Calendar.DAY_OF_MONTH, startDay.toInt())
-                                            if(culturalEventMadridItem.getExtraTime() != ""){
+                                            if(culturalEvent.hours != ""){
                                                 calendar.set(Calendar.HOUR_OF_DAY, hour.toInt())
                                                 calendar.set(Calendar.MINUTE, minutes.toInt())
                                             }else{
@@ -570,9 +584,9 @@ fun EventCard(
 
                                             val intent = Intent(Intent.ACTION_INSERT)
                                             intent.data = CalendarContract.Events.CONTENT_URI
-                                            intent.putExtra(CalendarContract.Events.TITLE, culturalEventMadridItem.getExtraTitle())
-                                            intent.putExtra(CalendarContract.Events.EVENT_LOCATION, culturalEventMadridItem.getExtraAddress())
-                                            if(culturalEventMadridItem.getExtraTime() != ""){
+                                            intent.putExtra(CalendarContract.Events.TITLE, culturalEvent.title)
+                                            intent.putExtra(CalendarContract.Events.EVENT_LOCATION, culturalEvent.address)
+                                            if(culturalEvent.hours != ""){
                                                 intent.putExtra(
                                                     CalendarContract.EXTRA_EVENT_BEGIN_TIME,
                                                     calendar.timeInMillis
@@ -596,8 +610,8 @@ fun EventCard(
                                         onClick = {
                                             val myLat = myLocation.latitude
                                             val myLng = myLocation.longitude
-                                            val latitude = culturalEventMadridItem.position.latitude
-                                            val longitude = culturalEventMadridItem.position.longitude
+                                            val latitude = culturalEvent.latitude
+                                            val longitude = culturalEvent.longitude
                                             val intent = Intent(
                                                 Intent.ACTION_VIEW,
                                                 //Uri.parse("geo:$latitude,$longitude"
@@ -614,10 +628,8 @@ fun EventCard(
                                     ActionButton(//open Maps
                                         icon = R.drawable.cmad_maps,
                                         onClick = {
-                                            val myLat = myLocation.latitude
-                                            val myLng = myLocation.longitude
-                                            val latitude = culturalEventMadridItem.position.latitude
-                                            val longitude = culturalEventMadridItem.position.longitude
+                                            val latitude = culturalEvent.latitude
+                                            val longitude = culturalEvent.longitude
                                             val intent = Intent(
                                                 Intent.ACTION_VIEW,
                                                 Uri.parse("geo:$latitude,$longitude")

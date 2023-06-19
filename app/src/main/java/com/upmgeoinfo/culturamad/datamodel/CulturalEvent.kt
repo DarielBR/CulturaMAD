@@ -29,6 +29,6 @@ data class CulturalEvent(
     val host: String,
     val price: String,
     val link: String,
-    val bookmark: Boolean,
-    val review: Int
+    var bookmark: Boolean,
+    var review: Int
 )

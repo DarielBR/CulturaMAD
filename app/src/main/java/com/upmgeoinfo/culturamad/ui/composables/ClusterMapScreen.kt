@@ -192,7 +192,7 @@ fun ClusterMapScreen(
          */
         var currentEventToShow by remember {
             mutableStateOf<CulturalEventMadridItem>(
-                createEmptyCulturalEvent()
+                createEmptyCulturalEventItem()
             )
         }
         var openEventCard by remember { mutableStateOf(false) }
@@ -259,6 +259,7 @@ fun ClusterMapScreen(
 
                     clusterManager?.setOnClusterItemClickListener {
                         currentEventToShow = it
+                        viewModel.setCurrentItem(it.getExtraID())
                         openEventCard = true
                         return@setOnClusterItemClickListener false
                     }
@@ -344,7 +345,11 @@ fun ClusterMapScreen(
                         }
 
                     },
-                    placeholder = { Text(stringResource(id = R.string.placeholder_search)) },
+                    placeholder = {
+                                    Text(
+                                        stringResource(id = R.string.placeholder_search)
+                                    )
+                                  },
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = MaterialTheme.colorScheme.surface,
                         unfocusedContainerColor = MaterialTheme.colorScheme.surface,
@@ -444,6 +449,7 @@ fun ClusterMapScreen(
          * EventCard declaration
          */
         EventCard(
+            viewModel = viewModel,
             culturalEventMadridItem = currentEventToShow,
             closeClick = { openEventCard = false },
             visibility = openEventCard,
@@ -563,7 +569,7 @@ private fun getCulturalEventsFromDatabase(
 
     val state = viewModel.state
 
-    val culturalEventsFromDB = state.items
+    val culturalEventsFromDB = state.items.toList()
     /**
      * function return
      */
@@ -683,7 +689,7 @@ fun transformCulturalEventToClusterItem(culturalEvent: CulturalEvent): CulturalE
     )
 }
 
-fun createEmptyCulturalEvent(): CulturalEventMadridItem{
+fun createEmptyCulturalEventItem(): CulturalEventMadridItem{
     return CulturalEventMadridItem(
         eventID = "",
         eventLocation = LatLng(0.0,0.0),

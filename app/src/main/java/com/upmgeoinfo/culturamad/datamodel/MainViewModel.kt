@@ -18,7 +18,7 @@ class MainViewModel(
     init {
         viewModelScope.launch {
             state = state.copy(
-                items = culturalEventRepository.getCulturalEventsWithLocation()
+                items = culturalEventRepository.getCulturalEventsWithLocation().toMutableList()
             )
         }
     }
@@ -29,12 +29,15 @@ class MainViewModel(
         }
     }
 
-    /*fun getCulturalEventsWithLocation(): List<CulturalEvent>{
-        var culturalEvents = mutableListOf<CulturalEvent>()
+    fun changeBookmarkState(culturalEvent: CulturalEvent, bookmark: Boolean){
         viewModelScope.launch {
-            val newList = culturalEventRepository.getCulturalEventsWithLocation()
-            for(item in newList) culturalEvents.add(item)
+            culturalEventRepository.updateCulturalEvent(culturalEvent, bookmark)
         }
-        return culturalEvents.toList()
-    }*/
+    }
+
+    fun setCurrentItem(newId: String){
+        state = state.copy(
+            currentItem = newId
+        )
+    }
 }
