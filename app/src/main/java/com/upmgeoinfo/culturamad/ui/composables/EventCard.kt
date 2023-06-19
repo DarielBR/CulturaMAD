@@ -302,7 +302,6 @@ fun CardButton(
 @Composable
 fun EventCard(
     viewModel: MainViewModel,
-    culturalEventMadridItem: CulturalEventMadridItem,
     closeClick: () -> Unit,
     visibility: Boolean,
     navigationBarVisible: Boolean,
@@ -352,13 +351,13 @@ fun EventCard(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Image(
-                            painter = if (culturalEventMadridItem.getExtraCategory()
+                            painter = if (culturalEvent!!.category
                                     .contains("DanzaBaile")
                             )
                                 painterResource(id = R.drawable.dance_image)
-                            else if (culturalEventMadridItem.getExtraCategory().contains("Musica"))
+                            else if (culturalEvent.category.contains("Musica"))
                                 painterResource(id = R.drawable.music_image)
-                            else if (culturalEventMadridItem.getExtraCategory()
+                            else if (culturalEvent.category
                                     .contains("Exposiciones")
                             )
                                 painterResource(id = R.drawable.painting_image)
@@ -376,8 +375,7 @@ fun EventCard(
                                 .fillMaxWidth()
                         ) {
                             Text(//Title
-                                text = culturalEvent!!.title,
-                                //text = culturalEventMadridItem.getExtraTitle()!!,
+                                text = culturalEvent.title,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 style = MaterialTheme.typography.titleMedium,
                                 modifier = Modifier
@@ -385,13 +383,12 @@ fun EventCard(
                             )
                             Text(//Address
                                 text = culturalEvent.address,
-                                //text = culturalEventMadridItem.getExtraAddress(),
                                 color = MaterialTheme.colorScheme.onSurface,
                                 style = MaterialTheme.typography.bodyMedium,
                                 modifier = Modifier
                                     .padding(top = 2.dp, bottom = 2.dp)
                             )
-                            val isFree = (culturalEvent.price == "") //culturalEventMadridItem.getExtraPrice() == ""
+                            val isFree = (culturalEvent.price == "")
                             Surface(
                                 shape = MaterialTheme.shapes.extraSmall,
                                 color = MaterialTheme.colorScheme.surfaceVariant,
@@ -399,7 +396,7 @@ fun EventCard(
                                     .padding(top = 2.dp)
                             ) {
                                 Text(//Price
-                                    text = if (isFree) "Free" else culturalEvent.price, //culturalEventMadridItem.getExtraPrice()
+                                    text = if (isFree) "Free" else culturalEvent.price,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     style = MaterialTheme.typography.labelMedium,
                                     modifier = Modifier
@@ -408,7 +405,7 @@ fun EventCard(
                             }
                         }
                     }
-                    if(culturalEvent!!.description != ""){//culturalEventMadridItem.getExtraDescription()
+                    if(culturalEvent!!.description != ""){
                         val scrollState = rememberScrollState()
                         LaunchedEffect(Unit) { scrollState.animateScrollTo(100) }
                         Surface(
@@ -422,27 +419,19 @@ fun EventCard(
                                     .padding(6.dp)
                                     .fillMaxWidth()
                                     .height(
-                                        if (culturalEventMadridItem.getExtraDescription().length <= 54) 24.dp
-                                        else if (culturalEventMadridItem.getExtraDescription().length in 55..110) 48.dp
-                                        else if (culturalEventMadridItem.getExtraDescription().length in 111..165) 72.dp
+                                        if (culturalEvent.description.length <= 54) 24.dp
+                                        else if (culturalEvent.description.length in 55..110) 48.dp
+                                        else if (culturalEvent.description.length in 111..165) 72.dp
                                         else 96.dp
                                     )
                                     .verticalScroll(scrollState)
                             ) {
                                 Text(//Description
                                     text = culturalEvent.description,
-                                    //text = culturalEventMadridItem.getExtraDescription(),
                                     //text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
                                     color = MaterialTheme.colorScheme.onSurface,
                                     style = MaterialTheme.typography.bodyMedium,
                                     textAlign = TextAlign.Justify,
-                                    //overflow = TextOverflow.Ellipsis,
-                                    /*maxLines = if(culturalEventMadridItem.getExtraDescription().length <= 54 ) 1
-                                        else if (culturalEventMadridItem.getExtraDescription().length in 55..110) 2
-                                        else if(culturalEventMadridItem.getExtraDescription().length in 111..165) 3
-                                        else if(culturalEventMadridItem.getExtraDescription().length >= 166) 4
-                                        else 6,*/
-                                    //maxLines = 1,
                                     modifier = Modifier
                                 )
                             }
@@ -460,7 +449,7 @@ fun EventCard(
                         val excluded = if(culturalEvent.excludedDays == "")""
                             else LocalContext.current.getString(R.string.ui_excluded_days, culturalEvent.excludedDays)
                         val frequency = if(culturalEvent.frequency == "") ""
-                            else if(culturalEventMadridItem.getExtraFrequency() == "WEEKLY")
+                            else if(culturalEvent.frequency == "WEEKLY")
                                 LocalContext.current.getString(R.string.ui_frequency, LocalContext.current.getString(R.string.ui_weekly))
                         else LocalContext.current.getString(R.string.ui_frequency, culturalEvent.frequency)
                         Column(
@@ -508,17 +497,17 @@ fun EventCard(
                         items(actionButtonsParams){item ->
                             when(item.name){
                                 "bookmark" -> {
-                                    var favorite by remember { mutableStateOf(culturalEvent.bookmark) }
-                                    //favorite = culturalEvent.bookmark
+                                    var favorite by remember { mutableStateOf(false) }
+                                    favorite = culturalEvent.bookmark
                                     ActionButton(//Bookmark
-                                        icon = if (favorite) R.drawable.cmad_bookmark_true//favorite
+                                        icon = if (favorite) R.drawable.cmad_bookmark_true
                                         else R.drawable.cmad_bookmark_false,
                                         onClick = {
                                             favorite = !favorite
                                             viewModel.changeBookmarkState(culturalEvent, favorite)
                                             val index = viewModel.state.items.indexOfFirst { it.id == viewModel.state.currentItem.toInt() }
                                             viewModel.state.items[index].bookmark = favorite
-                                        }//favorite = !favorite
+                                        }
                                     )
                                 }
                                 "share" -> {
@@ -583,9 +572,9 @@ fun EventCard(
                                             }
 
                                             val intent = Intent(Intent.ACTION_INSERT)
-                                            intent.data = CalendarContract.Events.CONTENT_URI
-                                            intent.putExtra(CalendarContract.Events.TITLE, culturalEvent.title)
-                                            intent.putExtra(CalendarContract.Events.EVENT_LOCATION, culturalEvent.address)
+                                            intent.data = Events.CONTENT_URI
+                                            intent.putExtra(Events.TITLE, culturalEvent.title)
+                                            intent.putExtra(Events.EVENT_LOCATION, culturalEvent.address)
                                             if(culturalEvent.hours != ""){
                                                 intent.putExtra(
                                                     CalendarContract.EXTRA_EVENT_BEGIN_TIME,
@@ -596,7 +585,7 @@ fun EventCard(
                                                     calendar.timeInMillis + 60 * 60 * 1000
                                                 )
                                             }else {
-                                                intent.putExtra(CalendarContract.Events.ALL_DAY, true)
+                                                intent.putExtra(Events.ALL_DAY, true)
                                             }
 
                                             context.startActivity(intent)
@@ -614,7 +603,6 @@ fun EventCard(
                                             val longitude = culturalEvent.longitude
                                             val intent = Intent(
                                                 Intent.ACTION_VIEW,
-                                                //Uri.parse("geo:$latitude,$longitude"
                                                 Uri.parse("http://maps.google.com/maps?saddr=$myLat,$myLng&daddr=$latitude,$longitude")
                                             )
                                             intent.setPackage("com.google.android.apps.maps")
@@ -633,7 +621,6 @@ fun EventCard(
                                             val intent = Intent(
                                                 Intent.ACTION_VIEW,
                                                 Uri.parse("geo:$latitude,$longitude")
-                                                //Uri.parse("http://maps.google.com/maps?saddr=$myLat,$myLng&daddr=$latitude,$longitude")
                                             )
                                             intent.setPackage("com.google.android.apps.maps")
                                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK

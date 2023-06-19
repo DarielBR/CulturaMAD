@@ -190,11 +190,6 @@ fun ClusterMapScreen(
         /**
          * EventCard control values
          */
-        var currentEventToShow by remember {
-            mutableStateOf<CulturalEventMadridItem>(
-                createEmptyCulturalEventItem()
-            )
-        }
         var openEventCard by remember { mutableStateOf(false) }
         /**
          * Applying correct size to our window attending to the navigation mode set in the device
@@ -230,16 +225,8 @@ fun ClusterMapScreen(
                     /**
                      * Populating the ClusterItems list with the filtering options
                      */
-                    /*val items = getCulturalEvents(
-                        searchValue = searchValue,
-                        categoryDance = danceFilter,
-                        categoryMusic = musicFilter,
-                        categoryPainting = paintingFilter,
-                        categoryTheatre = theatreFilter
-                    )*/
                     val items = getCulturalEventsFromDatabase(
                         viewModel = viewModel,
-                        context = context,
                         searchValue = searchValue,
                         categoryDance = danceFilter,
                         categoryMusic = musicFilter,
@@ -258,7 +245,6 @@ fun ClusterMapScreen(
                     refreshClusterItems = false
 
                     clusterManager?.setOnClusterItemClickListener {
-                        currentEventToShow = it
                         viewModel.setCurrentItem(it.getExtraID())
                         openEventCard = true
                         return@setOnClusterItemClickListener false
@@ -450,7 +436,6 @@ fun ClusterMapScreen(
          */
         EventCard(
             viewModel = viewModel,
-            culturalEventMadridItem = currentEventToShow,
             closeClick = { openEventCard = false },
             visibility = openEventCard,
             navigationBarVisible = isNavigationBarVisible,
@@ -471,88 +456,8 @@ private val categoriesPairsData = listOf(
     R.drawable.teatro_image to R.string.category_theatre
 ).map { DrawableStringImagePair(it.first, it.second) }
 
-fun getCulturalEvents(
-    searchValue: String,
-    categoryDance: Boolean,
-    categoryMusic: Boolean,
-    categoryPainting: Boolean,
-    categoryTheatre: Boolean
-): List<CulturalEventMadridItem>{
-
-    val culturalEventsMadrid = MarkerData.dataList
-    val culturalEventItems = mutableListOf<CulturalEventMadridItem>()
-
-    for (culturalEvent in culturalEventsMadrid) {//First filter for valid culturalEvent
-        if (culturalEvent.location != null
-            && culturalEvent.address.district != null
-            && culturalEvent.category != null
-            && culturalEvent.recurrence != null
-            && culturalEvent.address.area != null
-        ) {//Filter by categories if any.
-            if (categoryDance && culturalEvent.category.contains("DanzaBaile")) {
-                if (searchValue == "") {
-                    culturalEventItems.add(createCulturalEventMadridItem(culturalEvent))
-                } else if (culturalEvent.category.contains(searchValue, true)
-                    || culturalEvent.title.contains(searchValue, true)
-                    || culturalEvent.dtstart.contains(searchValue, true)
-                    || culturalEvent.address.district.Id.contains(searchValue, true)
-                    || culturalEvent.description.contains(searchValue, true)
-                ) {
-                    culturalEventItems.add(createCulturalEventMadridItem(culturalEvent))
-                }
-            } else if (categoryMusic && culturalEvent.category.contains("Musica")) {
-                if (searchValue == "") {
-                    culturalEventItems.add(createCulturalEventMadridItem(culturalEvent))
-                } else if (culturalEvent.category.contains(searchValue, true)
-                    || culturalEvent.title.contains(searchValue, true)
-                    || culturalEvent.dtstart.contains(searchValue, true)
-                    || culturalEvent.address.district.Id.contains(searchValue, true)
-                    || culturalEvent.description.contains(searchValue, true)
-                ) {
-                    culturalEventItems.add(createCulturalEventMadridItem(culturalEvent))
-                }
-            } else if (categoryPainting && culturalEvent.category.contains("Exposiciones")) {
-                if (searchValue == "") {
-                    culturalEventItems.add(createCulturalEventMadridItem(culturalEvent))
-                } else if (culturalEvent.category.contains(searchValue, true)
-                    || culturalEvent.title.contains(searchValue, true)
-                    || culturalEvent.dtstart.contains(searchValue, true)
-                    || culturalEvent.address.district.Id.contains(searchValue, true)
-                    || culturalEvent.description.contains(searchValue, true)
-                ) {
-                    culturalEventItems.add(createCulturalEventMadridItem(culturalEvent))
-                }
-            } else if (categoryTheatre && culturalEvent.category.contains("TeatroPerformance")) {
-                if (searchValue == "") {
-                    culturalEventItems.add(createCulturalEventMadridItem(culturalEvent))
-                } else if (culturalEvent.category.contains(searchValue, true)
-                    || culturalEvent.title.contains(searchValue, true)
-                    || culturalEvent.dtstart.contains(searchValue, true)
-                    || culturalEvent.address.district.Id.contains(searchValue, true)
-                    || culturalEvent.description.contains(searchValue, true)
-                ) {
-                    culturalEventItems.add(createCulturalEventMadridItem(culturalEvent))
-                }
-            } else if (!categoryDance && !categoryMusic && !categoryPainting && !categoryTheatre) {
-                if (searchValue == "") {
-                    culturalEventItems.add(createCulturalEventMadridItem(culturalEvent))
-                } else if (culturalEvent.category.contains(searchValue, true)
-                    || culturalEvent.title.contains(searchValue, true)
-                    || culturalEvent.dtstart.contains(searchValue, true)
-                    || culturalEvent.address.district.Id.contains(searchValue, true)
-                    || culturalEvent.description.contains(searchValue, true)
-                ) {
-                    culturalEventItems.add(createCulturalEventMadridItem(culturalEvent))
-                }
-            }
-        }
-    }
-    return culturalEventItems.toList()
-}
-
 private fun getCulturalEventsFromDatabase(
     viewModel: MainViewModel,
-    context: Context,
     searchValue: String,
     categoryDance: Boolean,
     categoryMusic: Boolean,
@@ -560,15 +465,9 @@ private fun getCulturalEventsFromDatabase(
     categoryTheatre: Boolean
 ): List<CulturalEventMadridItem>{
     /**
-     * Accessing the database.
+     * Accessing the datalist from the state
      */
-    /*val database = Room.databaseBuilder(context, CulturalEventDatabase::class.java, "culturalEvents_db").build()
-    val dao = database.dao
-    val culturalEventRepository = CulturalEventRepository(dao)
-    val viewModel= MainViewModel(culturalEventRepository)*/
-
     val state = viewModel.state
-
     val culturalEventsFromDB = state.items.toList()
     /**
      * function return
@@ -686,30 +585,6 @@ fun transformCulturalEventToClusterItem(culturalEvent: CulturalEvent): CulturalE
         eventHost = culturalEvent.host,
         eventPrice = culturalEvent.price,
         eventLink = culturalEvent.link
-    )
-}
-
-fun createEmptyCulturalEventItem(): CulturalEventMadridItem{
-    return CulturalEventMadridItem(
-        eventID = "",
-        eventLocation = LatLng(0.0,0.0),
-        eventTitle = "",
-        eventDescription = "",
-        eventCategory = "",
-        eventAddress = "",
-        eventDistrict = "",
-        eventNeighborhood = "",
-        eventDays = "",
-        eventFrequency = "",
-        eventInterval = 0,
-        eventStart = "",
-        eventEnd = "",
-        eventExcludedDays = "",
-        eventTime = "",
-        eventPlace = "",
-        eventHost = "",
-        eventPrice = "",
-        eventLink = ""
     )
 }
 
