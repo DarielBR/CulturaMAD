@@ -112,4 +112,62 @@ object MarkerData {
             getListOfData()
         }
     }
+
+    val transformedDataList = dataList.map {
+        CulturalEvent(
+            id = it.id.toInt(),
+            category = if(it.category == null) ""
+            else{
+                it.category
+                    .subSequence(
+                        it.category.indexOfLast { it == '/' } + 1,
+                        it.category.lastIndex + 1
+                    ).toString()
+            },
+            title = it.title,
+            description = it.description,
+            latitude = if(it.location == null) ""
+            else it.location.latitude.toString(),
+            longitude = if(it.location == null) ""
+            else it.location.longitude.toString(),
+            address = if(it.address == null || it.address.area == null) ""
+            else{
+                it.address.area.streetAddress
+            },
+            district = if(it.address == null || it.address.district == null) ""
+            else {
+                it.address.district.Id
+                    .subSequence(
+                        it.address.district.Id.indexOfLast { it == '/' } + 1,
+                        it.address.district.Id.lastIndex + 1
+                    ).toString()
+            },
+            neighborhood = if(it.address == null || it.address.area == null) ""
+            else {
+                it.address.area.Id
+                    .subSequence(
+                        it.address.area.Id.indexOfLast { it == '/' } + 1,
+                        it.address.area.Id.lastIndex + 1
+                    ).toString()
+            },
+            days = if(it.recurrence == null) ""
+            else it.recurrence.days,
+            frequency = if(it.recurrence == null) ""
+            else it.recurrence.frequency,
+            interval = if(it.recurrence == null) 0
+            else it.recurrence.interval.toInt(),
+            dateStart = it.dtstart,
+            dateEnd = it.dtend,
+            hours = it.time,
+            excludedDays = it.excludedDays,
+            place = it.eventLocation,
+            host = if(it.organization == null)""
+            else it.organization.organizationName,
+            price = it.price,
+            link = it.link,
+            bookmark = false,
+            review = 0
+        )
+    }
 }
+

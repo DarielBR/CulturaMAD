@@ -23,9 +23,23 @@ class MainViewModel(
         }
     }
 
+    fun refreshItems(){
+        viewModelScope.launch {
+            state = state.copy(
+                items = culturalEventRepository.getCulturalEventsWithLocation().toMutableList()
+            )
+        }
+    }
+
     fun saveCulturalEvent(culturalEvent: CulturalEvent){
         viewModelScope.launch {
             culturalEventRepository.insertCulturalEvent(culturalEvent = culturalEvent)
+        }
+    }
+
+    fun updateCulturalEvent(culturalEvent: CulturalEvent, bookmark: Boolean, review: Int){
+        viewModelScope.launch{
+            culturalEventRepository.updateCulturalEvent(culturalEvent,bookmark,review)
         }
     }
 
@@ -39,5 +53,11 @@ class MainViewModel(
         state = state.copy(
             currentItem = newId
         )
+    }
+
+    fun deleteCulturalEvent(culturalEvent: CulturalEvent){
+        viewModelScope.launch {
+            culturalEventRepository.deleteCulturalEvent(culturalEvent)
+        }
     }
 }

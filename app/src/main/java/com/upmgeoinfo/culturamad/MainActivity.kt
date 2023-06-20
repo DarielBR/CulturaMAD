@@ -100,7 +100,31 @@ class MainActivity : ComponentActivity() {
         val dao = database.dao
         val culturalEventRepository = CulturalEventRepository(dao)
         val viewModel= MainViewModel(culturalEventRepository)
-        val culturalEventsMadrid = MarkerData.dataList
+        /*TODO:Validate internet acces failure here, if an exception id thrown a  message must be shown and continue with the state list.*/
+        val dataFromUri = MarkerData.transformedDataList
+        /**
+         * Updating Database
+         */
+        /*TODO: Run Test in the following code-block*/
+        if(viewModel.state.items.isEmpty()){
+            for(item in dataFromUri) viewModel.saveCulturalEvent(item)
+        }
+        else{
+            for(item in dataFromUri){
+                val databaseItem = viewModel.state.items.find { it.id == item.id }
+                if(databaseItem != null) viewModel.updateCulturalEvent(item, databaseItem.bookmark, databaseItem.review)
+                else viewModel.saveCulturalEvent(item)
+            }
+            for(databaseItem in viewModel.state.items){
+                val item = dataFromUri.find { it.id == databaseItem.id }
+                if(item == null) viewModel.deleteCulturalEvent(databaseItem)
+            }
+        }
+        viewModel.refreshItems()
+        /**
+         * Con el codido qu eesta debajo funciona
+         */
+        /*val culturalEventsMadrid = MarkerData.dataList
         for(event in culturalEventsMadrid){
 
             val culturalEvent = CulturalEvent(
@@ -158,7 +182,7 @@ class MainActivity : ComponentActivity() {
                 review = 0
             )
             viewModel.saveCulturalEvent(culturalEvent)
-        }
+        }*/
 
         setContent {
             CulturaMADTheme {

@@ -123,6 +123,34 @@ class CulturalEventRepository(
         culturalEventDao.updateCulturalEvent(entity)
     }
 
+    suspend fun updateCulturalEvent(culturalEvent: CulturalEvent, bookmark: Boolean, review: Int){
+        val entity = CulturalEventEntity(
+            id = culturalEvent.id,
+            category = culturalEvent.category,
+            title = culturalEvent.title,
+            description = culturalEvent.description,
+            latitude = culturalEvent.latitude,
+            longitude = culturalEvent.longitude,
+            address = culturalEvent.address,
+            district = culturalEvent.district,
+            neighborhood = culturalEvent.neighborhood,
+            days = culturalEvent.days,
+            frequency = culturalEvent.frequency,
+            interval = culturalEvent.interval,
+            dateStart = culturalEvent.dateStart,
+            dateEnd = culturalEvent.dateEnd,
+            hours = culturalEvent.hours,
+            excludedDays = culturalEvent.excludedDays,
+            place = culturalEvent.place,
+            host = culturalEvent.host,
+            price = culturalEvent.price,
+            link = culturalEvent.link,
+            bookmark = bookmark,
+            review = review
+        )
+        culturalEventDao.updateCulturalEvent(entity)
+    }
+
     suspend fun getCulturalEventEntityById(id: Int): CulturalEvent{
         val entity = culturalEventDao.getCulturalEventEntityById(id)
         val resultado =  CulturalEvent(
@@ -150,5 +178,33 @@ class CulturalEventRepository(
             review = entity.review
         )
         return resultado
+    }
+
+    suspend fun deleteCulturalEvent(culturalEvent: CulturalEvent){
+        val entity = CulturalEventEntity(
+            id = culturalEvent.id,
+            category = culturalEvent.category,
+            title = culturalEvent.title,
+            description = culturalEvent.description,
+            latitude = culturalEvent.latitude,
+            longitude = culturalEvent.longitude,
+            address = culturalEvent.address,
+            district = culturalEvent.district,
+            neighborhood = culturalEvent.neighborhood,
+            days = culturalEvent.days,
+            frequency = culturalEvent.frequency,
+            interval = culturalEvent.interval,
+            dateStart = culturalEvent.dateStart,
+            dateEnd = culturalEvent.dateEnd,
+            hours = culturalEvent.hours,
+            excludedDays = culturalEvent.excludedDays,
+            place = culturalEvent.place,
+            host = culturalEvent.host,
+            price = culturalEvent.price,
+            link = culturalEvent.link,
+            bookmark = culturalEvent.bookmark,
+            review = culturalEvent.review
+        )
+        culturalEventDao.deleteCulturalEvent(entity)
     }
 }

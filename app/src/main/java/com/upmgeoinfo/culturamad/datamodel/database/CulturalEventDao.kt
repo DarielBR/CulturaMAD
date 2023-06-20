@@ -1,6 +1,7 @@
 package com.upmgeoinfo.culturamad.datamodel.database
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -23,5 +24,8 @@ interface CulturalEventDao {
 
     @Query("SELECT * FROM CulturalEventEntity WHERE id = :id")
     suspend fun getCulturalEventEntityById(id: Int): CulturalEventEntity
+
+    @Delete
+    suspend fun deleteCulturalEvent(culturalEvent: CulturalEventEntity)
 
 }
