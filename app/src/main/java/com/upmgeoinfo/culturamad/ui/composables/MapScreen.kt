@@ -51,6 +51,8 @@ import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
 import com.upmgeoinfo.culturamad.datamodel.MarkerData
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.rotate
 
 /**
  * Creates a marker with the information taken form a cultural event.
@@ -291,7 +293,8 @@ fun MapScreen(
                 }
                 cameraPositionState.position = CameraPosition(myLocation, zoomLevel, 0f, 0f)
             },
-            drawableResource = R.drawable.cmad_mylocation
+            drawableResource = R.drawable.cmad_mylocation,
+            0.0f
         )
         MapButton(
             onClick = {
@@ -303,7 +306,8 @@ fun MapScreen(
                     0.0f
                 )
             },
-            drawableResource = R.drawable.cmad_compass
+            drawableResource = R.drawable.cmad_compass,
+            0.0f
         )
     }
 }
@@ -311,28 +315,31 @@ fun MapScreen(
 @Composable
 fun MapButton(
     onClick: () -> Unit,
-    drawableResource: Int
+    drawableResource: Int,
+    rotation: Float
 ) {
     Surface(
         elevation = 1.dp,
-        shape = RectangleShape,
+        shape = CircleShape,
         color = Color.Transparent,
         modifier = Modifier
-            .padding(all = 1.dp)
+            .padding(all = 4.dp)
             .alpha(0.8f)
     ) {
         IconButton(
             onClick = onClick,
             modifier = Modifier
-                .clip(RectangleShape)
-                .size(37.dp)
+                .clip(CircleShape)
+                .size(40.dp)
                 .background(color = MaterialTheme.colorScheme.surface)
                 .alpha(1f)
         ) {
             Icon(
                 tint = MaterialTheme.colorScheme.onSurface,
                 painter = painterResource(id = drawableResource),
-                contentDescription = null
+                contentDescription = null,
+                modifier = Modifier
+                    .rotate(rotation)
             )
         }
     }

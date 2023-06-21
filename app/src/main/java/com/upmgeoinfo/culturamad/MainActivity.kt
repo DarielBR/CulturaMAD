@@ -122,7 +122,7 @@ class MainActivity : ComponentActivity() {
         }
         viewModel.refreshItems()
         /**
-         * Con el codido qu eesta debajo funciona
+         * Con el codido que esta debajo funciona
          */
         /*val culturalEventsMadrid = MarkerData.dataList
         for(event in culturalEventsMadrid){

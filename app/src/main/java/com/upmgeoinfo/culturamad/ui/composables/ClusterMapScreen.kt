@@ -422,13 +422,15 @@ fun ClusterMapScreen(
                 onClick = {
                     animateZoom = true
                 },
-                drawableResource = R.drawable.cmad_mylocation
+                drawableResource = R.drawable.cmad_mylocation,
+                0.0f
             )
-            MapButton(
+            MapButton(//Compass
                 onClick = {
                     animateBearing = true
                 },
-                drawableResource = R.drawable.cmad_compass
+                drawableResource = R.drawable.cmad_compass,
+                rotation = cameraPositionState.position.bearing
             )
         }
         /**
