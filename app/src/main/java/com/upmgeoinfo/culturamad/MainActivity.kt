@@ -62,6 +62,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
 import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
@@ -100,7 +101,7 @@ class MainActivity : ComponentActivity() {
         val dao = database.dao
         val culturalEventRepository = CulturalEventRepository(dao)
         val viewModel= MainViewModel(culturalEventRepository)
-        /*TODO:Validate internet acces failure here, if an exception id thrown a  message must be shown and continue with the state list.*/
+        /*TODO:Validate internet access failure here, if an exception id thrown a message must be shown and continue with the state list.*/
         val dataFromUri = MarkerData.transformedDataList
         /**
          * Updating Database
@@ -122,68 +123,15 @@ class MainActivity : ComponentActivity() {
         }
         viewModel.refreshItems()
         /**
-         * Con el codido que esta debajo funciona
+         * Firebase analytics
          */
-        /*val culturalEventsMadrid = MarkerData.dataList
-        for(event in culturalEventsMadrid){
-
-            val culturalEvent = CulturalEvent(
-                id = event.id.toInt(),
-                category = if(event.category == null) ""
-                            else{
-                                event.category
-                                    .subSequence(
-                                        event.category.indexOfLast { it == '/' } + 1,
-                                        event.category.lastIndex + 1
-                                    ).toString()
-                            },
-                title = event.title,
-                description = event.description,
-                latitude = if(event.location == null) ""
-                        else event.location.latitude.toString(),
-                longitude = if(event.location == null) ""
-                        else event.location.longitude.toString(),
-                address = if(event.address == null || event.address.area == null) ""
-                        else{
-                            event.address.area.streetAddress
-                        },
-                district = if(event.address == null || event.address.district == null) ""
-                        else {
-                            event.address.district.Id
-                                .subSequence(
-                                    event.address.district.Id.indexOfLast { it == '/' } + 1,
-                                    event.address.district.Id.lastIndex + 1
-                                ).toString()
-                        },
-                neighborhood = if(event.address == null || event.address.area == null) ""
-                            else {
-                                event.address.area.Id
-                                    .subSequence(
-                                        event.address.area.Id.indexOfLast { it == '/' } + 1,
-                                        event.address.area.Id.lastIndex + 1
-                                    ).toString()
-                            },
-                days = if(event.recurrence == null) ""
-                        else event.recurrence.days,
-                frequency = if(event.recurrence == null) ""
-                            else event.recurrence.frequency,
-                interval = if(event.recurrence == null) 0
-                            else event.recurrence.interval.toInt(),
-                dateStart = event.dtstart,
-                dateEnd = event.dtend,
-                hours = event.time,
-                excludedDays = event.excludedDays,
-                place = event.eventLocation,
-                host = if(event.organization == null)""
-                        else event.organization.organizationName,
-                price = event.price,
-                link = event.link,
-                bookmark = false,
-                review = 0
-            )
-            viewModel.saveCulturalEvent(culturalEvent)
-        }*/
-
+        val firebaseAnalytics = FirebaseAnalytics.getInstance(this)
+        val bundle = Bundle()
+        bundle.putString("message", "Firebase integration successful")
+        firebaseAnalytics.logEvent("culturaMAD_Start", bundle)
+        /**
+         * Composable content
+         */
         setContent {
             CulturaMADTheme {
                 AppNavigation(fuseLocationClient, viewModel)

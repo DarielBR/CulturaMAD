@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "517139065539",
+    "project_id": "culturamad",
+    "storage_bucket": "culturamad.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:517139065539:android:62e5dcde17701185665076",
+        "android_client_info": {
+          "package_name": "com.upmgeoinfo.culturamad"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "517139065539-tbpi87gbpovub25eftrk3ibukk6d67kk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAjhfMMFqSOewAAwUVv59ScGGHjpH8cHvo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "517139065539-tbpi87gbpovub25eftrk3ibukk6d67kk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

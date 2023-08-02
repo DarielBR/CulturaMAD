@@ -430,7 +430,7 @@ fun ClusterMapScreen(
                     animateBearing = true
                 },
                 drawableResource = R.drawable.cmad_compass,
-                rotation = cameraPositionState.position.bearing
+                rotation = cameraPositionState.position.bearing*-1
             )
         }
         /**

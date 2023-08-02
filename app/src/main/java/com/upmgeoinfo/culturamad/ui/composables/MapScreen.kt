@@ -52,6 +52,7 @@ import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
 import com.upmgeoinfo.culturamad.datamodel.MarkerData
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Card
 import androidx.compose.ui.draw.rotate
 
 /**
@@ -318,7 +319,7 @@ fun MapButton(
     drawableResource: Int,
     rotation: Float
 ) {
-    Surface(
+    /*Surface(
         elevation = 1.dp,
         shape = CircleShape,
         color = Color.Transparent,
@@ -330,7 +331,7 @@ fun MapButton(
             onClick = onClick,
             modifier = Modifier
                 .clip(CircleShape)
-                .size(40.dp)
+                .size(45.dp)
                 .background(color = MaterialTheme.colorScheme.surface)
                 .alpha(1f)
         ) {
@@ -342,5 +343,32 @@ fun MapButton(
                     .rotate(rotation)
             )
         }
+    }*/
+    androidx.compose.material.Card(
+        elevation = 1.dp,
+        shape = CircleShape,
+        backgroundColor = Color.Transparent,
+        modifier = Modifier
+            .padding(4.dp)
+            //.alpha(0.8f)
+
+    ) {
+        IconButton(
+            onClick = onClick,
+            modifier = Modifier
+                .clip(CircleShape)
+                .size(45.dp)
+                .background(color = MaterialTheme.colorScheme.surface)
+                //.alpha(0.6f)
+        ) {
+            Icon(
+                tint = MaterialTheme.colorScheme.onSurface,
+                painter = painterResource(id = drawableResource),
+                contentDescription = null,
+                modifier = Modifier
+                    .rotate(rotation)
+            )
+        }
+
     }
 }
