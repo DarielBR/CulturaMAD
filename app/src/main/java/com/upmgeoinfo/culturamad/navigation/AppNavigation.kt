@@ -11,11 +11,13 @@ import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.upmgeoinfo.culturamad.MainScreen
 import com.upmgeoinfo.culturamad.datamodel.MainViewModel
 import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems
+import com.upmgeoinfo.culturamad.ui.composables.ClusterMapScreen
 import com.upmgeoinfo.culturamad.ui.composables.OverviewScreen
 import com.upmgeoinfo.culturamad.ui.composables.SplashScreen
 import com.upmgeoinfo.culturamad.ui.composables.UserScreen
 
 /**
+ * <<NOT IN USE CURRENTLY>>
  * Handles the navigation within the application. Will show at first the Splash Screen followed by
  * the main activity. Also cleanses the views while navigates towards the main activity.
  */
@@ -44,7 +46,10 @@ fun AppNavigation(fuseLocationClient: FusedLocationProviderClient, viewModel: Ma
         }
     )
 }
-
+/**
+ * (Alternatively using a navigation bottom bar)Handles the navigation within the application. Will show at first the Splash Screen followed by
+ * the main activity. Also cleanses the views while navigates towards the main activity.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlternateNavigation(
@@ -59,8 +64,11 @@ fun AlternateNavigation(
         composable(AppScreens.SplashScreen.route){
             SplashScreen(navController = navController)
         }
-        composable(AppScreens.MainScreen.route){
-            MainScreen(fusedLocationClient, viewModel)
+        composable(MenuItems.FullMapScreen.route){
+            ClusterMapScreen(
+                fusedLocationClient = fusedLocationClient,
+                viewModel = viewModel
+            )
         }
         composable(MenuItems.OverviewScreen.route){
             OverviewScreen()

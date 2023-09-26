@@ -25,6 +25,7 @@ import androidx.navigation.NavHostController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.navigation.AppScreens
+import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems
 import kotlinx.coroutines.delay
 
 /**
@@ -36,7 +37,8 @@ fun SplashScreen(navController: NavHostController){
     LaunchedEffect(key1 = true,){
         delay(2000)
         navController.popBackStack()
-        navController.navigate(AppScreens.MainScreen.route)
+        //navController.navigate(AppScreens.MainScreen.route)
+        navController.navigate(MenuItems.FullMapScreen.route)
     }
     Splash()
 }

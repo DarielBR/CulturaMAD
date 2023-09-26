@@ -89,7 +89,7 @@ import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 @MapsComposeExperimentalApi
 @Composable
 fun ClusterMapScreen(
-    fuseLocationClient: FusedLocationProviderClient,
+    fusedLocationClient: FusedLocationProviderClient,
     viewModel: MainViewModel
 ){
     CulturaMADTheme(){
@@ -114,7 +114,7 @@ fun ClusterMapScreen(
         val locationPermissionState =
             rememberPermissionState(permission = Manifest.permission.ACCESS_FINE_LOCATION)
         if (locationPermissionState.status.isGranted) {
-            fuseLocationClient.getLastLocation().addOnSuccessListener { location ->
+            fusedLocationClient.getLastLocation().addOnSuccessListener { location ->
                 if (location != null) {
                     myLocation = LatLng(location.latitude, location.longitude)
                 }

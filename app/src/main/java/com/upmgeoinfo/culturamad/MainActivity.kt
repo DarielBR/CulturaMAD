@@ -78,6 +78,7 @@ import com.upmgeoinfo.culturamad.navigation.AppNavigation
 import com.upmgeoinfo.culturamad.ui.composables.ClusterMapScreen
 import com.upmgeoinfo.culturamad.ui.composables.FilterItem
 import com.upmgeoinfo.culturamad.ui.composables.MapScreen
+import com.upmgeoinfo.culturamad.ui.composables.ScaffoldedScreen
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 import java.sql.Date
 import java.sql.Time
@@ -87,6 +88,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var culturalEvents: List<CulturalEventMadrid>
     //private lateinit var navController: NavHostController
 
+    @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         /**
@@ -142,8 +144,11 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             CulturaMADTheme {
                 //AppNavigation(fuseLocationClient, viewModel)
-                AlternateNavigation(
-                    navController = navController,
+
+                RequestInternetPermission()
+                RequestLocationPermission()
+
+                ScaffoldedScreen(
                     fusedLocationClient = fuseLocationClient,
                     viewModel = viewModel
                 )
@@ -473,7 +478,7 @@ fun MainScreen(fuseLocationClient: FusedLocationProviderClient, viewModel: MainV
         RequestLocationPermission()
         //UIDeclaration(fuseLocationClient)
         ClusterMapScreen(
-            fuseLocationClient = fuseLocationClient,
+            fusedLocationClient = fuseLocationClient,
             viewModel = viewModel
         )
     //}
