@@ -10,6 +10,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -42,10 +43,14 @@ fun ScaffoldedScreen(
 
     Scaffold(
         scaffoldState = scaffoldState,
-        bottomBar = { AppBottomNavigation(
-            navController = navController,
-            menuItems = navItems
-        ) },
+        bottomBar = {
+            if(!viewModel.state.isSplashScreenOnRender){
+                AppBottomNavigation(
+                    navController = navController,
+                    menuItems = navItems
+                )
+            }
+        },
         modifier = Modifier
             .fillMaxSize()
     ){
@@ -62,8 +67,14 @@ fun AppBottomNavigation(
     navController: NavHostController,
     menuItems: List<MenuItems>
 ) {
-    BottomAppBar() {
-        BottomNavigation{
+    val bottomBackgroundColor = MaterialTheme.colorScheme.surface
+    BottomAppBar(
+        backgroundColor = bottomBackgroundColor,
+    ) {
+        BottomNavigation(
+            backgroundColor = bottomBackgroundColor,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ){
             val currentRoute = currentNavigationEntry(navController = navController)
             menuItems.forEach{item ->
                 BottomNavigationItem(
@@ -76,7 +87,7 @@ fun AppBottomNavigation(
                         )
                     },
                     label = { Text(text = item.title) },
-                    alwaysShowLabel = false
+                    //alwaysShowLabel = false
                 )
             }
         }

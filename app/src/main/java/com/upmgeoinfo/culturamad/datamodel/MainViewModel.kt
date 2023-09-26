@@ -60,4 +60,8 @@ class MainViewModel(
             culturalEventRepository.deleteCulturalEvent(culturalEvent)
         }
     }
+
+    fun changeSplashScreenState(isDisplayed: Boolean) = viewModelScope.launch {
+        state = state.copy(isSplashScreenOnRender = isDisplayed)
+    }
 }

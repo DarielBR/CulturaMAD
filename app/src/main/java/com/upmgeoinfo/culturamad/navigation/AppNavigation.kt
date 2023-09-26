@@ -32,7 +32,10 @@ fun AppNavigation(fuseLocationClient: FusedLocationProviderClient, viewModel: Ma
         startDestination = AppScreens.SplashScreen.route,
         builder = {
             composable(AppScreens.SplashScreen.route){
-                SplashScreen(navController)
+                SplashScreen(
+                    navController = navController,
+                    viewModel = viewModel
+                )
             }
             composable(AppScreens.MainScreen.route){
                 MainScreen(fuseLocationClient, viewModel)
@@ -62,7 +65,10 @@ fun AlternateNavigation(
         startDestination = AppScreens.SplashScreen.route
     ){//this is the builder parameter
         composable(AppScreens.SplashScreen.route){
-            SplashScreen(navController = navController)
+            SplashScreen(
+                navController = navController,
+                viewModel = viewModel
+            )
         }
         composable(MenuItems.FullMapScreen.route){
             ClusterMapScreen(

@@ -21,9 +21,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.upmgeoinfo.culturamad.R
+import com.upmgeoinfo.culturamad.datamodel.MainViewModel
 import com.upmgeoinfo.culturamad.navigation.AppScreens
 import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems
 import kotlinx.coroutines.delay
@@ -32,12 +34,16 @@ import kotlinx.coroutines.delay
  * Calls the splash screen within a coroutine scope.
  */
 @Composable
-fun SplashScreen(navController: NavHostController){
+fun SplashScreen(
+    navController: NavHostController,
+    viewModel: MainViewModel
+){
 
     LaunchedEffect(key1 = true,){
         delay(2000)
         navController.popBackStack()
         //navController.navigate(AppScreens.MainScreen.route)
+        viewModel.changeSplashScreenState(false)
         navController.navigate(MenuItems.FullMapScreen.route)
     }
     Splash()
