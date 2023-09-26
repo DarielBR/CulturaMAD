@@ -101,10 +101,10 @@ class MainActivity : ComponentActivity() {
         val dao = database.dao
         val culturalEventRepository = CulturalEventRepository(dao)
         val viewModel= MainViewModel(culturalEventRepository)
-        /*TODO:Validate internet access failure here, if an exception id thrown a message must be shown and continue with the state list.*/
+        /*TODO:Validate internet access failure here, if an exception is thrown a message must be shown and continue with the state list.*/
         val dataFromUri = MarkerData.transformedDataList
         /**
-         * Updating Database
+         * Updating Database (UPSERT operation)
          */
         /*TODO: Run Test in the following code-block*/
         if(viewModel.state.items.isEmpty()){
@@ -124,6 +124,7 @@ class MainActivity : ComponentActivity() {
         viewModel.refreshItems()
         /**
          * Firebase analytics
+         * this is for testing purposes only, may be disposed in the future.
          */
         val firebaseAnalytics = FirebaseAnalytics.getInstance(this)
         val bundle = Bundle()
@@ -334,7 +335,7 @@ fun UIDeclaration(
 
             /**
              * Declaring a SearchBar on top of the screen. A Composable function won't be used in
-             * this case because si necessary to modify a variable external to the function's scope.
+             * this case because is necessary to modify a variable external to the function's scope.
              * In particular the searchValue, will be used modified in the following declaration and
              * it will be used in other task furthermore.
              */
