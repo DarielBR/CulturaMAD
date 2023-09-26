@@ -52,6 +52,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -70,6 +73,7 @@ import com.upmgeoinfo.culturamad.datamodel.MainViewModel
 import com.upmgeoinfo.culturamad.datamodel.MarkerData
 import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventDatabase
 import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventRepository
+import com.upmgeoinfo.culturamad.navigation.AlternateNavigation
 import com.upmgeoinfo.culturamad.navigation.AppNavigation
 import com.upmgeoinfo.culturamad.ui.composables.ClusterMapScreen
 import com.upmgeoinfo.culturamad.ui.composables.FilterItem
@@ -81,6 +85,7 @@ import java.sql.Time
 class MainActivity : ComponentActivity() {
     private lateinit var fuseLocationClient: FusedLocationProviderClient
     private lateinit var culturalEvents: List<CulturalEventMadrid>
+    //private lateinit var navController: NavHostController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -134,8 +139,14 @@ class MainActivity : ComponentActivity() {
          * Composable content
          */
         setContent {
+            val navController = rememberNavController()
             CulturaMADTheme {
-                AppNavigation(fuseLocationClient, viewModel)
+                //AppNavigation(fuseLocationClient, viewModel)
+                AlternateNavigation(
+                    navController = navController,
+                    fusedLocationClient = fuseLocationClient,
+                    viewModel = viewModel
+                )
             }
         }
     }
