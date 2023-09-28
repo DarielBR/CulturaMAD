@@ -7,8 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventRepository
 import com.upmgeoinfo.culturamad.datamodel.database.MainState
-import com.upmgeoinfo.culturamad.ui.composables.currentNavigationEntry
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class MainViewModel(
@@ -73,8 +71,8 @@ class MainViewModel(
     }
 
     fun changeActiveSearchCategories(searchCategory: String) = viewModelScope.launch {
-        var categoryPos = state.activeSearchCategories.indexOf(searchCategory)
-        var currentActiveSearchCategories = state.activeSearchCategories
+        val categoryPos = state.activeSearchCategories.indexOf(searchCategory)
+        val currentActiveSearchCategories = state.activeSearchCategories
 
         if (categoryPos >= 0){
             currentActiveSearchCategories.removeAt(categoryPos)

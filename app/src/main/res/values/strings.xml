@@ -23,5 +23,7 @@
     <string name="ui_excluded_days">. Días excuídos: %s</string>
     <string name="ui_frequency">Frecuencia: %s</string>
     <string name="ui_hours">Horario: %s</string>
+    <string name="ui_recommended">Recomendado para ti</string>
+    <string name="ui_see_all">Ver todo</string>
     <string name="tip">Tip: haga un tap sobre la información de un marcador para ir a la publicación o un tap largo para compartir.</string>
 </resources>

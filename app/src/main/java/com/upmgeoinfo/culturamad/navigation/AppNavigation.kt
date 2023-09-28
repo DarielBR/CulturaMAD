@@ -77,7 +77,9 @@ fun AlternateNavigation(
             )
         }
         composable(MenuItems.OverviewScreen.route){
-            OverviewScreen()
+            OverviewScreen(
+                viewModel = viewModel
+            )
         }
         composable(MenuItems.UserScreen.route){
             UserScreen()
