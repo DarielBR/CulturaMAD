@@ -5,7 +5,9 @@ import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
 data class MainState (
     val currentItem: String = "",
     val items: MutableList<CulturalEvent> = emptyList<CulturalEvent>().toMutableList(),
-    val isSplashScreenOnRender: Boolean = true
+    val isSplashScreenOnRender: Boolean = true,
+    val searchValue: String = "",
+    val activeSearchCategories: MutableList<String> = emptyList<String>().toMutableList()
 )
 
 private fun emptyCulturalEvent(): CulturalEvent{

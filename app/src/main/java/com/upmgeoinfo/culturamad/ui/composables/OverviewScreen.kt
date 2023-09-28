@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -18,11 +19,13 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.upmgeoinfo.culturamad.datamodel.MainViewModel
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 @Composable
 fun OverviewScreen(){
     Surface(
+        color = androidx.compose.material3.MaterialTheme.colorScheme.surface,
         modifier = Modifier
             .fillMaxSize()
     ) {
@@ -55,5 +58,21 @@ fun OverviewScreen(){
 fun PreviewOverviewScree(){
     CulturaMADTheme {
         OverviewScreen()
+    }
+}
+
+@Composable
+fun OverviewSearchBar(
+    viewModel: MainViewModel? = null
+){
+    OutlinedTextField(value = , onValueChange = )
+}
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(showBackground = true)
+@Composable
+fun OverViewBarPreview(){
+    CulturaMADTheme {
+        OverviewSearchBar(viewModel = null)
     }
 }
