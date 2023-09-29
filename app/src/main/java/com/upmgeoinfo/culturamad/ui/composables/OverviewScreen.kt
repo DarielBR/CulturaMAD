@@ -1,7 +1,6 @@
 package com.upmgeoinfo.culturamad.ui.composables
 
 import android.content.res.Configuration
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
@@ -120,14 +118,24 @@ fun OverviewScreen(
 
             LazyRow(
                 contentPadding = PaddingValues(
-                    vertical = 8.dp,
-                    horizontal = 8.dp
+                    vertical = 4.dp,
+                    horizontal = 4.dp
                 ),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 modifier = Modifier
                     .fillMaxWidth()
             ){
-                val itemsList = viewModel?.state?.items?.toList() ?: emptyList()
+                var itemsList = viewModel?.state?.items?.toList() ?: emptyList()
+                if (viewModel?.state?.searchValue != ""){
+                    val newItemList = emptyList<CulturalEvent>().toMutableList()
+                    val searchValue = viewModel?.state?.searchValue
+                    for(item in itemsList){
+                        if (item.title.contains(searchValue!!, ignoreCase = true)){
+                            newItemList.add(item)
+                        }
+                    }
+                    itemsList = newItemList.toList()
+                }
                 items(itemsList){ item ->
                     EventGridCard(culturalEvent = item, onClick = {})
                 }
