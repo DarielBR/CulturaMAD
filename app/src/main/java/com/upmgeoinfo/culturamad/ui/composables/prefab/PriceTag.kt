@@ -1,11 +1,14 @@
 package com.upmgeoinfo.culturamad.ui.composables.prefab
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -20,22 +23,27 @@ import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 @Composable
 fun PriceTag(
     price: String = "",
-    //color: Color? = null,
     fontSize: TextUnit = 12.sp
 ){
     Surface(
         shape = MaterialTheme.shapes.extraSmall,
         color = if (price == "") changeColorLuminosity(Color.Green, 0.9f)
-                else changeColorLuminosity(Color.White, 0.8f)
+                else changeColorLuminosity(Color.White, 0.8f),
+        modifier = Modifier
+            .size(55.dp)
     ) {
-        Text(
-            text = if (price == "") stringResource(id = string.event_free) else "€ " +price,
-            color = Color(0xFF018786),
-            fontWeight = FontWeight.Bold,
-            fontSize = fontSize,
-            modifier = Modifier
-                .padding(2.dp)
-        )
+        Box(
+            contentAlignment = Alignment.Center
+        ){
+            Text(
+                text = if (price == "") stringResource(id = string.event_free) else "€ " + price,
+                color = Color(0xFF018786),
+                fontWeight = FontWeight.Bold,
+                fontSize = fontSize,
+                modifier = Modifier
+                    .padding(2.dp)
+            )
+        }
     }
 }
 

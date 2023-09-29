@@ -3,6 +3,7 @@ package com.upmgeoinfo.culturamad.ui.composables
 import android.content.res.Configuration
 import android.widget.Space
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,8 +19,13 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.rounded.DateRange
+import androidx.compose.material.icons.sharp.DateRange
+import androidx.compose.material.icons.twotone.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -28,9 +34,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,6 +46,7 @@ import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
 import com.upmgeoinfo.culturamad.ui.composables.prefab.CategoryTag
 import com.upmgeoinfo.culturamad.ui.composables.prefab.PriceTag
+import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 @Composable
 fun DetailViewScreen(
@@ -134,30 +143,104 @@ fun DetailViewScreen(
                 ) {
                     Row(
                         modifier = Modifier
-                            .padding(8.dp)
+                            .padding(
+                                start = 8.dp,
+                                end = 8.dp,
+                                top = 16.dp,
+                                bottom = 8.dp
+                            )
                             .fillMaxWidth()
                     ) {
-                        Text(
-                            text = culturalEvent.title,
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = Color.White,
-                        )
+                        Column{
+                            Text(
+                                text = culturalEvent.title,
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = Color.White,
+                                overflow = TextOverflow.Clip
+                            )
+                            Text(
+                                text = culturalEvent.place,
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.Light,
+                                color = Color.White,
+                                overflow = TextOverflow.Clip,
+                                modifier = Modifier
+                                    .padding(bottom = 12.dp)
+                            )
+                            CategoryTag(
+                                category = culturalEvent.category,
+                                fontSize = 20.sp
+                            )
+                        }
                     }
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+            ){
+                Column(
+                    modifier = Modifier
+                        .padding(
+                            start = 18.dp,
+                            end = 18.dp,
+                            top = 16.dp,
+                            bottom = 8.dp
+                        )
+                        .fillMaxSize()
+                ) {
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier
-                            .padding(8.dp)
                             .fillMaxWidth()
                     ) {
-                        CategoryTag(
-                            category = culturalEvent.category,
-                            fontSize = 20.sp
-                        )
-                        PriceTag(
-                            price = culturalEvent.price,
-                            fontSize = 20.sp
-                        )
+                        Column(
+                            modifier = Modifier
+                        ){
+                            Row{
+                                Text(
+                                    text = stringResource(id = R.string.ui_organized_by),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                                    fontWeight = FontWeight.Light,
+                                    modifier = Modifier.padding(end = 2.dp)
+                                )
+
+                                Text(
+                                    text = culturalEvent.host,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontWeight = FontWeight.SemiBold,
+                                    modifier = Modifier
+                                        .padding(start = 2.dp)
+                                        .clickable { /*TODO: Intent to the host page*/ }
+                                )
+                            }
+                        }
+                        Column{
+                            PriceTag(
+                                price = culturalEvent.price
+                            )
+                        }
+                    }
+                    Row(
+                        modifier = Modifier
+                            .padding(top = 16.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .padding(4.dp)
+                        ) {
+                            Icon(imageVector = Icons.Default.DateRange, contentDescription = null)
+                        }
+                        Column(
+                            modifier = Modifier
+                                .padding(start = 4.dp)
+                        ) {
+                            Text(text = "Aqui va el texto con la informacion de la fechas y horarios, frecuencia, días exclidos, fechas de comienzo y de fin, entre otras cosas. ")
+                        }
                     }
                 }
             }
@@ -169,7 +252,9 @@ fun DetailViewScreen(
 @Preview(showBackground = true)
 @Composable
 fun DetailViewScreenPreview(){
-    DetailViewScreen(culturalEvent = mockEvent)
+    CulturaMADTheme {
+        DetailViewScreen(culturalEvent = mockEvent)
+    }
 }
 
 private var mockEvent = CulturalEvent(

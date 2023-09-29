@@ -12,6 +12,7 @@
     <string name="event_hours">Horario:</string>
     <string name="event_price">Precio:</string>
     <string name="event_free">Gratis</string>
+    <string name="ui_organized_by">Organizado por:</string>
     <string name="event_excluded_days">Días excluídos:</string>
     <string name="event_days">Días:</string>
     <string name="event_frequency">Frecuencia:</string>
