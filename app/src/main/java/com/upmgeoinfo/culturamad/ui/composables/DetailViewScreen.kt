@@ -1,7 +1,9 @@
 package com.upmgeoinfo.culturamad.ui.composables
 
 import android.content.res.Configuration
+import android.os.Build
 import android.widget.Space
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,10 +46,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
+import com.upmgeoinfo.culturamad.datamodel.utils.ScheduleParser
 import com.upmgeoinfo.culturamad.ui.composables.prefab.CategoryTag
 import com.upmgeoinfo.culturamad.ui.composables.prefab.PriceTag
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DetailViewScreen(
     culturalEvent: CulturalEvent,
@@ -239,7 +245,10 @@ fun DetailViewScreen(
                             modifier = Modifier
                                 .padding(start = 4.dp)
                         ) {
-                            Text(text = "Aqui va el texto con la informacion de la fechas y horarios, frecuencia, días exclidos, fechas de comienzo y de fin, entre otras cosas. ")
+                            val scheduleBlock = ScheduleParser(culturalEvent, false)
+                            //val myDate = LocalDateTime.parse(culturalEvent.dateStart, DateTimeFormatter.ISO_DATE_TIME)
+                            //Text(text = "")
+                            Text(text = scheduleBlock.showParsedSchedule())
                         }
                     }
                 }
@@ -248,6 +257,7 @@ fun DetailViewScreen(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Preview(showBackground = true)
 @Composable
@@ -267,13 +277,13 @@ private var mockEvent = CulturalEvent(
     address = "Puerta del Sol, 7",
     district = "Centro",
     neighborhood = "Centro",
-    days = "SU, MO, TU, WE, TH, FR, SA",
+    days = "SU,MO,TU,WE,TH,FR,SA",
     frequency = "Daily",
     interval = 1,
     dateStart = "2023-09-01 00:00:00.0",
     dateEnd = "2023-12-31 00:00:00.0",
-    hours = "All day",
-    excludedDays = "",
+    hours = "20:00",
+    excludedDays = "2/9/2023;5/10/2023;10/10/2023",
     place = "Plaza del Sol",
     host = "Ayuntamiento de Madrid",
     price = "",
