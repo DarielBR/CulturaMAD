@@ -1,15 +1,7 @@
 package com.upmgeoinfo.culturamad.datamodel.utils
 
-import android.app.Activity
-import android.app.Application
-import android.content.Context
-import android.content.res.Resources
 import android.os.Build
-import android.provider.Settings.Global.getString
-import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.currentComposer
-import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -21,43 +13,47 @@ import java.util.Locale
 @RequiresApi(Build.VERSION_CODES.O)
 class ScheduleParser(
     val culturalEvent: CulturalEvent,
-    private val useLongDateFormat: Boolean = false
+    val txtDateBlock1: String,//Desde_
+    val txtDateBlock2: String,//_hasta_
+    val txtParseDays1: String, //Todos los_
+    val txtParseDays2: String,//_y_
+    val txtMO: String,
+    val txtTU: String,
+    val txtWE: String,
+    val txtTH: String,
+    val txtFR: String,
+    val txtSA: String,
+    val txtSU: String,
+    val txtDaysHoursBlock1: String,//_a_las_
+    val txtDaysHoursBlock2: String,//_horas.
 ) {
-    /**
-     * Parse a block of schedule information extracted from the data contained in a CulturalEvent object.
-     *
-     *@return String with a parsed version of a CulturalEvent's schedule.
-     *
-     *@param culturalEvent a CulturalEvent object.
-     *@param useLongDateFormat boolean value indicating whether to use long date format or not.
-     */
+
+    //formatters
+    private val fullDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S")
+    private val shortDateFormatter = DateTimeFormatter.ofPattern("d/M/yyyy")
+    private val hourFormatter = DateTimeFormatter.ofPattern("HH:mm")
+    private val onlyDayFormatter = DateTimeFormatter.ofPattern("d", Locale.getDefault())
+    private val onlyMonthFormatter = DateTimeFormatter.ofPattern("LLLL", Locale.getDefault())
+    private val shortDateDayMonth = DateTimeFormatter.ofPattern("LLL d", Locale.getDefault())
+
     private val parsedSchedule: String
         get() {
             val dateStart =
                 if (culturalEvent.dateStart.isNotEmpty()){
-                    LocalDateTime.parse(culturalEvent.dateStart, fullDateTimeFormat)
+                    LocalDateTime.parse(culturalEvent.dateStart, fullDateTimeFormatter)
                 }else null
             val dateEnd =
                 if (culturalEvent.dateEnd.isNotEmpty()){
-                    LocalDateTime.parse(culturalEvent.dateEnd, fullDateTimeFormat)
+                    LocalDateTime.parse(culturalEvent.dateEnd, fullDateTimeFormatter)
                 }else null
             val hours =
                 if (culturalEvent.hours.isNotEmpty()){
-                    LocalTime.parse(culturalEvent.hours, hourFormat)
+                    LocalTime.parse(culturalEvent.hours, hourFormatter)
                 }else null
 
-            var days =
+            val days =
                 if (culturalEvent.days.isNotEmpty()){
-                    //TODO: FIX THIS ISSUE HERE
                     parseDays()
-                    /*culturalEvent.days
-                        .replace(oldValue = "MO", newValue = "Lunes")
-                        .replace(oldValue = "TU", newValue = "Martes")
-                        .replace(oldValue = "WE", newValue = "Miércoles")
-                        .replace(oldValue = "TH", newValue = "Jueves")
-                        .replace(oldValue = "FR", newValue = "Viernes")
-                        .replace(oldValue = "SA", newValue = "Sábados")
-                        .replace(oldValue = "SU", newValue = "Domingos")*/
                 }else null
 
             val excludedDays =
@@ -65,43 +61,72 @@ class ScheduleParser(
                     parseExcludedDays()
                 }else null
 
+            /**
+             * dateBlock:
+             * Es -> Desde sep 22 hasta oct 30
+             * En -> From Sep 22 tp Oct 30
+             *
+             * Only 1 case: dateStart and dateEnd always present
+             */
             var dateBlock: String? = null
             if (dateStart != null && dateEnd != null)
-                dateBlock = "Desde el ${dateStart.format(onlyDayFormatter)} de ${dateStart.format(onlyMonthFormatter)} hasta el ${dateEnd.format(onlyDayFormatter)} de ${dateEnd.format(onlyMonthFormatter)}"
-            //TODO: write it to take the message from the resources ie:dateBlock = Resources.getSystem().getString(R.string.ui_date_block, dateStart, dateEnd)
-            //TODO: more cases for no start date or no end date}
+                dateBlock = txtDateBlock1 + dateStart.format(shortDateDayMonth) +
+                            txtDateBlock2 + dateEnd.format(shortDateDayMonth) + "."
 
+            /**
+             * daysHoursBlock:
+             * Es -> , todos los lunes, miércoles y viernes a las 19:50 H.
+             * En -> , on Monday, Wednesday and Friday at 19:50 H
+             *
+             * 4 cases:
+             *      days and hours present
+             *      only hours
+             *      only days
+             *      none
+             */
             var daysHoursBlock: String? = null
             if (days != null && hours != null)
-                daysHoursBlock = ", $days a las $hours horas"
-                //Resources.getSystem().getString(R.string.ui_days_hours_block, days, hours.toString())
-                //TODO: more cases for not days and no hours
+                daysHoursBlock = days + txtDaysHoursBlock1 + hours + txtDaysHoursBlock2 + "."
+            else if (days == null && hours != null)
+                daysHoursBlock = txtDaysHoursBlock1 + hours + txtDateBlock2 + "."
+            else if (days != null && hours == null)
+                daysHoursBlock = days + "."
 
+            /**
+             * excludedDaysBloc:
+             * Es -> Excepto sep 30, oct 1 y oct 2.
+             * En -> Except Sep 30, Oct 1 and Oct 2.
+             *
+             * 2 cases:
+             *      no excluded days
+             *      one or more excluded days
+             */
             var excludedDaysBlock: String? = null
             if(excludedDays!!.isNotEmpty()){
-                excludedDaysBlock = ". Excepto "
+                excludedDaysBlock = "Excepto "
                 for(i in 0..excludedDays.size - 1){
                     if(i == 0)
                         excludedDaysBlock += excludedDays[i].format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
                     else if (i == excludedDays.size - 1)
-                        excludedDaysBlock += " y " + excludedDays[i].format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+                        excludedDaysBlock += txtParseDays2 + excludedDays[i].format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
                     else excludedDaysBlock += ", " + excludedDays[i].format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
                 }
             }
 
-            var fullBlock: String? = null
-            if (dateBlock != null && daysHoursBlock != null && excludedDays != null)
-                fullBlock = dateBlock + daysHoursBlock + excludedDaysBlock
+            /**
+             * fullBlock:
+             *
+             */
+            var fullBlock = dateBlock
+            if (daysHoursBlock != null )
+                fullBlock += "\n" + daysHoursBlock
+            if (excludedDaysBlock != null )
+                fullBlock += "\n" + excludedDaysBlock
 
             return fullBlock ?: "Schedule Parsing Error."
         }
 
-    private val fullDateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S")
-    private val shortDateFormat = DateTimeFormatter.ofPattern("d/M/yyyy")
-    //private val fullDateFormat  = DateTimeFormatter.ofPattern("yyyy, dd MMM")
-    private val hourFormat = DateTimeFormatter.ofPattern("HH:mm")
-    private val onlyDayFormatter = DateTimeFormatter.ofPattern("d", Locale.getDefault())
-    private val onlyMonthFormatter = DateTimeFormatter.ofPattern("LLLL", Locale.getDefault())
+
 
     private fun parseDays(): String?{
         val daysString = culturalEvent.days
@@ -109,20 +134,20 @@ class ScheduleParser(
         var daysParsed: String? = null
 
         if(daysList.isNotEmpty()){
-            daysParsed = "todos los "
+            daysParsed = txtParseDays1
             for (i in 0..daysList.size - 1){
                 val day: String? = null
                 when (daysList[i]){
-                    "MO" -> daysList[i] = "lunes"
-                    "TU" -> daysList[i] = "martes"
-                    "WE" -> daysList[i] = "miércoles"
-                    "TH" -> daysList[i] = "jueves"
-                    "FR" -> daysList[i] = "viernes"
-                    "SA" -> daysList[i] = "sábados"
-                    "SU" -> daysList[i] = "domingos"
+                    "MO" -> daysList[i] = txtMO
+                    "TU" -> daysList[i] = txtTU
+                    "WE" -> daysList[i] = txtWE
+                    "TH" -> daysList[i] = txtTH
+                    "FR" -> daysList[i] = txtFR
+                    "SA" -> daysList[i] = txtSA
+                    "SU" -> daysList[i] = txtSU
                 }
                 if (i == 0) daysParsed += daysList[i]
-                else if (i == daysList.size - 1) daysParsed += " y " + daysList[i]
+                else if (i == daysList.size - 1) daysParsed += txtParseDays2 + daysList[i]
                 else daysParsed += ", " + daysList[i]
             }
         }
@@ -135,17 +160,9 @@ class ScheduleParser(
         val excludedDatesList = mutableListOf<LocalDate>()
 
         for (item in excludedDaysList){
-            val excludedDate = LocalDate.parse(item, shortDateFormat)
+            val excludedDate = LocalDate.parse(item, shortDateFormatter)
             excludedDatesList.add(excludedDate)
         }
-        /*excludedDaysList.forEach { dateString ->
-            //try {
-                val excludedDate = LocalDateTime.parse(dateString, shortDateFormat)
-                excludedDatesList.add(excludedDate)
-            //}catch (e: Exception){
-            //    e.printStackTrace()
-            //}
-        }*/
 
         return excludedDatesList.toList()
     }

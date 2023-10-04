@@ -245,7 +245,22 @@ fun DetailViewScreen(
                             modifier = Modifier
                                 .padding(start = 4.dp)
                         ) {
-                            val scheduleBlock = ScheduleParser(culturalEvent, false)
+                            val scheduleBlock = ScheduleParser(
+                                culturalEvent = culturalEvent,
+                                txtDateBlock1 = stringResource(id = R.string.txt_date_block_1),
+                                txtDateBlock2 = stringResource(id = R.string.txt_date_block_2),
+                                txtParseDays1 = stringResource(id = R.string.txt_parse_days_1),
+                                txtParseDays2 = stringResource(id = R.string.txt_parse_days_2),
+                                txtMO = stringResource(id = R.string.txt_MO),
+                                txtTU = stringResource(id = R.string.txt_TU),
+                                txtWE = stringResource(id = R.string.txt_WE),
+                                txtTH = stringResource(id = R.string.txt_TH),
+                                txtFR = stringResource(id = R.string.txt_FR),
+                                txtSA = stringResource(id = R.string.txt_SA),
+                                txtSU = stringResource(id = R.string.txt_SU),
+                                txtDaysHoursBlock1 = stringResource(id = R.string.txt_day_hours_block_1),
+                                txtDaysHoursBlock2 = stringResource(id = R.string.txt_day_hours_block_2),
+                            )
                             //val myDate = LocalDateTime.parse(culturalEvent.dateStart, DateTimeFormatter.ISO_DATE_TIME)
                             //Text(text = "")
                             Text(text = scheduleBlock.showParsedSchedule())
