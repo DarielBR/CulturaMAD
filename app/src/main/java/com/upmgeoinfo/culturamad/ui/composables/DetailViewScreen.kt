@@ -1,21 +1,28 @@
 package com.upmgeoinfo.culturamad.ui.composables
 
+import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
-import android.widget.Space
+import android.widget.HorizontalScrollView
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
@@ -24,19 +31,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.outlined.DateRange
-import androidx.compose.material.icons.rounded.DateRange
-import androidx.compose.material.icons.sharp.DateRange
-import androidx.compose.material.icons.twotone.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -44,14 +53,26 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.accompanist.permissions.isGranted
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
+import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.upmgeoinfo.culturamad.R
+import com.upmgeoinfo.culturamad.datamodel.Address
 import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
+import com.upmgeoinfo.culturamad.datamodel.Location
 import com.upmgeoinfo.culturamad.datamodel.utils.ScheduleParser
 import com.upmgeoinfo.culturamad.ui.composables.prefab.CategoryTag
 import com.upmgeoinfo.culturamad.ui.composables.prefab.PriceTag
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import javax.security.auth.DestroyFailedException
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -68,10 +89,11 @@ fun DetailViewScreen(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            Box(
+            Box(//First Half
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
+                    //.height(200.dp)
+                    .fillMaxHeight(0.25f)
             ) {
                 Image(
                     painter =
@@ -182,15 +204,15 @@ fun DetailViewScreen(
                     }
                 }
             }
-            Box(
+            Box(//Second Half
                 modifier = Modifier
                     .fillMaxSize()
             ){
                 Column(
                     modifier = Modifier
                         .padding(
-                            start = 18.dp,
-                            end = 18.dp,
+                            //start = 18.dp,
+                            //end = 18.dp,
                             top = 16.dp,
                             bottom = 8.dp
                         )
@@ -199,11 +221,13 @@ fun DetailViewScreen(
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier
+                            .padding(
+                                start = 18.dp,
+                                end = 18.dp
+                            )
                             .fillMaxWidth()
                     ) {
-                        Column(
-                            modifier = Modifier
-                        ){
+                        Column(){
                             Row{
                                 Text(
                                     text = stringResource(id = R.string.ui_organized_by),
@@ -232,14 +256,22 @@ fun DetailViewScreen(
                     }
                     Row(
                         modifier = Modifier
-                            .padding(top = 16.dp)
+                            .padding(
+                                top = 16.dp,
+                                start = 18.dp,
+                                end = 18.dp
+                            )
                             .fillMaxWidth()
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .padding(4.dp)
-                        ) {
-                            Icon(imageVector = Icons.Default.DateRange, contentDescription = null)
+                        Column() {
+                            Icon(
+                                imageVector = Icons.Default.DateRange,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier
+                                    .padding(top = 2.dp, end = 4.dp)
+                                    .clickable { /*TODO intent to schedule*/ }
+                            )
                         }
                         Column(
                             modifier = Modifier
@@ -261,10 +293,26 @@ fun DetailViewScreen(
                                 txtDaysHoursBlock1 = stringResource(id = R.string.txt_day_hours_block_1),
                                 txtDaysHoursBlock2 = stringResource(id = R.string.txt_day_hours_block_2),
                             )
-                            //val myDate = LocalDateTime.parse(culturalEvent.dateStart, DateTimeFormatter.ISO_DATE_TIME)
-                            //Text(text = "")
-                            Text(text = scheduleBlock.showParsedSchedule())
+                            Text(
+                                text = scheduleBlock.showParsedSchedule(),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
                         }
+                    }
+                    Row(//Details and review
+                        modifier = Modifier
+                            .padding(top = 24.dp)
+                            .fillMaxWidth()
+                    ){
+                        DetailsReviewTabRow(culturalEvent = culturalEvent)
+                    }
+                    Row(//final row
+                        modifier = Modifier
+                            //.padding(top = 24.dp)
+                            .fillMaxWidth()
+                    ){
+
                     }
                 }
             }
@@ -284,21 +332,22 @@ fun DetailViewScreenPreview(){
 
 private var mockEvent = CulturalEvent(
     id = 1111111,
-    category = "MOCK",
-    title = "Mock Cultural Event",
-    description = "This is a faux cultural event fort testing and developing purposes.",
+    category = "Lugares de Interés",
+    title = "Km 0 de Red de Carreteras",
+    description = "This is a faux cultural event fort testing and developing purposes.\n" +
+            "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.",
     latitude = "40.4169473",
     longitude = "-3.7035285",
     address = "Puerta del Sol, 7",
     district = "Centro",
     neighborhood = "Centro",
-    days = "SU,MO,TU,WE,TH,FR,SA",
+    days = "MO,TU,WE,TH,FR,SA,SU",
     frequency = "Daily",
     interval = 1,
-    dateStart = "2023-09-01 00:00:00.0",
+    dateStart = "2023-01-01 00:00:00.0",
     dateEnd = "2023-12-31 00:00:00.0",
-    hours = "20:00",
-    excludedDays = "2/9/2023;5/10/2023;10/10/2023",
+    hours = "",
+    excludedDays = "2/5/2023",
     place = "Plaza del Sol",
     host = "Ayuntamiento de Madrid",
     price = "",
@@ -306,3 +355,175 @@ private var mockEvent = CulturalEvent(
     bookmark = false,
     review = 0
 )
+
+@Composable
+fun DetailsReviewTabRow(
+    culturalEvent: CulturalEvent
+){
+    var tabIndex by remember { mutableStateOf(0) }
+    val tabs = listOf(
+        stringResource(id = R.string.ui_description),
+        stringResource(id = R.string.ui_review)
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        TabRow(
+            selectedTabIndex = tabIndex,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        ) {
+            for (index in tabs.indices){
+                Tab(
+                    text = { androidx.compose.material3.Text(
+                        text = tabs[index],
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.SemiBold
+                    ) },
+                    selected = tabIndex == index,
+                    onClick = { tabIndex = index }
+                )
+            }
+        }
+        when(tabIndex){
+            0 -> DescriptionView(culturalEvent = culturalEvent)
+            1 -> ReviewDetailTab(culturalEvent = culturalEvent)
+        }
+    }
+}
+
+@Composable
+fun DescriptionView(culturalEvent: CulturalEvent){
+    Surface(
+        color = MaterialTheme.colorScheme.surface,
+        modifier = Modifier
+    ){
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+        ){
+            Row(
+                modifier = Modifier
+                    .padding(start = 18.dp, end = 18.dp, top = 16.dp)
+            ) {
+                val scrollState = rememberScrollState(0)
+                Text(
+                    text = culturalEvent.description,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodyMedium,
+                    //maxLines = 5,
+                    //overflow = TextOverflow.Clip,
+                    modifier = Modifier
+                        .height(80.dp)
+                        .verticalScroll(
+                            state = rememberScrollState(),
+                            enabled = true,
+                            reverseScrolling = false
+                        )
+                    //TODO: create a scroll for this text when there is an overflow
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .padding(top = 12.dp)
+            ) {
+                Minimap(
+                    location = LatLng(
+                        culturalEvent.latitude.toDouble(),
+                        culturalEvent.longitude.toDouble()
+                    ),
+                    title = culturalEvent.title,
+                    address = culturalEvent.address
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun Minimap(
+    location: LatLng,
+    title: String,
+    address: String,
+){
+    Surface(
+        color = MaterialTheme.colorScheme.surface,
+        modifier = Modifier
+            .fillMaxWidth()
+    ){
+        Column{
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.8f)
+            ) {
+                val context = LocalContext.current
+                val cameraPositionState = rememberCameraPositionState {
+                    position = CameraPosition.fromLatLngZoom(location, 17f)
+                }
+                val properties =
+                    MapProperties(
+                        mapType = MapType.NORMAL,
+                        isMyLocationEnabled = false,
+                        mapStyleOptions =
+                        if (!isSystemInDarkTheme())
+                            MapStyleOptions.loadRawResourceStyle(
+                                context,
+                                R.raw.map_style_silver
+                            )
+                        else
+                            MapStyleOptions.loadRawResourceStyle(
+                                context,
+                                R.raw.map_style_dark
+                            )
+                    )
+                val uiSettings =
+                    MapUiSettings(
+                        zoomControlsEnabled = false,
+                        myLocationButtonEnabled = false,
+                        compassEnabled = false,
+                        mapToolbarEnabled = false
+                    )
+
+                GoogleMap(
+                    onMapClick = { /*TODO: navigation to Cluster map view with new camera position*/ },
+                    cameraPositionState = cameraPositionState,
+                    uiSettings = uiSettings,
+                    properties = properties
+                ) {
+                    Marker(
+                        state = MarkerState(position = location),
+                        title = title
+                    )
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .padding(top = 12.dp, start = 18.dp, end = 18.dp, bottom = 8.dp)
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    text = address,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ReviewDetailTab(culturalEvent: CulturalEvent){
+
+    Surface(
+        modifier = Modifier
+            .padding(top = 12.dp, start = 18.dp, end = 18.dp, bottom = 8.dp)
+    ) {
+        Text(
+            text = "In this tab will be allocated all reviews stored about this cultural event",
+            style = MaterialTheme.typography.bodyLarge,
+        )
+    }
+}

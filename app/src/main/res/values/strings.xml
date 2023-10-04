@@ -39,9 +39,11 @@
     <string name="txt_SU">Domingos</string>
     <string name="txt_date_block_1">Desde \u0020</string>
     <string name="txt_date_block_2">\u0020 hasta \u0020</string>
-    <string name="txt_parse_days_1">Todos los \u0020</string>
+    <string name="txt_parse_days_1">todos los \u0020</string>
     <string name="txt_parse_days_2">\u0020 y \u0020</string>
-    <string name="txt_day_hours_block_1">\u0020 a las \u0020</string>
+    <string name="txt_day_hours_block_1">a las \u0020</string>
     <string name="txt_day_hours_block_2">H</string>
+    <string name="ui_description">Descripción</string>
+    <string name="ui_review">Reseñas</string>
     <string name="tip">Tip: haga un tap sobre la información de un marcador para ir a la publicación o un tap largo para compartir.</string>
 </resources>

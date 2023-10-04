@@ -71,7 +71,7 @@ class ScheduleParser(
             var dateBlock: String? = null
             if (dateStart != null && dateEnd != null)
                 dateBlock = txtDateBlock1 + dateStart.format(shortDateDayMonth) +
-                            txtDateBlock2 + dateEnd.format(shortDateDayMonth) + "."
+                            txtDateBlock2 + dateEnd.format(shortDateDayMonth) + " "
 
             /**
              * daysHoursBlock:
@@ -88,7 +88,7 @@ class ScheduleParser(
             if (days != null && hours != null)
                 daysHoursBlock = days + txtDaysHoursBlock1 + hours + txtDaysHoursBlock2 + "."
             else if (days == null && hours != null)
-                daysHoursBlock = txtDaysHoursBlock1 + hours + txtDateBlock2 + "."
+                daysHoursBlock = txtDaysHoursBlock1 + hours + txtDaysHoursBlock2 + "."
             else if (days != null && hours == null)
                 daysHoursBlock = days + "."
 
@@ -119,7 +119,7 @@ class ScheduleParser(
              */
             var fullBlock = dateBlock
             if (daysHoursBlock != null )
-                fullBlock += "\n" + daysHoursBlock
+                fullBlock += daysHoursBlock
             if (excludedDaysBlock != null )
                 fullBlock += "\n" + excludedDaysBlock
 
@@ -146,9 +146,17 @@ class ScheduleParser(
                     "SA" -> daysList[i] = txtSA
                     "SU" -> daysList[i] = txtSU
                 }
-                if (i == 0) daysParsed += daysList[i]
-                else if (i == daysList.size - 1) daysParsed += txtParseDays2 + daysList[i]
-                else daysParsed += ", " + daysList[i]
+                //Creating the string
+                if (daysList.size == 1)
+                    daysParsed += daysList[i] + ", "
+                else{
+                    if (i == 0)
+                        daysParsed += daysList[i]
+                    else if (i > 0 && i < daysList.size - 1)
+                        daysParsed += ", " + daysList[i]
+                    else
+                        daysParsed += txtParseDays2 + daysList[i] + ", "
+                }
             }
         }
 
