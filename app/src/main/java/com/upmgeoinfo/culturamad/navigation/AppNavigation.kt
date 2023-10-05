@@ -1,5 +1,7 @@
 package com.upmgeoinfo.culturamad.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -12,6 +14,7 @@ import com.upmgeoinfo.culturamad.MainScreen
 import com.upmgeoinfo.culturamad.datamodel.MainViewModel
 import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems
 import com.upmgeoinfo.culturamad.ui.composables.ClusterMapScreen
+import com.upmgeoinfo.culturamad.ui.composables.DetailViewScreen
 import com.upmgeoinfo.culturamad.ui.composables.OverviewScreen
 import com.upmgeoinfo.culturamad.ui.composables.SplashScreen
 import com.upmgeoinfo.culturamad.ui.composables.UserScreen
@@ -53,7 +56,8 @@ fun AppNavigation(fuseLocationClient: FusedLocationProviderClient, viewModel: Ma
  * (Alternatively using a navigation bottom bar)Handles the navigation within the application. Will show at first the Splash Screen followed by
  * the main activity. Also cleanses the views while navigates towards the main activity.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterial3Api::class, MapsComposeExperimentalApi::class)
 @Composable
 fun AlternateNavigation(
     navController: NavHostController,
@@ -83,6 +87,9 @@ fun AlternateNavigation(
         }
         composable(MenuItems.UserScreen.route){
             UserScreen()
+        }
+        composable(AppScreens.DetailViewScreen.route){
+            DetailViewScreen(culturalEvent = viewModel.getCurrentEvent())
         }
     }
 }

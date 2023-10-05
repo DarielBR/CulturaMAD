@@ -18,7 +18,7 @@ suspend fun getJsonStringFromUri(): String = withContext(Dispatchers.IO){
     //val endIndex = jsonString?.lastIndexOf(']') ?: -1
     val endIndex = jsonString?.indexOf(']') ?: -1
     //val trimmedString = jsonString?.substring(startIndex) ?: ""
-    var trimmedString = jsonString?.subSequence(startIndex,endIndex+1).toString() ?: ""
+    val trimmedString = jsonString?.subSequence(startIndex,endIndex+1).toString() ?: ""
     return@withContext trimmedString
 }
 

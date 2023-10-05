@@ -2,6 +2,8 @@ package com.upmgeoinfo.culturamad.ui.composables
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.BottomAppBar
 import androidx.compose.material.BottomNavigation
@@ -25,15 +27,15 @@ import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems
 import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems.*
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun ScaffoldedScreen(
     fusedLocationClient: FusedLocationProviderClient,
     viewModel: MainViewModel
 ){
-    val navController = rememberNavController()
+    val navController = rememberNavController()//this is the app navHostController
     val scaffoldState = rememberScaffoldState()
-    //val scope = rememberCoroutineScope()
 
     val navItems = listOf(
         OverviewScreen,
@@ -44,7 +46,7 @@ fun ScaffoldedScreen(
     Scaffold(
         scaffoldState = scaffoldState,
         bottomBar = {
-            if(!viewModel.state.isSplashScreenOnRender){
+            if(!viewModel.state.isSplashScreenOnRender){// Waiting for splash screen to finish
                 AppBottomNavigation(
                     navController = navController,
                     menuItems = navItems
@@ -86,8 +88,7 @@ fun AppBottomNavigation(
                             contentDescription = item.title
                         )
                     },
-                    label = { Text(text = item.title) },
-                    //alwaysShowLabel = false
+                    label = { Text(text = item.title) }
                 )
             }
         }
@@ -99,14 +100,3 @@ fun currentNavigationEntry(navController: NavHostController): String{
     val entry by navController.currentBackStackEntryAsState()
     return entry?.destination?.route.toString()
 }
-
-
-/*
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Preview(showBackground = true)
-@Composable
-fun PreviewScaffoldedScreen(){
-    CulturaMADTheme {
-        //ScaffoldedScreen()
-    }
-}*/

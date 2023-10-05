@@ -2,11 +2,14 @@ package com.upmgeoinfo.culturamad
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -52,8 +55,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -64,20 +65,15 @@ import com.google.accompanist.permissions.shouldShowRationale
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
 import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
 import com.upmgeoinfo.culturamad.datamodel.MainViewModel
-import com.upmgeoinfo.culturamad.datamodel.MarkerData
 import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventDatabase
 import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventRepository
-import com.upmgeoinfo.culturamad.navigation.AlternateNavigation
-import com.upmgeoinfo.culturamad.navigation.AppNavigation
 import com.upmgeoinfo.culturamad.ui.composables.ClusterMapScreen
 import com.upmgeoinfo.culturamad.ui.composables.FilterItem
-import com.upmgeoinfo.culturamad.ui.composables.MapScreen
 import com.upmgeoinfo.culturamad.ui.composables.ScaffoldedScreen
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 import java.sql.Date
@@ -86,8 +82,8 @@ import java.sql.Time
 class MainActivity : ComponentActivity() {
     private lateinit var fuseLocationClient: FusedLocationProviderClient
     private lateinit var culturalEvents: List<CulturalEventMadrid>
-    //private lateinit var navController: NavHostController
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,7 +91,7 @@ class MainActivity : ComponentActivity() {
          * Initializing late-init variables
          */
         fuseLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        culturalEvents = MarkerData.dataList
+        //culturalEvents = MarkerData.dataList
         /**
          * Displaying content Edge to Edge
          */
@@ -109,7 +105,12 @@ class MainActivity : ComponentActivity() {
         val culturalEventRepository = CulturalEventRepository(dao)
         val viewModel= MainViewModel(culturalEventRepository)
         /*TODO:Validate internet access failure here, if an exception is thrown a message must be shown and continue with the state list.*/
-        val dataFromUri = MarkerData.transformedDataList
+        val dataFromUri = emptyList<CulturalEvent>()
+       /* try {
+            val dataFromUri = MarkerData.transformedDataList
+        }catch (e: Exception){
+            Toast.makeText(this, "Error found -> " + e.localizedMessage, Toast.LENGTH_LONG).show()
+        }*/
         /**
          * Updating Database (UPSERT operation)
          */
@@ -120,7 +121,7 @@ class MainActivity : ComponentActivity() {
         else{
             for(item in dataFromUri){
                 val databaseItem = viewModel.state.items.find { it.id == item.id }
-                if(databaseItem != null) viewModel.updateCulturalEvent(item, databaseItem.bookmark, databaseItem.review)
+                if(databaseItem != null) viewModel.updateCulturalEvent(item, databaseItem.bookmark, databaseItem.review!!)
                 else viewModel.saveCulturalEvent(item)
             }
             for(databaseItem in viewModel.state.items){
@@ -295,164 +296,6 @@ fun RequestLocationPermission() {
     }
 }
 
-/**
- * Main UI declarative function.
- */
-@ExperimentalMaterial3Api
-@OptIn(ExperimentalComposeUiApi::class)//Necessary for using [LocalSoftwareKeyboardController.current]. Necessary for using Text Field.
-@MapsComposeExperimentalApi
-@Composable
-fun UIDeclaration(
-    fuseLocationClient: FusedLocationProviderClient
-){
-    CulturaMADTheme {
-        var searchValue by remember { mutableStateOf("") }
-        var danceFilter by remember { mutableStateOf(false) }
-        var musicFilter by remember { mutableStateOf(false) }
-        var paintingFilter by remember { mutableStateOf(false) }
-        var theatreFilter by remember { mutableStateOf(false) }
-
-        val keyboardController = LocalSoftwareKeyboardController.current //necessary to close keyboard after a search is prompted.
-
-        /**
-         * Customizing the System Bar
-         */
-        var darkTheme by remember { mutableStateOf(false) }
-        darkTheme = isSystemInDarkTheme()
-        val systemUiController = rememberSystemUiController()
-        SideEffect {
-            systemUiController.setSystemBarsColor(
-                color = Color.Transparent,
-                darkIcons = !darkTheme
-               // isNavigationBarContrastEnforced = true
-            )
-            systemUiController.setNavigationBarColor(
-                color = Color.Transparent,
-                darkIcons = !darkTheme
-            )
-        }
-        /**
-         * Composable with GoogleMap
-         */
-        MapScreen(fuseLocationClient, searchValue, danceFilter, musicFilter, paintingFilter, theatreFilter)
-        //MapScreenWithCluster()
-        /*ClusterMapScreen(
-            fuseLocationClient = fuseLocationClient,
-            searchValue = searchValue,
-            categoryDance = danceFilter,
-            categoryMusic = musicFilter,
-            categoryPainting = paintingFilter,
-            categoryTheatre = theatreFilter
-        )*/
-
-        Column {
-
-            Spacer(modifier = Modifier.height(45.dp))
-
-            /**
-             * Declaring a SearchBar on top of the screen. A Composable function won't be used in
-             * this case because is necessary to modify a variable external to the function's scope.
-             * In particular the searchValue, will be used modified in the following declaration and
-             * it will be used in other task furthermore.
-             */
-            Surface(
-                elevation = 2.dp,
-                shape = MaterialTheme.shapes.medium.copy(all = CornerSize(40)),
-                modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp)
-            ) {
-                TextField(
-                    value = searchValue,
-                    onValueChange = { newText: String ->
-                        searchValue = newText
-                    },
-                    shape = MaterialTheme.shapes.medium.copy(all = CornerSize(40)),
-                    leadingIcon = {
-                        Icon(
-                            Icons.Filled.Search,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface
-                        ) },
-                    trailingIcon = {
-                        IconButton(
-                            onClick = {
-                                searchValue = ""
-                                keyboardController?.hide()
-                            }
-                        ) {
-                            Icon(
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                painter = painterResource(id = R.drawable.cmad_close),
-                                contentDescription = null
-                            )
-                        }
-
-                    },
-                    placeholder = { Text(stringResource(id = R.string.placeholder_search)) },
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    ),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                    keyboardActions = KeyboardActions(onSearch = { keyboardController?.hide() }),
-                    modifier = Modifier
-                        //.padding(start = 16.dp, end = 16.dp)
-                        .fillMaxWidth()
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            /**
-             * Declaring category filtering buttons
-             */
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp)
-            ){
-                items(categoriesData){ item->
-                    when(stringResource(id = item.text)) {
-                        "Danza" -> {
-                            FilterItem(
-                                filterStatus = danceFilter,
-                                drawableResource = item.drawable,
-                                stringResource = item.text,
-                                onClick = { danceFilter = !danceFilter }
-                            )
-                        }
-                        "Música" -> {
-                            FilterItem(
-                                filterStatus = musicFilter,
-                                drawableResource = item.drawable,
-                                stringResource = item.text,
-                                onClick = { musicFilter = !musicFilter }
-                            )
-                        }
-                        "Pintura" -> {
-                            FilterItem(
-                                filterStatus = paintingFilter,
-                                drawableResource = item.drawable,
-                                stringResource = item.text,
-                                onClick = { paintingFilter = !paintingFilter }
-                            )
-                        }
-                        "Teatro" -> {
-                            FilterItem(
-                                filterStatus = theatreFilter,
-                                drawableResource = item.drawable,
-                                stringResource = item.text,
-                                onClick = { theatreFilter = !theatreFilter }
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
 private data class DrawableStringPair(
     @DrawableRes val drawable: Int,
     @StringRes val text: Int
@@ -473,13 +316,13 @@ private val categoriesData = listOf(
 @MapsComposeExperimentalApi
 @Composable
 fun MainScreen(fuseLocationClient: FusedLocationProviderClient, viewModel: MainViewModel){
-    //CulturaMADTheme {
+    CulturaMADTheme {
         RequestInternetPermission()
         RequestLocationPermission()
-        //UIDeclaration(fuseLocationClient)
+
         ClusterMapScreen(
             fusedLocationClient = fuseLocationClient,
             viewModel = viewModel
         )
-    //}
+    }
 }

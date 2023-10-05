@@ -56,6 +56,14 @@ class MainViewModel(
         )
     }
 
+    fun getCurrentEvent(): CulturalEvent{
+        var currentEvent = CulturalEvent()
+        viewModelScope.launch {
+            currentEvent =  culturalEventRepository.getCulturalEventEntityById(state.currentItem.toInt())
+        }
+        return currentEvent
+    }
+
     fun deleteCulturalEvent(culturalEvent: CulturalEvent){
         viewModelScope.launch {
             culturalEventRepository.deleteCulturalEvent(culturalEvent)

@@ -5,7 +5,6 @@ import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
 class CulturalEventRepository(
     private val culturalEventDao: CulturalEventDao
 ) {
-
     suspend fun getCulturalEvents(): List<CulturalEvent>{
         val entities = culturalEventDao.getCulturalEvents()
         return entities.map{
@@ -69,7 +68,7 @@ class CulturalEventRepository(
 
     suspend fun insertCulturalEvent(culturalEvent: CulturalEvent){
         val entity = CulturalEventEntity(
-            id = culturalEvent.id,
+            id = culturalEvent.id!!,
             category = culturalEvent.category,
             title = culturalEvent.title,
             description = culturalEvent.description,
@@ -80,7 +79,7 @@ class CulturalEventRepository(
             neighborhood = culturalEvent.neighborhood,
             days = culturalEvent.days,
             frequency = culturalEvent.frequency,
-            interval = culturalEvent.interval,
+            interval = culturalEvent.interval!!,
             dateStart = culturalEvent.dateStart,
             dateEnd = culturalEvent.dateEnd,
             hours = culturalEvent.hours,
@@ -97,7 +96,7 @@ class CulturalEventRepository(
 
     suspend fun updateCulturalEvent(culturalEvent: CulturalEvent, bookmark: Boolean){
         val entity = CulturalEventEntity(
-            id = culturalEvent.id,
+            id = culturalEvent.id!!,
             category = culturalEvent.category,
             title = culturalEvent.title,
             description = culturalEvent.description,
@@ -108,7 +107,7 @@ class CulturalEventRepository(
             neighborhood = culturalEvent.neighborhood,
             days = culturalEvent.days,
             frequency = culturalEvent.frequency,
-            interval = culturalEvent.interval,
+            interval = culturalEvent.interval!!,
             dateStart = culturalEvent.dateStart,
             dateEnd = culturalEvent.dateEnd,
             hours = culturalEvent.hours,
@@ -118,14 +117,14 @@ class CulturalEventRepository(
             price = culturalEvent.price,
             link = culturalEvent.link,
             bookmark = bookmark,
-            review = culturalEvent.review
+            review = culturalEvent.review!!
         )
         culturalEventDao.updateCulturalEvent(entity)
     }
 
     suspend fun updateCulturalEvent(culturalEvent: CulturalEvent, bookmark: Boolean, review: Int){
         val entity = CulturalEventEntity(
-            id = culturalEvent.id,
+            id = culturalEvent.id!!,
             category = culturalEvent.category,
             title = culturalEvent.title,
             description = culturalEvent.description,
@@ -136,7 +135,7 @@ class CulturalEventRepository(
             neighborhood = culturalEvent.neighborhood,
             days = culturalEvent.days,
             frequency = culturalEvent.frequency,
-            interval = culturalEvent.interval,
+            interval = culturalEvent.interval!!,
             dateStart = culturalEvent.dateStart,
             dateEnd = culturalEvent.dateEnd,
             hours = culturalEvent.hours,
@@ -182,7 +181,7 @@ class CulturalEventRepository(
 
     suspend fun deleteCulturalEvent(culturalEvent: CulturalEvent){
         val entity = CulturalEventEntity(
-            id = culturalEvent.id,
+            id = culturalEvent.id!!,
             category = culturalEvent.category,
             title = culturalEvent.title,
             description = culturalEvent.description,
@@ -193,7 +192,7 @@ class CulturalEventRepository(
             neighborhood = culturalEvent.neighborhood,
             days = culturalEvent.days,
             frequency = culturalEvent.frequency,
-            interval = culturalEvent.interval,
+            interval = culturalEvent.interval!!,
             dateStart = culturalEvent.dateStart,
             dateEnd = culturalEvent.dateEnd,
             hours = culturalEvent.hours,
@@ -203,7 +202,7 @@ class CulturalEventRepository(
             price = culturalEvent.price,
             link = culturalEvent.link,
             bookmark = culturalEvent.bookmark,
-            review = culturalEvent.review
+            review = culturalEvent.review!!
         )
         culturalEventDao.deleteCulturalEvent(entity)
     }

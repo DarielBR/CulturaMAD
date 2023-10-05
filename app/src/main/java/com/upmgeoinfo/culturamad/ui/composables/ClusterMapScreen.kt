@@ -30,7 +30,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -48,7 +47,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
-import androidx.room.Room
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -77,9 +75,7 @@ import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
 import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
 import com.upmgeoinfo.culturamad.datamodel.MainViewModel
-import com.upmgeoinfo.culturamad.datamodel.MarkerData
-import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventDatabase
-import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventRepository
+import com.upmgeoinfo.culturamad.ui.composables.prefab.MapButton
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 @SuppressLint("MissingPermission")
@@ -578,7 +574,7 @@ fun transformCulturalEventToClusterItem(culturalEvent: CulturalEvent): CulturalE
         eventNeighborhood = culturalEvent.neighborhood,
         eventDays = culturalEvent.days,
         eventFrequency = culturalEvent.frequency,
-        eventInterval = culturalEvent.interval.toInt(),
+        eventInterval = culturalEvent.interval!!.toInt(),
         eventStart = culturalEvent.dateStart,
         eventEnd = culturalEvent.dateEnd,
         eventExcludedDays = culturalEvent.excludedDays,

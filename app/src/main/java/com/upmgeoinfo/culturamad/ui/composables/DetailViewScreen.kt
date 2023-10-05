@@ -78,6 +78,7 @@ import javax.security.auth.DestroyFailedException
 @Composable
 fun DetailViewScreen(
     culturalEvent: CulturalEvent,
+    //onNavBackToOverview: () -> Unit
     //TODO: Here will be listed the navigation lambdas
 ){
     Surface(
@@ -422,7 +423,6 @@ fun DescriptionView(culturalEvent: CulturalEvent){
                             enabled = true,
                             reverseScrolling = false
                         )
-                    //TODO: create a scroll for this text when there is an overflow
                 )
             }
             Row(
