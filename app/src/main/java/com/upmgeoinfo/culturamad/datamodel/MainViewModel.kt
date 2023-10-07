@@ -7,10 +7,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventRepository
 import com.upmgeoinfo.culturamad.datamodel.database.MainState
+import com.upmgeoinfo.culturamad.services.json_parse.api_model.ApiItem
+import com.upmgeoinfo.culturamad.services.json_parse.reposiroty.ApiEventsRepository
 import kotlinx.coroutines.launch
 
 class MainViewModel(
-    private val culturalEventRepository: CulturalEventRepository
+    private val culturalEventRepository: CulturalEventRepository,
+    private val apiEventsRepository: ApiEventsRepository
     //TODO: other repos will be added here, ie. Firebase Auth and Firebase FireStore
 ): ViewModel() {
     var state by mutableStateOf(MainState())
@@ -95,5 +98,17 @@ class MainViewModel(
 
     fun changeSearchValue(newValue: String) = viewModelScope.launch {
         state = state.copy(searchValue = newValue)
+    }
+
+    fun getItemsFromGraph() = viewModelScope.launch {
+        state = state.copy(apiItems = apiEventsRepository.getItemsFromGraph())
+    }
+
+    fun showItemsFromGraph(): List<ApiItem>{
+        var apiItems = emptyList<ApiItem>()
+        viewModelScope.launch {
+            apiItems = apiEventsRepository.getItemsFromGraph()
+        }
+        return  apiItems
     }
 }

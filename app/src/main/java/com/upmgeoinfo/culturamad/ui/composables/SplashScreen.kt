@@ -38,8 +38,10 @@ fun SplashScreen(
     navController: NavHostController,
     viewModel: MainViewModel
 ){
-
     LaunchedEffect(key1 = true,){
+        //viewModel.getItemsFromGraph()
+        //val apiItems = viewModel.showItemsFromGraph()
+        //val isEmpty = apiItems.isEmpty()
         delay(2000)
         navController.popBackStack()
         //navController.navigate(AppScreens.MainScreen.route)

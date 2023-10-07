@@ -81,9 +81,18 @@ dependencies {
     implementation 'com.google.maps.android:android-maps-utils:2.3.0'
     //Location
     implementation 'com.google.android.gms:play-services-location:21.0.1'
+    //retrofit, Moshi, Kotlinx Serialization & Gson
     //retrofit
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
+    //Moshi
+    implementation 'com.squareup.retrofit2:converter-moshi:2.9.0'
+    //Kotlinx
+    implementation 'com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0'
+    //Jackson
+    implementation 'com.squareup.retrofit2:converter-jackson:2.9.0'
+    //Gson
     implementation "com.squareup.retrofit2:converter-gson:2.9.0"
+    implementation 'com.google.code.gson:gson:2.9.0'
     //permission handling
     implementation 'com.google.accompanist:accompanist-permissions:0.24.13-rc'
     //SplashScreen
@@ -100,6 +109,4 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics-ktx'
     //Firebase Authentication Library
     implementation 'com.google.firebase:firebase-auth:22.1.0'
-
-
 }

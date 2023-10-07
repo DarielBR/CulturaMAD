@@ -2,56 +2,25 @@ package com.upmgeoinfo.culturamad
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Surface
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -62,26 +31,31 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
-import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
 import com.upmgeoinfo.culturamad.datamodel.MainViewModel
+import com.upmgeoinfo.culturamad.datamodel.MarkerData
 import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventDatabase
 import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventRepository
+import com.upmgeoinfo.culturamad.services.json_parse.api_model.Event
+import com.upmgeoinfo.culturamad.services.json_parse.`interface`.ApiService
+import com.upmgeoinfo.culturamad.services.json_parse.`interface`.GraphApiService
+import com.upmgeoinfo.culturamad.services.json_parse.reposiroty.ApiEventsRepository
 import com.upmgeoinfo.culturamad.ui.composables.ClusterMapScreen
-import com.upmgeoinfo.culturamad.ui.composables.FilterItem
 import com.upmgeoinfo.culturamad.ui.composables.ScaffoldedScreen
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
-import java.sql.Date
-import java.sql.Time
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : ComponentActivity() {
     private lateinit var fuseLocationClient: FusedLocationProviderClient
-    private lateinit var culturalEvents: List<CulturalEventMadrid>
+    //private lateinit var culturalEvents: List<CulturalEventMadrid>
 
     @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalPermissionsApi::class)
@@ -103,9 +77,33 @@ class MainActivity : ComponentActivity() {
         val database = Room.databaseBuilder(this, CulturalEventDatabase::class.java, "culturalEvents_db").build()
         val dao = database.dao
         val culturalEventRepository = CulturalEventRepository(dao)
-        val viewModel= MainViewModel(culturalEventRepository)
+        /**
+         * Creating retrofit client for the ViewModel
+         */
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://datos.madrid.es/egob/catalogo/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+        /**
+         * Creating an GraphApiService instance for the ApiEventsRepository
+         */
+        val apiService = retrofit.create(GraphApiService::class.java)
+        val apiEventsRepository = ApiEventsRepository(apiService)
+        /**
+         * Creating the ViewModel
+         */
+        val viewModel= MainViewModel(
+            culturalEventRepository,
+            apiEventsRepository
+        )
+        /**
+         * Getting the Event list from the API Uri
+         */
+        //fetchDataFromAPI(viewModel, this)
+
         /*TODO:Validate internet access failure here, if an exception is thrown a message must be shown and continue with the state list.*/
-        val dataFromUri = emptyList<CulturalEvent>()
+        var dataFromUri = emptyList<CulturalEvent>()
+        dataFromUri = MarkerData.transformedDataList
        /* try {
             val dataFromUri = MarkerData.transformedDataList
         }catch (e: Exception){
@@ -155,6 +153,48 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    private fun fetchDataFromAPI(viewModel: MainViewModel, context: Context){
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://datos.madrid.es/egob/catalogo/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val apiService = retrofit.create(ApiService::class.java)
+
+        val dataCall = apiService.getEventsData()
+        dataCall.enqueue(
+            object: Callback<List<Event>>{
+                override fun onResponse(call: Call<List<Event>>, response: Response<List<Event>>) {
+                    if (response.isSuccessful){
+                        val events = response.body()
+                        if (events != null){
+                            //TODO: write it down to the state
+                            Toast.makeText(
+                                context,
+                                "Fetching data from API operation successful.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }else{
+                        Toast.makeText(
+                            context,
+                            "Unknown error while fetching data from API.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<List<Event>>, t: Throwable) {
+                    Toast.makeText(
+                        context,
+                        "Fetch data from API operation failure.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        )
     }
 }
 /**
