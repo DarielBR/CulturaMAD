@@ -3,7 +3,11 @@ package com.upmgeoinfo.culturamad.ui.composables
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.AppBarDefaults
 import androidx.compose.material.BottomAppBar
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -14,7 +18,12 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -39,6 +48,21 @@ fun ScaffoldedScreen(
         FullMapScreen,
         UserScreen
     )
+    /**
+     * Applying correct size to our window attending to the navigation mode set in the device
+     * * 0-> 3 button mode
+     * 1-> 2 button mode
+     * 2-> gesture mode
+     *
+     * gesture 84, buttons 168
+     */
+    val context = LocalContext.current
+    var isNavigationBarVisible by remember { mutableStateOf(false) }
+    val resources = context.resources
+    val resourceId =
+        resources.getIdentifier("config_navBarInteractionMode", "integer", "android")
+    val interactionMode = resources.getInteger(resourceId)
+    isNavigationBarVisible = interactionMode < 2
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -46,7 +70,8 @@ fun ScaffoldedScreen(
             if(!viewModel.state.isSplashScreenOnRender){// Waiting for splash screen to finish
                 AppBottomNavigation(
                     navController = navController,
-                    menuItems = navItems
+                    menuItems = navItems,
+                    navigationBarVisible = isNavigationBarVisible
                 )
             }
         },
@@ -64,11 +89,17 @@ fun ScaffoldedScreen(
 @Composable
 fun AppBottomNavigation(
     navController: NavHostController,
-    menuItems: List<MenuItems>
+    menuItems: List<MenuItems>,
+    navigationBarVisible: Boolean
 ) {
     val bottomBackgroundColor = MaterialTheme.colorScheme.surface
     BottomAppBar(
         backgroundColor = bottomBackgroundColor,
+        contentPadding = PaddingValues( bottom = if (!navigationBarVisible) 20.dp else 0.dp),
+        modifier = Modifier
+            .padding(
+                bottom = if (navigationBarVisible) 48.dp else 0.dp
+            )
     ) {
         BottomNavigation(
             backgroundColor = bottomBackgroundColor,

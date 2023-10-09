@@ -410,7 +410,7 @@ fun ClusterMapScreen(
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.Bottom,
             modifier = Modifier
-                .padding(end = 11.dp, bottom = if (!isNavigationBarVisible) 58.dp else 108.dp)
+                .padding(end = 11.dp, bottom = if (!isNavigationBarVisible) 90.dp else 108.dp)
                 .fillMaxSize()
         ) {
             MapButton(//MyLocation

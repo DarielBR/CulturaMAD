@@ -56,9 +56,7 @@ import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 import java.util.Calendar
 
 @Composable
-fun MockEventCard(
-    modifier: Modifier = Modifier
-){
+fun MockEventCard(){
     Card(
         shape = MaterialTheme.shapes.large,
         elevation = CardDefaults.cardElevation(2.dp),
@@ -214,8 +212,7 @@ fun MockEventCardPreview(){
 @Composable
 fun ActionButton(
     icon: Int,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onClick: () -> Unit
 ){
     Surface(
         shape = MaterialTheme.shapes.small,
@@ -256,8 +253,7 @@ fun ActionButtonPreview(){
 @Composable
 fun CardButton(
     icon: Int,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onClick: () -> Unit
 ){
     Surface(
         tonalElevation = 2.dp,
@@ -291,8 +287,7 @@ fun EventCard(
     closeClick: () -> Unit,
     visibility: Boolean,
     navigationBarVisible: Boolean,
-    myLocation: LatLng,
-    modifier: Modifier = Modifier
+    myLocation: LatLng
 ){
     AnimatedVisibility(
         visible = visibility,
@@ -309,7 +304,7 @@ fun EventCard(
                 .padding(
                     start = 8.dp,
                     end = 8.dp,
-                    bottom = if (navigationBarVisible) 56.dp else 32.dp
+                    bottom = if (navigationBarVisible) 108.dp else 81.dp
                 )
                 .fillMaxSize()
         ) {
@@ -627,7 +622,7 @@ data class ActionButtonParams(
     val name: String
 )
 
-private val actionButtonsParams = listOf<ActionButtonParams>(
+private val actionButtonsParams = listOf(
     ActionButtonParams("bookmark"),
     ActionButtonParams("share"),
     ActionButtonParams("link"),
