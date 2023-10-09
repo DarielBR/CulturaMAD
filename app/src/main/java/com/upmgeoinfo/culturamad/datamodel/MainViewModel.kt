@@ -7,8 +7,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventRepository
 import com.upmgeoinfo.culturamad.datamodel.database.MainState
-import com.upmgeoinfo.culturamad.services.json_parse.api_model.ApiItem
+import com.upmgeoinfo.culturamad.services.json_parse.api_model.ApiJsonFile
 import com.upmgeoinfo.culturamad.services.json_parse.reposiroty.ApiEventsRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 
 class MainViewModel(
@@ -100,15 +103,26 @@ class MainViewModel(
         state = state.copy(searchValue = newValue)
     }
 
-    fun getItemsFromGraph() = viewModelScope.launch {
-        state = state.copy(apiItems = apiEventsRepository.getItemsFromGraph())
-    }
-
-    fun showItemsFromGraph(): List<ApiItem>{
-        var apiItems = emptyList<ApiItem>()
-        viewModelScope.launch {
-            apiItems = apiEventsRepository.getItemsFromGraph()
+    /**
+     * Fetches the list of Events from the URI resource and makes an upsert into the app database.
+     */
+    suspend fun fetchCulturalEventsFormJsonFile(){
+        val eventsListFromJsonFile = apiEventsRepository.parseJasonFile()
+        if (state.items.isEmpty()){
+            eventsListFromJsonFile.forEach {
+                saveCulturalEvent(it)
+            }
+        }else{
+            eventsListFromJsonFile.forEach {jsonItem ->
+                val dbItem = state.items.find { dbItem -> dbItem.id == jsonItem.id}
+                if (dbItem != null) updateCulturalEvent(jsonItem, dbItem.bookmark, dbItem.review!!)
+                else saveCulturalEvent(jsonItem)
+            }
+            state.items.forEach {dbItem ->
+                val jsonItem = eventsListFromJsonFile.find { jsonItem -> jsonItem.id == dbItem.id }
+                if (jsonItem == null) deleteCulturalEvent(dbItem)
+            }
         }
-        return  apiItems
+        refreshItems()
     }
 }

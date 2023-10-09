@@ -1,11 +1,9 @@
 package com.upmgeoinfo.culturamad.datamodel.database
 
 import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
-import com.upmgeoinfo.culturamad.services.json_parse.api_model.ApiItem
 
 data class MainState (
     val currentItem: String = "",
-    val apiItems: List<ApiItem> = emptyList(),//List with all @Id's at @Graph
     val items: MutableList<CulturalEvent> = emptyList<CulturalEvent>().toMutableList(),
     val isSplashScreenOnRender: Boolean = true,
     val searchValue: String = "",

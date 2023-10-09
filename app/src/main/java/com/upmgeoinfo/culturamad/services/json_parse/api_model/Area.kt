@@ -3,9 +3,9 @@ package com.upmgeoinfo.culturamad.services.json_parse.api_model
 import com.google.gson.annotations.SerializedName
 
 data class Area(
-    @SerializedName("id")
+    @SerializedName("@id")
     val id: String?,
-    @SerializedName("locality")
+    //@SerializedName("locality")
     val locality: String?,
     @SerializedName("postal-code")
     val postalCode: String?,

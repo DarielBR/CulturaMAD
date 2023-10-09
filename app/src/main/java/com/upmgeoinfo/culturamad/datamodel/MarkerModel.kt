@@ -1,6 +1,7 @@
 package com.upmgeoinfo.culturamad.datamodel
 
 import com.google.gson.annotations.SerializedName
+import com.upmgeoinfo.culturamad.services.json_parse.`interface`.JsonParseException
 import kotlinx.coroutines.runBlocking
 
 data class CulturalEventMadrid(
@@ -105,9 +106,13 @@ data class Location(
 )
 
 object MarkerData {
+
+    val uri = "https://datos.madrid.es/egob/catalogo/206974-0-agenda-eventos-culturales-100.json"
     val dataList: List<CulturalEventMadrid> by lazy {
         runBlocking {
             getListOfData()
+            /*try{ com.upmgeoinfo.culturamad.services.json_parse.`interface`.getListOfData(uri) }
+            catch (e: JsonParseException){ throw e}*/
         }
     }
 

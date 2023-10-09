@@ -42,7 +42,8 @@ import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventDatabase
 import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventRepository
 import com.upmgeoinfo.culturamad.services.json_parse.api_model.Event
 import com.upmgeoinfo.culturamad.services.json_parse.`interface`.ApiService
-import com.upmgeoinfo.culturamad.services.json_parse.`interface`.GraphApiService
+import com.upmgeoinfo.culturamad.services.json_parse.`interface`.JsonFile
+import com.upmgeoinfo.culturamad.services.json_parse.`interface`.JsonParseException
 import com.upmgeoinfo.culturamad.services.json_parse.reposiroty.ApiEventsRepository
 import com.upmgeoinfo.culturamad.ui.composables.ClusterMapScreen
 import com.upmgeoinfo.culturamad.ui.composables.ScaffoldedScreen
@@ -87,8 +88,8 @@ class MainActivity : ComponentActivity() {
         /**
          * Creating an GraphApiService instance for the ApiEventsRepository
          */
-        val apiService = retrofit.create(GraphApiService::class.java)
-        val apiEventsRepository = ApiEventsRepository(apiService)
+        val apiService = retrofit.create(ApiService::class.java)
+        val apiEventsRepository = ApiEventsRepository()
         /**
          * Creating the ViewModel
          */
@@ -102,32 +103,36 @@ class MainActivity : ComponentActivity() {
         //fetchDataFromAPI(viewModel, this)
 
         /*TODO:Validate internet access failure here, if an exception is thrown a message must be shown and continue with the state list.*/
-        var dataFromUri = emptyList<CulturalEvent>()
-        dataFromUri = MarkerData.transformedDataList
+        //var dataFromUri = emptyList<CulturalEvent>()
+        //dataFromUri = JsonFile.eventsList ?: emptyList()
+        /*try{ dataFromUri = MarkerData.transformedDataList }
+        catch (e: JsonParseException){
+            Toast.makeText(this, e.localizedMessage, Toast.LENGTH_LONG).show()
+        }*/
        /* try {
             val dataFromUri = MarkerData.transformedDataList
         }catch (e: Exception){
             Toast.makeText(this, "Error found -> " + e.localizedMessage, Toast.LENGTH_LONG).show()
         }*/
         /**
-         * Updating Database (UPSERT operation)
+         * Updating Database (UPSERT operation) TODO: pasarlo a Splash Screen
          */
         /*TODO: Run Test in the following code-block*/
-        if(viewModel.state.items.isEmpty()){
-            for(item in dataFromUri) viewModel.saveCulturalEvent(item)
-        }
-        else{
-            for(item in dataFromUri){
-                val databaseItem = viewModel.state.items.find { it.id == item.id }
-                if(databaseItem != null) viewModel.updateCulturalEvent(item, databaseItem.bookmark, databaseItem.review!!)
-                else viewModel.saveCulturalEvent(item)
-            }
-            for(databaseItem in viewModel.state.items){
-                val item = dataFromUri.find { it.id == databaseItem.id }
-                if(item == null) viewModel.deleteCulturalEvent(databaseItem)
-            }
-        }
-        viewModel.refreshItems()
+//        if(viewModel.state.items.isEmpty()){
+//            for(item in dataFromUri) viewModel.saveCulturalEvent(item)
+//        }
+//        else{
+//            for(item in dataFromUri){
+//                val databaseItem = viewModel.state.items.find { it.id == item.id }
+//                if(databaseItem != null) viewModel.updateCulturalEvent(item, databaseItem.bookmark, databaseItem.review!!)
+//                else viewModel.saveCulturalEvent(item)
+//            }
+//            for(databaseItem in viewModel.state.items){
+//                val item = dataFromUri.find { it.id == databaseItem.id }
+//                if(item == null) viewModel.deleteCulturalEvent(databaseItem)
+//            }
+//        }
+//        viewModel.refreshItems()
         /**
          * Firebase analytics
          * this is for testing purposes only, may be disposed in the future.
@@ -155,7 +160,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun fetchDataFromAPI(viewModel: MainViewModel, context: Context){
+    /*private fun fetchDataFromAPI(viewModel: MainViewModel, context: Context){
         val retrofit = Retrofit.Builder()
             .baseUrl("https://datos.madrid.es/egob/catalogo/")
             .addConverterFactory(GsonConverterFactory.create())
@@ -195,7 +200,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         )
-    }
+    }*/
 }
 /**
  * Handles proper internet permission requests for a UI built with Compose.

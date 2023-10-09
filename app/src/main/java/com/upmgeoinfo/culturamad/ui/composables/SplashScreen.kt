@@ -10,9 +10,11 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +31,8 @@ import com.upmgeoinfo.culturamad.datamodel.MainViewModel
 import com.upmgeoinfo.culturamad.navigation.AppScreens
 import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 /**
  * Calls the splash screen within a coroutine scope.
@@ -38,14 +42,18 @@ fun SplashScreen(
     navController: NavHostController,
     viewModel: MainViewModel
 ){
-    LaunchedEffect(key1 = true,){
-        //viewModel.getItemsFromGraph()
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit/*key1 = true*/){
+        scope.launch{ viewModel.fetchCulturalEventsFormJsonFile() }
+        viewModel.changeSplashScreenState(false)
+        //viewModel.fetchCulturalEventsFormJsonFile()
         //val apiItems = viewModel.showItemsFromGraph()
         //val isEmpty = apiItems.isEmpty()
-        delay(2000)
+        //delay(2000)
         navController.popBackStack()
         //navController.navigate(AppScreens.MainScreen.route)
-        viewModel.changeSplashScreenState(false)
+
         navController.navigate(MenuItems.FullMapScreen.route)
     }
     Splash()

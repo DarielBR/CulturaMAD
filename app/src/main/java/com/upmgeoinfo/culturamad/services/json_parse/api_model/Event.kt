@@ -4,39 +4,43 @@ import com.google.gson.annotations.SerializedName
 
 data class Event(
     @SerializedName("@id")
-    val id: String?,
+    val idLink: String?,
     @SerializedName("@type")
     val type: String?,
-    @SerializedName("title")
+    //@SerializedName("id")
+    val id: Int?,
+    //@SerializedName("title")
     val title: String?,
-    @SerializedName("description")
+    //@SerializedName("description")
     val description: String?,
-    @SerializedName("free")
+    //@SerializedName("free")
     val free: Int?,
-    @SerializedName("price")
+    //@SerializedName("price")
     val price: String?,
-    @SerializedName("dtstart")
+    //@SerializedName("dtstart")
     val dtstart: String?,
-    @SerializedName("dtend")
+    //@SerializedName("dtend")
     val dtend: String?,
-    @SerializedName("time")
+    //@SerializedName("time")
     val time: String?,
-    @SerializedName("excludedDays")
+    @SerializedName("excluded-days")
     val excludedDays: String?,
-    @SerializedName("uid")
+    //@SerializedName("recurrence")
+    val recurrence: Recurrence?,
+    //@SerializedName("uid")
     val uid: String?,
-    @SerializedName("link")
+    //@SerializedName("link")
     val link: String?,
     @SerializedName("event-location")
     val eventLocation: String?,
-    @SerializedName("references")
+    //@SerializedName("references")
     val references: References?,
-    @SerializedName("relation")
+    //@SerializedName("relation")
     val relation: Relation?,
-    @SerializedName("address")
+    //@SerializedName("address")
     val address: Address?,
-    @SerializedName("location")
+    //@SerializedName("location")
     val location: Location?,
-    @SerializedName("organization")
+    //@SerializedName("organization")
     val organization: Organization?
 )
