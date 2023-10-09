@@ -2,15 +2,11 @@ package com.upmgeoinfo.culturamad
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,7 +20,6 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -35,28 +30,16 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.maps.android.compose.MapsComposeExperimentalApi
-import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
 import com.upmgeoinfo.culturamad.datamodel.MainViewModel
-import com.upmgeoinfo.culturamad.datamodel.MarkerData
 import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventDatabase
 import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventRepository
-import com.upmgeoinfo.culturamad.services.json_parse.api_model.Event
-import com.upmgeoinfo.culturamad.services.json_parse.`interface`.ApiService
-import com.upmgeoinfo.culturamad.services.json_parse.`interface`.JsonFile
-import com.upmgeoinfo.culturamad.services.json_parse.`interface`.JsonParseException
 import com.upmgeoinfo.culturamad.services.json_parse.reposiroty.ApiEventsRepository
 import com.upmgeoinfo.culturamad.ui.composables.ClusterMapScreen
 import com.upmgeoinfo.culturamad.ui.composables.ScaffoldedScreen
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : ComponentActivity() {
     private lateinit var fuseLocationClient: FusedLocationProviderClient
-    //private lateinit var culturalEvents: List<CulturalEventMadrid>
 
     @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalPermissionsApi::class)
@@ -64,31 +47,21 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         /**
          * Initializing late-init variables
+         *
+         * fuseLocationClient provides access to device location.
          */
         fuseLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        //culturalEvents = MarkerData.dataList
         /**
          * Displaying content Edge to Edge
          */
         WindowCompat.setDecorFitsSystemWindows(window, false)
         /**
-         * [IN DEVELOPMENT]
-         * Database values
+         * Creating repository instances to build the application view model
          */
         val database = Room.databaseBuilder(this, CulturalEventDatabase::class.java, "culturalEvents_db").build()
         val dao = database.dao
         val culturalEventRepository = CulturalEventRepository(dao)
-        /**
-         * Creating retrofit client for the ViewModel
-         */
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://datos.madrid.es/egob/catalogo/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-        /**
-         * Creating an GraphApiService instance for the ApiEventsRepository
-         */
-        val apiService = retrofit.create(ApiService::class.java)
+
         val apiEventsRepository = ApiEventsRepository()
         /**
          * Creating the ViewModel
@@ -97,42 +70,6 @@ class MainActivity : ComponentActivity() {
             culturalEventRepository,
             apiEventsRepository
         )
-        /**
-         * Getting the Event list from the API Uri
-         */
-        //fetchDataFromAPI(viewModel, this)
-
-        /*TODO:Validate internet access failure here, if an exception is thrown a message must be shown and continue with the state list.*/
-        //var dataFromUri = emptyList<CulturalEvent>()
-        //dataFromUri = JsonFile.eventsList ?: emptyList()
-        /*try{ dataFromUri = MarkerData.transformedDataList }
-        catch (e: JsonParseException){
-            Toast.makeText(this, e.localizedMessage, Toast.LENGTH_LONG).show()
-        }*/
-       /* try {
-            val dataFromUri = MarkerData.transformedDataList
-        }catch (e: Exception){
-            Toast.makeText(this, "Error found -> " + e.localizedMessage, Toast.LENGTH_LONG).show()
-        }*/
-        /**
-         * Updating Database (UPSERT operation) TODO: pasarlo a Splash Screen
-         */
-        /*TODO: Run Test in the following code-block*/
-//        if(viewModel.state.items.isEmpty()){
-//            for(item in dataFromUri) viewModel.saveCulturalEvent(item)
-//        }
-//        else{
-//            for(item in dataFromUri){
-//                val databaseItem = viewModel.state.items.find { it.id == item.id }
-//                if(databaseItem != null) viewModel.updateCulturalEvent(item, databaseItem.bookmark, databaseItem.review!!)
-//                else viewModel.saveCulturalEvent(item)
-//            }
-//            for(databaseItem in viewModel.state.items){
-//                val item = dataFromUri.find { it.id == databaseItem.id }
-//                if(item == null) viewModel.deleteCulturalEvent(databaseItem)
-//            }
-//        }
-//        viewModel.refreshItems()
         /**
          * Firebase analytics
          * this is for testing purposes only, may be disposed in the future.
@@ -145,13 +82,16 @@ class MainActivity : ComponentActivity() {
          * Composable content
          */
         setContent {
-            val navController = rememberNavController()
+            //val navController = rememberNavController()
             CulturaMADTheme {
-                //AppNavigation(fuseLocationClient, viewModel)
-
+                /**
+                 * Requesting user permissions
+                 */
                 RequestInternetPermission()
                 RequestLocationPermission()
-
+                /**
+                 * Composable content
+                 */
                 ScaffoldedScreen(
                     fusedLocationClient = fuseLocationClient,
                     viewModel = viewModel
@@ -159,49 +99,8 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-    /*private fun fetchDataFromAPI(viewModel: MainViewModel, context: Context){
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://datos.madrid.es/egob/catalogo/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        val apiService = retrofit.create(ApiService::class.java)
-
-        val dataCall = apiService.getEventsData()
-        dataCall.enqueue(
-            object: Callback<List<Event>>{
-                override fun onResponse(call: Call<List<Event>>, response: Response<List<Event>>) {
-                    if (response.isSuccessful){
-                        val events = response.body()
-                        if (events != null){
-                            //TODO: write it down to the state
-                            Toast.makeText(
-                                context,
-                                "Fetching data from API operation successful.",
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    }else{
-                        Toast.makeText(
-                            context,
-                            "Unknown error while fetching data from API.",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
-
-                override fun onFailure(call: Call<List<Event>>, t: Throwable) {
-                    Toast.makeText(
-                        context,
-                        "Fetch data from API operation failure.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-        )
-    }*/
 }
+
 /**
  * Handles proper internet permission requests for a UI built with Compose.
  * Compose do not have same States as XML layouts apps, therefore is necessary to call
@@ -341,7 +240,7 @@ fun RequestLocationPermission() {
     }
 }
 
-private data class DrawableStringPair(
+/*private data class DrawableStringPair(
     @DrawableRes val drawable: Int,
     @StringRes val text: Int
 )
@@ -351,7 +250,7 @@ private val categoriesData = listOf(
     R.drawable.painting_image to R.string.category_painting,
     R.drawable.music_image to R.string.category_music,
     R.drawable.teatro_image to R.string.category_theatre
-).map { DrawableStringPair(it.first, it.second) }
+).map { DrawableStringPair(it.first, it.second) }*/
 
 /**
  * Will be called from the onCreate function. Works with NavController

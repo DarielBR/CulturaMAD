@@ -7,7 +7,6 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
-//https://datos.madrid.es/egob/catalogo/206974-0-agenda-eventos-culturales-100.json
 suspend fun getJsonStringFromUri(): String = withContext(Dispatchers.IO){
     val url = "https://datos.madrid.es/egob/catalogo/206974-0-agenda-eventos-culturales-100.json"
     val client = OkHttpClient()

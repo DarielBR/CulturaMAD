@@ -6,11 +6,9 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,19 +21,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.datamodel.MainViewModel
-import com.upmgeoinfo.culturamad.navigation.AppScreens
 import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 /**
- * Calls the splash screen within a coroutine scope.
+ * Splash declaration. Initial screen showed to the user, in this composable, the task related to
+ * fetch the REST Resources and perform the Upsert to the database are issued asynchronously,
+ * when this task are finished, the navigation will continue forward into the app screens.
+ *
+ * @param navController: NavHostController. Necessary for in app navigation actions.
+ * @param viewModel: MainViewModel. Give access to the ViewModel layer, where necessary task are perform.
  */
 @Composable
 fun SplashScreen(
@@ -44,23 +43,19 @@ fun SplashScreen(
 ){
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit/*key1 = true*/){
-        scope.launch{ viewModel.fetchCulturalEventsFormJsonFile() }
-        viewModel.changeSplashScreenState(false)
-        //viewModel.fetchCulturalEventsFormJsonFile()
-        //val apiItems = viewModel.showItemsFromGraph()
-        //val isEmpty = apiItems.isEmpty()
-        //delay(2000)
+    LaunchedEffect(key1 = true){
+        scope.launch{
+            viewModel.fetchCulturalEventsFormJsonFile()
+        }
         navController.popBackStack()
-        //navController.navigate(AppScreens.MainScreen.route)
-
+        viewModel.changeSplashScreenState(false)
         navController.navigate(MenuItems.FullMapScreen.route)
     }
     Splash()
 }
 
 /**
- * A composable declaration of the splash screen
+ * Splash screen UI declaration.
  */
 @Composable
 fun Splash(){
@@ -78,7 +73,6 @@ fun Splash(){
             systemUiController.setSystemBarsColor(
                 color = Color.Transparent,
                 darkIcons = !darkTheme
-                // isNavigationBarContrastEnforced = true
             )
             systemUiController.setNavigationBarColor(
                 color = Color.Transparent,
@@ -95,6 +89,6 @@ fun Splash(){
 
 @Preview(showBackground = true)
 @Composable
-fun SplashScreenPrevie(){
+fun SplashScreenPreview(){
     Splash()
 }

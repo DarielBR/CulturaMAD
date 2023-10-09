@@ -53,7 +53,7 @@ fun OverviewScreen(
     viewModel: MainViewModel? = null
 ){
     Surface(
-        color = androidx.compose.material3.MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.surface,
         modifier = Modifier
             .fillMaxSize()
     ) {
@@ -81,8 +81,8 @@ fun OverviewScreen(
             ) {
                 Text(
                     text = stringResource(id = R.string.ui_recommended),
-                    color = androidx.compose.material3.MaterialTheme.colorScheme.primary,
-                    style = androidx.compose.material3.MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 14.sp
                 )
@@ -92,7 +92,7 @@ fun OverviewScreen(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Transparent
                     ),
-                    shape = androidx.compose.material3.MaterialTheme.shapes.extraSmall,
+                    shape = MaterialTheme.shapes.extraSmall,
                     modifier = Modifier
                 ) {
                     Row(
@@ -142,13 +142,13 @@ fun OverviewScreen(
             }
             Text(
                 text = "This is the Overview",
-                style = androidx.compose.material3.MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 fontSize = 54.sp
             )
             Text(
                 text = "Desc.: Here a grid with Events cards will be shown to the user, base in location (near by 1 Km), most visited. Advertisement. Filter tools.",
-                style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodySmall,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 5,
                 fontSize = 20.sp
@@ -185,25 +185,25 @@ fun OverviewSearchBar(
                 Icon(imageVector = Icons.Default.Clear, contentDescription = null)
             }
         },
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search,),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = { keyboardController?.hide() }),
         colors = TextFieldDefaults.textFieldColors(
-            backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.surface,
-            leadingIconColor = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
-            trailingIconColor = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
-            textColor = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
-            focusedLabelColor = androidx.compose.material3.MaterialTheme.colorScheme.surface,
-            cursorColor = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
-            focusedIndicatorColor = androidx.compose.material3.MaterialTheme.colorScheme.primary,
-            unfocusedIndicatorColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant
+            backgroundColor = MaterialTheme.colorScheme.surface,
+            leadingIconColor = MaterialTheme.colorScheme.onSurface,
+            trailingIconColor = MaterialTheme.colorScheme.onSurface,
+            textColor = MaterialTheme.colorScheme.onSurface,
+            focusedLabelColor = MaterialTheme.colorScheme.surface,
+            cursorColor = MaterialTheme.colorScheme.onSurface,
+            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+            unfocusedIndicatorColor = MaterialTheme.colorScheme.surfaceVariant
         ),
-        shape = androidx.compose.material3.MaterialTheme.shapes.medium,
+        shape = MaterialTheme.shapes.medium,
         modifier = Modifier
             .shadow(
                 elevation = 1.dp,
-                shape = androidx.compose.material3.MaterialTheme.shapes.medium,
+                shape = MaterialTheme.shapes.medium,
             )
-            .clip(androidx.compose.material3.MaterialTheme.shapes.medium)
+            .clip(MaterialTheme.shapes.medium)
             .fillMaxWidth()
     )
 }

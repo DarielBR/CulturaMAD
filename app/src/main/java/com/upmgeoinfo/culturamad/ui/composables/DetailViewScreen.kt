@@ -1,14 +1,10 @@
 package com.upmgeoinfo.culturamad.ui.composables
 
-import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
-import android.widget.HorizontalScrollView
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.FlingBehavior
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -53,7 +49,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.accompanist.permissions.isGranted
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
@@ -65,14 +60,11 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.upmgeoinfo.culturamad.R
-import com.upmgeoinfo.culturamad.datamodel.Address
 import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
-import com.upmgeoinfo.culturamad.datamodel.Location
 import com.upmgeoinfo.culturamad.datamodel.utils.ScheduleParser
 import com.upmgeoinfo.culturamad.ui.composables.prefab.CategoryTag
 import com.upmgeoinfo.culturamad.ui.composables.prefab.PriceTag
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
-import javax.security.auth.DestroyFailedException
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -98,7 +90,7 @@ fun DetailViewScreen(
             ) {
                 Image(
                     painter =
-                    if (culturalEvent!!.category.contains("DanzaBaile"))
+                    if (culturalEvent.category.contains("DanzaBaile"))
                         painterResource(id = R.drawable.dance_image)
                     else if (culturalEvent.category.contains("Musica"))
                         painterResource(id = R.drawable.music_image)
@@ -409,13 +401,10 @@ fun DescriptionView(culturalEvent: CulturalEvent){
                 modifier = Modifier
                     .padding(start = 18.dp, end = 18.dp, top = 16.dp)
             ) {
-                val scrollState = rememberScrollState(0)
                 Text(
                     text = culturalEvent.description,
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodyMedium,
-                    //maxLines = 5,
-                    //overflow = TextOverflow.Clip,
                     modifier = Modifier
                         .height(80.dp)
                         .verticalScroll(
@@ -515,8 +504,9 @@ fun Minimap(
 }
 
 @Composable
-fun ReviewDetailTab(culturalEvent: CulturalEvent){
-
+fun ReviewDetailTab(
+    culturalEvent: CulturalEvent
+){
     Surface(
         modifier = Modifier
             .padding(top = 12.dp, start = 18.dp, end = 18.dp, bottom = 8.dp)

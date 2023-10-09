@@ -7,11 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventRepository
 import com.upmgeoinfo.culturamad.datamodel.database.MainState
-import com.upmgeoinfo.culturamad.services.json_parse.api_model.ApiJsonFile
 import com.upmgeoinfo.culturamad.services.json_parse.reposiroty.ApiEventsRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 
 class MainViewModel(
@@ -30,7 +26,7 @@ class MainViewModel(
         }
     }
 
-    fun refreshItems(){
+    private fun refreshItems(){
         viewModelScope.launch {
             state = state.copy(
                 items = culturalEventRepository.getCulturalEventsWithLocation().toMutableList()
@@ -38,13 +34,13 @@ class MainViewModel(
         }
     }
 
-    fun saveCulturalEvent(culturalEvent: CulturalEvent){
+    private fun saveCulturalEvent(culturalEvent: CulturalEvent){
         viewModelScope.launch {
             culturalEventRepository.insertCulturalEvent(culturalEvent = culturalEvent)
         }
     }
 
-    fun updateCulturalEvent(culturalEvent: CulturalEvent, bookmark: Boolean, review: Int){
+    private fun updateCulturalEvent(culturalEvent: CulturalEvent, bookmark: Boolean, review: Int){
         viewModelScope.launch{
             culturalEventRepository.updateCulturalEvent(culturalEvent,bookmark,review)
         }
@@ -70,7 +66,7 @@ class MainViewModel(
         return currentEvent
     }
 
-    fun deleteCulturalEvent(culturalEvent: CulturalEvent){
+    private fun deleteCulturalEvent(culturalEvent: CulturalEvent){
         viewModelScope.launch {
             culturalEventRepository.deleteCulturalEvent(culturalEvent)
         }
@@ -106,7 +102,7 @@ class MainViewModel(
     /**
      * Fetches the list of Events from the URI resource and makes an upsert into the app database.
      */
-    suspend fun fetchCulturalEventsFormJsonFile(){
+    fun fetchCulturalEventsFormJsonFile() = viewModelScope.launch{
         val eventsListFromJsonFile = apiEventsRepository.parseJasonFile()
         if (state.items.isEmpty()){
             eventsListFromJsonFile.forEach {
@@ -124,5 +120,7 @@ class MainViewModel(
             }
         }
         refreshItems()
+        //changeSplashScreenState(true)
+        //changeSplashScreenState(false)
     }
 }

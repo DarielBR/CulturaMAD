@@ -1,7 +1,6 @@
 package com.upmgeoinfo.culturamad.ui.composables
 
 import android.annotation.SuppressLint
-import android.content.res.Configuration
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,7 +15,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -25,7 +23,6 @@ import com.upmgeoinfo.culturamad.datamodel.MainViewModel
 import com.upmgeoinfo.culturamad.navigation.AlternateNavigation
 import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems
 import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems.*
-import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")

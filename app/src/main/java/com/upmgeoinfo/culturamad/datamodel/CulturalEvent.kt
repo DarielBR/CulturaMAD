@@ -1,12 +1,8 @@
 package com.upmgeoinfo.culturamad.datamodel
 
-import com.google.android.gms.maps.model.LatLng
-import java.sql.Date
-import java.sql.Time
-
 /**
  * This dataclass has bean created to bring data persistent to the app and to work with the Room
- * database, it's functionality might be overlapped with [CulturalEventMadrid] or [CulturalEventMadridItem]
+ * database, it's functionality might be overlapped with [CulturalEventMadrid] or CulturalEventMadridItem
  */
 data class CulturalEvent(
     val id: Int? = null,

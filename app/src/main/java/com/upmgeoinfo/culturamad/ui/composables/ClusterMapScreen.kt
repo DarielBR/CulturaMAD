@@ -73,14 +73,13 @@ import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
-import com.upmgeoinfo.culturamad.datamodel.CulturalEventMadrid
 import com.upmgeoinfo.culturamad.datamodel.MainViewModel
 import com.upmgeoinfo.culturamad.ui.composables.prefab.MapButton
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 @SuppressLint("MissingPermission")
-@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class,
-    ExperimentalComposeUiApi::class, ExperimentalAnimationApi::class
+@OptIn(ExperimentalPermissionsApi::class,
+    ExperimentalComposeUiApi::class
 )
 @MapsComposeExperimentalApi
 @Composable
@@ -88,7 +87,7 @@ fun ClusterMapScreen(
     fusedLocationClient: FusedLocationProviderClient,
     viewModel: MainViewModel
 ){
-    CulturaMADTheme(){
+    CulturaMADTheme {
         /**
          * Filter values
          */
@@ -103,14 +102,14 @@ fun ClusterMapScreen(
          */
         val keyboardController = LocalSoftwareKeyboardController.current
         /**
-         * Obtaining Location, permission requests is done before [MapScreen] function os called.
+         * Obtaining Location, permission requests is done before MapScreen function os called.
          * thus, will not be controlled here. ([@suppressLint("MissingPermission")])
          */
         var myLocation by remember { mutableStateOf(LatLng(0.0,0.0)) }
         val locationPermissionState =
             rememberPermissionState(permission = Manifest.permission.ACCESS_FINE_LOCATION)
         if (locationPermissionState.status.isGranted) {
-            fusedLocationClient.getLastLocation().addOnSuccessListener { location ->
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 if (location != null) {
                     myLocation = LatLng(location.latitude, location.longitude)
                 }
@@ -214,7 +213,7 @@ fun ClusterMapScreen(
             uiSettings = myUiSettings,
         ) {
             if (refreshClusterItems || animateZoom || animateBearing) {
-                MapEffect() { map ->
+                MapEffect { map ->
                     if (clusterManager == null) clusterManager = ClusterManager(context, map)
                     map.setOnCameraIdleListener(clusterManager)
                     map.setOnMarkerClickListener(clusterManager)
@@ -538,7 +537,7 @@ private fun getCulturalEventsFromDatabase(
     return culturalEventItems.toList()
 }
 
-fun createCulturalEventMadridItem(culturalEvent: CulturalEventMadrid): CulturalEventMadridItem {
+/*fun createCulturalEventMadridItem(culturalEvent: CulturalEventMadrid): CulturalEventMadridItem {
     return CulturalEventMadridItem(
         eventID = culturalEvent.id,
         eventLocation = LatLng(culturalEvent.location.latitude, culturalEvent.location.longitude),
@@ -560,7 +559,7 @@ fun createCulturalEventMadridItem(culturalEvent: CulturalEventMadrid): CulturalE
         eventPrice = culturalEvent.price,
         eventLink = culturalEvent.link
     )
-}
+}*/
 
 fun transformCulturalEventToClusterItem(culturalEvent: CulturalEvent): CulturalEventMadridItem{
     return CulturalEventMadridItem(
@@ -636,11 +635,11 @@ class CulturalEventMadridItem(
         return location
     }
 
-    override fun getTitle(): String? {
+    override fun getTitle(): String {
         return title
     }
 
-    override fun getSnippet(): String? {
+    override fun getSnippet(): String {
         return snippet
     }
 
@@ -737,16 +736,16 @@ class CMADClusterMarkerRenderer(
     map: GoogleMap,
     clusterManager: ClusterManager<CulturalEventMadridItem>
     ): DefaultClusterRenderer<CulturalEventMadridItem>(context, map, clusterManager){
-    val context = context
+    private val context = context
     override fun onBeforeClusterItemRendered(
         item: CulturalEventMadridItem,
         markerOptions: MarkerOptions
     ) {
         super.onBeforeClusterItemRendered(item, markerOptions)
-        markerOptions!!.icon(getBitmapDescriptorFromVector(context, R.drawable.cmad_vestor_circle_marker))
+        markerOptions.icon(getBitmapDescriptorFromVector(context, R.drawable.cmad_vestor_circle_marker))
     }
 
-    fun getBitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor? {
+    private fun getBitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor {
         val vectorDrawable = VectorDrawableCompat.create(context.resources, vectorResId, null)
 
         return BitmapDescriptorFactory.fromBitmap(vectorDrawable!!.toBitmap())
