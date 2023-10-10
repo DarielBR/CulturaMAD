@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
 import com.upmgeoinfo.culturamad.datamodel.MainViewModel
+import com.upmgeoinfo.culturamad.ui.composables.prefab.GeneralSearchBar
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 @Composable
@@ -65,7 +66,7 @@ fun OverviewScreen(
         ) {
             Spacer(modifier = Modifier.height(45.dp))
 
-            OverviewSearchBar(
+            GeneralSearchBar(
                 viewModel = viewModel
             ) {
                 //TODO: onNavToFilterScreen
@@ -166,56 +167,14 @@ fun PreviewOverviewScree(){
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-fun OverviewSearchBar(
-    viewModel: MainViewModel? = null,
-    onNavToFilterScreen: () -> Unit, //navigation action to Advanced Search Filters Screen
-){
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val searchValue = viewModel?.state?.searchValue
-    OutlinedTextField(
-        value = searchValue ?: "",
-        onValueChange = { viewModel?.changeSearchValue(it)},
-        leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = null) },
-        trailingIcon = {
-            IconButton(
-                onClick = { viewModel?.clearSearchValue() }
-            ){
-                Icon(imageVector = Icons.Default.Clear, contentDescription = null)
-            }
-        },
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(onSearch = { keyboardController?.hide() }),
-        colors = TextFieldDefaults.textFieldColors(
-            backgroundColor = MaterialTheme.colorScheme.surface,
-            leadingIconColor = MaterialTheme.colorScheme.onSurface,
-            trailingIconColor = MaterialTheme.colorScheme.onSurface,
-            textColor = MaterialTheme.colorScheme.onSurface,
-            focusedLabelColor = MaterialTheme.colorScheme.surface,
-            cursorColor = MaterialTheme.colorScheme.onSurface,
-            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-            unfocusedIndicatorColor = MaterialTheme.colorScheme.surfaceVariant
-        ),
-        shape = MaterialTheme.shapes.medium,
-        modifier = Modifier
-            .shadow(
-                elevation = 1.dp,
-                shape = MaterialTheme.shapes.medium,
-            )
-            .clip(MaterialTheme.shapes.medium)
-            .fillMaxWidth()
-    )
-}
-
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Preview(showBackground = true)
 @Composable
 fun OverViewBarPreview(){
     CulturaMADTheme {
         Column{
-            OverviewSearchBar(viewModel = null) {}
-            OverviewSearchBar(viewModel = null) {}
+            GeneralSearchBar(viewModel = null) {}
+            GeneralSearchBar(viewModel = null) {}
             //OverviewSearchBar2(viewModel = null)
         }
     }
