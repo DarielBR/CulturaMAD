@@ -1,4 +1,4 @@
-package com.upmgeoinfo.culturamad.datamodel.database
+package com.upmgeoinfo.culturamad.services.room
 
 import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
 

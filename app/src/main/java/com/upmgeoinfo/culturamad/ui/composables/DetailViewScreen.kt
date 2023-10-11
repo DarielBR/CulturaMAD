@@ -61,7 +61,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
-import com.upmgeoinfo.culturamad.datamodel.utils.ScheduleParser
+import com.upmgeoinfo.culturamad.services.json_parse.utils.ScheduleParser
 import com.upmgeoinfo.culturamad.ui.composables.prefab.CategoryTag
 import com.upmgeoinfo.culturamad.ui.composables.prefab.PriceTag
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme

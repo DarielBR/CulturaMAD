@@ -51,7 +51,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.model.LatLng
 import com.upmgeoinfo.culturamad.R
-import com.upmgeoinfo.culturamad.datamodel.MainViewModel
+import com.upmgeoinfo.culturamad.viewmodels.main.MainViewModel
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 import java.util.Calendar
 
@@ -298,6 +298,7 @@ fun EventCard(
         exit = fadeOut()
     ){
         val culturalEvent = viewModel.state.items.find { it.id == viewModel.state.currentItem.toInt() }
+        //val culturalEvent = viewModel.state
         Column(
             verticalArrangement = Arrangement.Bottom,
             modifier = Modifier

@@ -11,7 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.upmgeoinfo.culturamad.MainScreen
-import com.upmgeoinfo.culturamad.datamodel.MainViewModel
+import com.upmgeoinfo.culturamad.viewmodels.main.MainViewModel
 import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems
 import com.upmgeoinfo.culturamad.ui.composables.ClusterMapScreen
 import com.upmgeoinfo.culturamad.ui.composables.DetailViewScreen

@@ -5,9 +5,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.AppBarDefaults
 import androidx.compose.material.BottomAppBar
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -28,7 +26,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.upmgeoinfo.culturamad.datamodel.MainViewModel
+import com.upmgeoinfo.culturamad.viewmodels.main.MainViewModel
 import com.upmgeoinfo.culturamad.navigation.AlternateNavigation
 import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems
 import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems.*

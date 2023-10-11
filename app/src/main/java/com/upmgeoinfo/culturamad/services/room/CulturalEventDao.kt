@@ -1,4 +1,4 @@
-package com.upmgeoinfo.culturamad.datamodel.database
+package com.upmgeoinfo.culturamad.services.room
 
 import androidx.room.Dao
 import androidx.room.Delete

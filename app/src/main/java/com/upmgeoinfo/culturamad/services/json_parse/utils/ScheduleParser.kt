@@ -1,4 +1,4 @@
-package com.upmgeoinfo.culturamad.datamodel.utils
+package com.upmgeoinfo.culturamad.services.json_parse.utils
 
 import android.os.Build
 import androidx.annotation.RequiresApi

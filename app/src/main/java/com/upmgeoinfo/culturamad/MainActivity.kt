@@ -30,9 +30,9 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.maps.android.compose.MapsComposeExperimentalApi
-import com.upmgeoinfo.culturamad.datamodel.MainViewModel
-import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventDatabase
-import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventRepository
+import com.upmgeoinfo.culturamad.viewmodels.main.MainViewModel
+import com.upmgeoinfo.culturamad.services.room.CulturalEventDatabase
+import com.upmgeoinfo.culturamad.services.room.CulturalEventRepository
 import com.upmgeoinfo.culturamad.services.json_parse.reposiroty.ApiEventsRepository
 import com.upmgeoinfo.culturamad.ui.composables.ClusterMapScreen
 import com.upmgeoinfo.culturamad.ui.composables.ScaffoldedScreen

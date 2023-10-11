@@ -1,12 +1,13 @@
-package com.upmgeoinfo.culturamad.datamodel
+package com.upmgeoinfo.culturamad.viewmodels.main
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.upmgeoinfo.culturamad.datamodel.database.CulturalEventRepository
-import com.upmgeoinfo.culturamad.datamodel.database.MainState
+import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
+import com.upmgeoinfo.culturamad.services.room.CulturalEventRepository
+import com.upmgeoinfo.culturamad.viewmodels.main.model.MainState
 import com.upmgeoinfo.culturamad.services.json_parse.reposiroty.ApiEventsRepository
 import kotlinx.coroutines.launch
 
@@ -58,7 +59,7 @@ class MainViewModel(
         )
     }
 
-    fun getCurrentEvent(): CulturalEvent{
+    fun getCurrentEvent(): CulturalEvent {
         var currentEvent = CulturalEvent()
         viewModelScope.launch {
             currentEvent =  culturalEventRepository.getCulturalEventEntityById(state.currentItem.toInt())
