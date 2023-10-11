@@ -68,9 +68,7 @@ fun OverviewScreen(
 
             GeneralSearchBar(
                 viewModel = viewModel
-            ) {
-                //TODO: onNavToFilterScreen
-            }
+            )
 
             Spacer(modifier = Modifier.size(8.dp))
 
@@ -173,8 +171,8 @@ fun PreviewOverviewScree(){
 fun OverViewBarPreview(){
     CulturaMADTheme {
         Column{
-            GeneralSearchBar(viewModel = null) {}
-            GeneralSearchBar(viewModel = null) {}
+            GeneralSearchBar(viewModel = null)
+            GeneralSearchBar(viewModel = null)
             //OverviewSearchBar2(viewModel = null)
         }
     }

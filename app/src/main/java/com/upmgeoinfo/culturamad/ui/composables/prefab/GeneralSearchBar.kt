@@ -1,5 +1,7 @@
 package com.upmgeoinfo.culturamad.ui.composables.prefab
 
+import android.content.res.Configuration
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -18,14 +20,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.upmgeoinfo.culturamad.datamodel.MainViewModel
+import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun GeneralSearchBar(
-    viewModel: MainViewModel? = null,
-    onNavToFilterScreen: () -> Unit, //navigation action to Advanced Search Filters Screen
+    viewModel: MainViewModel? = null
 ){
     val keyboardController = LocalSoftwareKeyboardController.current
     val searchValue = viewModel?.state?.searchValue
@@ -61,4 +64,19 @@ fun GeneralSearchBar(
             .clip(MaterialTheme.shapes.medium)
             .fillMaxWidth()
     )
+}
+
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun GeneralSearchBarPreview(){
+    CulturaMADTheme {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+        ){
+            GeneralSearchBar()
+            UserNameTextField()
+        }
+    }
 }
