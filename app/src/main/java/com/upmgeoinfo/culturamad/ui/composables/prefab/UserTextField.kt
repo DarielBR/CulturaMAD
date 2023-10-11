@@ -8,6 +8,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -25,7 +27,7 @@ fun UserNameTextField(
     val loginUiState = authenticationViewModel?.loginUiState
     val isError = loginUiState?.loginError != null
 
-    androidx.compose.material.OutlinedTextField(
+    OutlinedTextField(
         value = loginUiState?.userName ?: "",
         onValueChange = { authenticationViewModel?.onUserNameChange(it) },
         leadingIcon = {
@@ -38,15 +40,19 @@ fun UserNameTextField(
             Text(text = "e-mail")
         },
         isError = isError,
-        colors = TextFieldDefaults.textFieldColors(
-            backgroundColor = MaterialTheme.colorScheme.surface,
-            leadingIconColor = MaterialTheme.colorScheme.onSurface,
-            trailingIconColor = MaterialTheme.colorScheme.onSurface,
-            textColor = MaterialTheme.colorScheme.onSurface,
-            focusedLabelColor = MaterialTheme.colorScheme.surface,
-            cursorColor = MaterialTheme.colorScheme.onSurface,
-            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-            unfocusedIndicatorColor = MaterialTheme.colorScheme.surfaceVariant
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.surfaceVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            focusedLeadingIconColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurface,
+            focusedLabelColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
+
+
         ),
         shape = MaterialTheme.shapes.medium,
         modifier = Modifier
@@ -54,7 +60,7 @@ fun UserNameTextField(
                 elevation = 1.dp,
                 shape = MaterialTheme.shapes.medium,
             )
-            .clip(MaterialTheme.shapes.medium)
+            //.clip(MaterialTheme.shapes.medium)
             .fillMaxWidth()
     )
 }
@@ -66,7 +72,7 @@ fun UserNameSignupTextField(
     val loginUiState = authenticationViewModel?.loginUiState
     val isError = loginUiState?.signupError != null
 
-    androidx.compose.material.OutlinedTextField(
+    OutlinedTextField(
         value = authenticationViewModel?.loginUiState?.userNameSignup ?: "",
         onValueChange = { authenticationViewModel?.onUserNameSignupChange(it) },
         leadingIcon = {
@@ -79,15 +85,17 @@ fun UserNameSignupTextField(
             Text(text = "e-mail")
         },
         isError = isError,
-        colors = TextFieldDefaults.textFieldColors(
-            backgroundColor = MaterialTheme.colorScheme.surface,
-            leadingIconColor = MaterialTheme.colorScheme.onSurface,
-            trailingIconColor = MaterialTheme.colorScheme.onSurface,
-            textColor = MaterialTheme.colorScheme.onSurface,
-            focusedLabelColor = MaterialTheme.colorScheme.surface,
-            cursorColor = MaterialTheme.colorScheme.onSurface,
-            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-            unfocusedIndicatorColor = MaterialTheme.colorScheme.surfaceVariant
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.surfaceVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            focusedLeadingIconColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurface,
+            focusedLabelColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
         ),
         shape = MaterialTheme.shapes.medium,
         modifier = Modifier
