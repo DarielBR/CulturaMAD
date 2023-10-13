@@ -78,7 +78,7 @@ class AuthenticationViewModel(
         }
     }
 
-    fun logunUser(context: Context) = viewModelScope.launch {
+    fun loginUser(context: Context) = viewModelScope.launch {
         try {
             if (!validateLoginForm())
                 throw IllegalArgumentException("e-mail and/or password can not be blank.")
