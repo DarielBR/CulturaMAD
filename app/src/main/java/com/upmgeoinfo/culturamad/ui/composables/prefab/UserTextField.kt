@@ -3,7 +3,7 @@ package com.upmgeoinfo.culturamad.ui.composables.prefab
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.Icon
@@ -36,9 +36,7 @@ fun UserNameTextField(
                 contentDescription = null
             )
         },
-        label = {
-            Text(text = "e-mail")
-        },
+        placeholder = { Text(text = "e-mail") },
         isError = isError,
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -47,10 +45,10 @@ fun UserNameTextField(
             unfocusedContainerColor = MaterialTheme.colorScheme.surface,
             focusedTextColor = MaterialTheme.colorScheme.onSurface,
             unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-            focusedLeadingIconColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurface,
-            focusedLabelColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
+            focusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
 
 
         ),
@@ -59,8 +57,9 @@ fun UserNameTextField(
             .shadow(
                 elevation = 1.dp,
                 shape = MaterialTheme.shapes.medium,
+                clip = true
             )
-            //.clip(MaterialTheme.shapes.medium)
+//            .clip(MaterialTheme.shapes.medium)
             .fillMaxWidth()
     )
 }
@@ -81,9 +80,7 @@ fun UserNameSignupTextField(
                 contentDescription = null
             )
         },
-        label = {
-            Text(text = "e-mail")
-        },
+        placeholder = { Text(text = "e-mail") },
         isError = isError,
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -92,10 +89,10 @@ fun UserNameSignupTextField(
             unfocusedContainerColor = MaterialTheme.colorScheme.surface,
             focusedTextColor = MaterialTheme.colorScheme.onSurface,
             unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-            focusedLeadingIconColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurface,
-            focusedLabelColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
+            focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            focusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
         ),
         shape = MaterialTheme.shapes.medium,
         modifier = Modifier
@@ -115,6 +112,7 @@ fun UserNameTextFieldPreview(){
     CulturaMADTheme {
         Column(
             modifier = Modifier
+                .padding(8.dp)
                 .fillMaxWidth()
         ){
             UserNameTextField()

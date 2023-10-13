@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -54,8 +55,8 @@ fun PasswordTextField(
                 shape = MaterialTheme.shapes.medium
             )
             .clip(MaterialTheme.shapes.medium),
-        label = { Text(text = "password")},
-        leadingIcon = { Icon(imageVector = Icons.Outlined.AccountCircle, contentDescription = null)},
+        placeholder = { Text(text = "password")},
+        leadingIcon = { Icon(imageVector = Icons.Outlined.Lock, contentDescription = null)},
         trailingIcon = {
             IconButton(onClick = {visibility = !visibility}) {
                 Icon(painter = trailingIcon, contentDescription = "")
@@ -71,12 +72,12 @@ fun PasswordTextField(
             unfocusedContainerColor = MaterialTheme.colorScheme.surface,
             focusedTextColor = MaterialTheme.colorScheme.onSurface,
             unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-            focusedLeadingIconColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurface,
-            focusedLabelColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
-            focusedTrailingIconColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurface
+            focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            focusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
+            unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
         )
     )
 }
@@ -105,8 +106,8 @@ fun PasswordSignupTextField(
                 shape = MaterialTheme.shapes.medium
             )
             .clip(MaterialTheme.shapes.medium),
-        label = { Text(text = "password")},
-        leadingIcon = { Icon(imageVector = Icons.Outlined.AccountCircle, contentDescription = null)},
+        placeholder = { Text(text = "password")},
+        leadingIcon = { Icon(imageVector = Icons.Outlined.Lock, contentDescription = null)},
         trailingIcon = {
             IconButton(onClick = {visibility = !visibility}) {
                 Icon(painter = trailingIcon, contentDescription = "")
@@ -122,12 +123,12 @@ fun PasswordSignupTextField(
             unfocusedContainerColor = MaterialTheme.colorScheme.surface,
             focusedTextColor = MaterialTheme.colorScheme.onSurface,
             unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-            focusedLeadingIconColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurface,
-            focusedLabelColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
-            focusedTrailingIconColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurface
+            focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            focusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
+            unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
         )
     )
 }
@@ -156,8 +157,8 @@ fun ConfirmPasswordSignupTextField(
                 shape = MaterialTheme.shapes.medium
             )
             .clip(MaterialTheme.shapes.medium),
-        label = { Text(text = "confirm password")},
-        leadingIcon = { Icon(imageVector = Icons.Outlined.AccountCircle, contentDescription = null)},
+        placeholder = { Text(text = "confirm password")},
+        leadingIcon = { Icon(imageVector = Icons.Outlined.Lock, contentDescription = null)},
         trailingIcon = {
             IconButton(onClick = {visibility = !visibility}) {
                 Icon(painter = trailingIcon, contentDescription = "")
@@ -173,12 +174,12 @@ fun ConfirmPasswordSignupTextField(
             unfocusedContainerColor = MaterialTheme.colorScheme.surface,
             focusedTextColor = MaterialTheme.colorScheme.onSurface,
             unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-            focusedLeadingIconColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurface,
-            focusedLabelColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedLabelColor = MaterialTheme.colorScheme.onSurface,
-            focusedTrailingIconColor = MaterialTheme.colorScheme.onSurface,
-            unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurface
+            focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            focusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
+            unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
         )
     )
 }
