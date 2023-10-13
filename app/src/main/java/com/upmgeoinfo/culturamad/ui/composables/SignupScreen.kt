@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Surface
-import androidx.compose.material.icons.materialIcon
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -19,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -27,20 +25,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.upmgeoinfo.culturamad.R
+import com.upmgeoinfo.culturamad.ui.composables.prefab.ConfirmPasswordSignupTextField
+import com.upmgeoinfo.culturamad.ui.composables.prefab.PasswordSignupTextField
 import com.upmgeoinfo.culturamad.ui.composables.prefab.PasswordTextField
+import com.upmgeoinfo.culturamad.ui.composables.prefab.UserNameSignupTextField
 import com.upmgeoinfo.culturamad.ui.composables.prefab.UserNameTextField
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 import com.upmgeoinfo.culturamad.viewmodels.auth.AuthenticationViewModel
-import java.util.Random
 
 @Composable
-fun LoginScreen(
+fun SignupScreen(
     authenticationViewModel: AuthenticationViewModel? = null,
-    onNavToSignupScreen: ()-> Unit,
+    onNavToLoginScreen: () -> Unit,
     onNavBack: () -> Unit
 ){
     val loginUiState = authenticationViewModel?.loginUiState
-    val isError = loginUiState?.loginError != null
+    val isError = loginUiState?.signupError != null
     val context = LocalContext.current
     Surface(
         color = MaterialTheme.colorScheme.surface,
@@ -62,13 +62,13 @@ fun LoginScreen(
             ) {
                 Column {
                     Text(
-                        text = "Login",
+                        text = "Signup",
                         color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.SemiBold,
                     )
                     Text(
-                        text = stringResource(id = R.string.ui_login_information),
+                        text = stringResource(id = R.string.ui_signup_information),
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Light
@@ -77,12 +77,14 @@ fun LoginScreen(
                     if (isError){
                         Text(text = loginUiState?.loginError ?: "Unknown error.")
                     }
-                    UserNameTextField(authenticationViewModel)
+                    UserNameSignupTextField(authenticationViewModel)
                     Spacer(modifier = Modifier.height(8.dp))
-                    PasswordTextField(authenticationViewModel)
+                    PasswordSignupTextField(authenticationViewModel)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ConfirmPasswordSignupTextField(authenticationViewModel)
                     Spacer(modifier = Modifier.height(24.dp))
                     Button(
-                        onClick = { authenticationViewModel?.loginUser(context) },
+                        onClick = { authenticationViewModel?.createUser(context) },
                         shape = MaterialTheme.shapes.medium,
                         elevation = ButtonDefaults.buttonElevation(1.dp),
                         colors = ButtonDefaults.buttonColors(
@@ -92,7 +94,7 @@ fun LoginScreen(
                             .fillMaxWidth()
                     ) {
                         Text(
-                            text = "Login",
+                            text = "Signup",
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onPrimary
                         )
@@ -105,17 +107,17 @@ fun LoginScreen(
                             .fillMaxWidth()
                     ) {
                         Text(
-                            text = stringResource(id = R.string.ui_have_account_yet),
+                            text = stringResource(id = R.string.ui_do_have_account),
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Button(
-                            onClick = { onNavToSignupScreen.invoke() },
+                            onClick = { onNavToLoginScreen.invoke() },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color.Transparent
                             )
                         ) {
                             Text(
-                                text = "Signup",
+                                text = "Login",
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.primary,
@@ -131,10 +133,10 @@ fun LoginScreen(
 @Preview(showBackground = true, showSystemUi = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, showSystemUi = true)
 @Composable
-fun LoginScreenPreview(){
+fun SignupScreenPreview(){
     CulturaMADTheme {
-        LoginScreen(
-            onNavToSignupScreen = {},
+        SignupScreen(
+            onNavToLoginScreen = {},
             onNavBack = {}
         )
     }

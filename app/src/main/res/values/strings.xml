@@ -45,6 +45,9 @@
     <string name="txt_day_hours_block_2">H</string>
     <string name="ui_description">Descripción</string>
     <string name="ui_review">Reseñas</string>
-    <string name="ui_have_account_yet">No tienes una cuenta aún?</string>
+    <string name="ui_login_information">Usa tu e-mail y contraseña para acceder a tu cuenta.</string>
+    <string name="ui_signup_information">Introduce un e-mail válido y escoge una contraseña para crear una cuenta.</string>
+    <string name="ui_have_account_yet">¿No tienes una cuenta aún?</string>
+    <string name="ui_do_have_account">¿Ya tienes una cuenta?</string>
     <string name="tip">Tip: haga un tap sobre la información de un marcador para ir a la publicación o un tap largo para compartir.</string>
 </resources>
