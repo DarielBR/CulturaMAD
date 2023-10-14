@@ -49,5 +49,10 @@
     <string name="ui_signup_information">Introduce un e-mail válido y escoge una contraseña para crear una cuenta.</string>
     <string name="ui_have_account_yet">¿No tienes una cuenta aún?</string>
     <string name="ui_do_have_account">¿Ya tienes una cuenta?</string>
+    <string name="ui_account_information_logged_1">Se ha accedido con el usuario \u0020</string>
+    <string name="ui_account_information_logged_2">, si no es esta tu cuenta puedes cambiar de cuenta</string>
+    <string name="ui_account_information_not_logged">Se ha accedido de forma anónima, puedes acceder con tu cuenta \u0020</string>
+    <string name="ui_go_to_signup">Si no tienes una cuenta, puede crear una</string>
+    <string name="ui_here">Aquí</string>
     <string name="tip">Tip: haga un tap sobre la información de un marcador para ir a la publicación o un tap largo para compartir.</string>
 </resources>

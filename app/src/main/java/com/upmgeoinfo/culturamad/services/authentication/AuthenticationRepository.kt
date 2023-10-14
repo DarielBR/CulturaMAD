@@ -39,4 +39,8 @@ class AuthenticationRepository {
                 else onComplete.invoke(false)
             }.await()
     }
+
+    suspend fun logOut() = withContext(Dispatchers.IO){
+        Firebase.auth.signOut()
+    }
 }

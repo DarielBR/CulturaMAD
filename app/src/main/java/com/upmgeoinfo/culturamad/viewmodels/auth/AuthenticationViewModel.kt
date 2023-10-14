@@ -104,4 +104,8 @@ class AuthenticationViewModel(
         }
     }
 
+    fun logOutUser() = viewModelScope.launch {
+        repository.logOut()
+    }
+
 }

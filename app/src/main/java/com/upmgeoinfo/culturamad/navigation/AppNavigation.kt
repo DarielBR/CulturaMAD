@@ -47,7 +47,7 @@ fun AppNavigation(fuseLocationClient: FusedLocationProviderClient, viewModel: Ma
                 OverviewScreen()
             }
             composable(MenuItems.UserScreen.route){
-                UserScreen()
+                UserScreen(onNavToSignupScreen = {}, onNavToLoginScreen = {})
             }
         }
     )
@@ -86,7 +86,7 @@ fun AlternateNavigation(
             )
         }
         composable(MenuItems.UserScreen.route){
-            UserScreen()
+            UserScreen(onNavToSignupScreen = {}, onNavToLoginScreen = {})
         }
         composable(AppScreens.DetailViewScreen.route){
             DetailViewScreen(culturalEvent = viewModel.getCurrentEvent())
