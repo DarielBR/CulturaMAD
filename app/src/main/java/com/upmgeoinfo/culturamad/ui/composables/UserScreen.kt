@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,15 +18,20 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.upmgeoinfo.culturamad.R
+import com.upmgeoinfo.culturamad.ui.composables.prefab.NavBackButton
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 import com.upmgeoinfo.culturamad.viewmodels.auth.AuthenticationViewModel
 
@@ -36,44 +42,82 @@ fun UserScreen(
     onNavToSignupScreen: () -> Unit
 ){
     val loginUiState = authenticationViewModel?.loginUiState
+    //val currentUserMail = authenticationViewModel?.currentUser?.email ?: ""
     val hasUser = authenticationViewModel?.hasUser ?: false
-    val userName = authenticationViewModel?.currentUser
+
 
     Surface(
         modifier = Modifier
             .fillMaxSize()
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.Start,
             modifier = Modifier
                 .background(
                     color = MaterialTheme.colorScheme.surface
                 )
                 .fillMaxSize()
-                .padding(top = 24.dp, start = 12.dp, end = 12.dp, bottom = 12.dp)
+                .padding(top = 12.dp, start = 12.dp, end = 12.dp, bottom = 12.dp)
         ) {
+            Spacer(modifier = Modifier.height(45.dp))
             if(hasUser){
+                authenticationViewModel?.refreshCurrentUserMail()
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                 ) {
                     Text(text = stringResource(R.string.ui_account_information_logged_1))
-                    Text(//userName
-                        text = userName.toString(),
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Light
-                    )
-                    Text(text = stringResource(R.string.ui_account_information_logged_2))
-                    Text(//clickable text
-                        text = userName.toString(),
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.SemiBold,
+                    Surface(
+                        color = MaterialTheme.colorScheme.surface,
+                        elevation = 2.dp,
+                        shape = MaterialTheme.shapes.small,
                         modifier = Modifier
-                            .clickable {
+                            .fillMaxWidth()
+                            .padding(top = 6.dp)
+                    ){
+                        Text(
+                            //text = authenticationViewModel?.currentUser?.email ?: "",
+                            text = loginUiState?.currentUserMail ?: "",
+                            //text = currentUserMail,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Light,
+                            modifier = Modifier
+                                .padding(6.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.ui_account_information_logged_2),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Button(
+                            onClick = {
+                                authenticationViewModel?.clearStateValues()
+                                authenticationViewModel?.resetErrors()
                                 authenticationViewModel?.logOutUser()
                                 onNavToLoginScreen.invoke()
-                            }
-                    )
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent
+                            ),
+                            contentPadding = PaddingValues(start = 1.dp)
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.ui_change_account_here),
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                    }
                 }
             }else{
                 Column(
@@ -83,10 +127,15 @@ fun UserScreen(
                 ) {
                     Text(
                         text = stringResource(R.string.ui_account_information_not_logged),
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(
-                        onClick = { onNavToLoginScreen.invoke() },
+                        onClick = {
+                            authenticationViewModel?.clearStateValues()
+                            authenticationViewModel?.resetErrors()
+                            onNavToLoginScreen.invoke()
+                        },
                         shape = MaterialTheme.shapes.medium,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -109,7 +158,11 @@ fun UserScreen(
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Button(
-                            onClick = { onNavToSignupScreen.invoke() },
+                            onClick = {
+                                authenticationViewModel?.clearStateValues()
+                                authenticationViewModel?.resetErrors()
+                                onNavToSignupScreen.invoke()
+                            },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color.Transparent
                             )

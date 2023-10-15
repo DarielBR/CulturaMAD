@@ -24,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.upmgeoinfo.culturamad.R
+import com.upmgeoinfo.culturamad.navigation.AppScreens
 import com.upmgeoinfo.culturamad.viewmodels.main.MainViewModel
 import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems
 import kotlinx.coroutines.launch
@@ -49,7 +50,10 @@ fun SplashScreen(
         }
         navController.popBackStack()
         viewModel.changeSplashScreenState(false)
-        navController.navigate(MenuItems.FullMapScreen.route)
+        //navController.navigate(MenuItems.FullMapScreen.route)
+        navController.navigate(MenuItems.OverviewScreen.route){
+            popUpTo(AppScreens.SplashScreen.route){inclusive = true}
+        }
     }
     Splash()
 }

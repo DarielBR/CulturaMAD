@@ -30,13 +30,15 @@ import com.upmgeoinfo.culturamad.viewmodels.main.MainViewModel
 import com.upmgeoinfo.culturamad.navigation.AlternateNavigation
 import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems
 import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems.*
+import com.upmgeoinfo.culturamad.viewmodels.auth.AuthenticationViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun ScaffoldedScreen(
     fusedLocationClient: FusedLocationProviderClient,
-    viewModel: MainViewModel
+    viewModel: MainViewModel,
+    authenticationViewModel: AuthenticationViewModel
 ){
     val navController = rememberNavController()//this is the app navHostController
     val scaffoldState = rememberScaffoldState()
@@ -79,7 +81,8 @@ fun ScaffoldedScreen(
         AlternateNavigation(
             navController = navController,
             fusedLocationClient = fusedLocationClient,
-            viewModel = viewModel
+            viewModel = viewModel,
+            authenticationViewModel = authenticationViewModel
         )
     }
 }
@@ -107,7 +110,11 @@ fun AppBottomNavigation(
             menuItems.forEach{item ->
                 BottomNavigationItem(
                     selected = currentRoute == item.route,
-                    onClick = { navController.navigate(item.route) },
+                    onClick = {//navigate to the clicked item and pop the nav Stack back to currentRoute
+                        navController.navigate(item.route){
+                            popUpTo(currentRoute){inclusive = true}
+                        }
+                    },
                     icon = {
                         Icon(
                             imageVector = item.icon,

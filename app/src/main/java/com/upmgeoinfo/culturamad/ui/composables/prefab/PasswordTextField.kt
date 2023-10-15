@@ -98,7 +98,7 @@ fun PasswordSignupTextField(
 
     OutlinedTextField(
         value = loginUiState?.passwordSignup ?: "",
-        onValueChange = { authenticationViewModel?.onUserPasswordChange(it) },
+        onValueChange = { authenticationViewModel?.onPasswordSignupChange(it) },
         modifier = Modifier
             .fillMaxWidth()
             .shadow(
@@ -149,7 +149,7 @@ fun ConfirmPasswordSignupTextField(
 
     OutlinedTextField(
         value = loginUiState?.confirmPasswordSignup ?: "",
-        onValueChange = { authenticationViewModel?.onUserPasswordChange(it) },
+        onValueChange = { authenticationViewModel?.onConfirmPasswordSignupChange(it) },
         modifier = Modifier
             .fillMaxWidth()
             .shadow(

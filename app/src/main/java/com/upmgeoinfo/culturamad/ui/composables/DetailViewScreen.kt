@@ -49,6 +49,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
@@ -65,14 +66,17 @@ import com.upmgeoinfo.culturamad.services.json_parse.utils.ScheduleParser
 import com.upmgeoinfo.culturamad.ui.composables.prefab.CategoryTag
 import com.upmgeoinfo.culturamad.ui.composables.prefab.PriceTag
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
+import com.upmgeoinfo.culturamad.viewmodels.main.MainViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DetailViewScreen(
-    culturalEvent: CulturalEvent,
-    //onNavBackToOverview: () -> Unit
+    mainViewModel: MainViewModel? = null,
+    //culturalEvent: CulturalEvent,
+    onNavBack: () -> Unit
     //TODO: Here will be listed the navigation lambdas
 ){
+    val culturalEvent = mainViewModel?.getCurrentEvent() ?: mockEvent
     Surface(
         color = MaterialTheme.colorScheme.surface,
         modifier = Modifier
@@ -319,7 +323,7 @@ fun DetailViewScreen(
 @Composable
 fun DetailViewScreenPreview(){
     CulturaMADTheme {
-        DetailViewScreen(culturalEvent = mockEvent)
+        DetailViewScreen(){}
     }
 }
 

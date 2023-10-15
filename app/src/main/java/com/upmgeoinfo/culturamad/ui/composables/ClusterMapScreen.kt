@@ -279,8 +279,7 @@ fun ClusterMapScreen(
         ) {
 
             Spacer(
-                modifier = Modifier
-                    .height(45.dp)
+                modifier = Modifier.height(45.dp)
             )
             /**
              * Declaring a SearchBar on top of the screen. A Composable function won't be used in

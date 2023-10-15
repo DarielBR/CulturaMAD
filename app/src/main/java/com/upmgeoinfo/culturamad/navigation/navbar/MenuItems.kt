@@ -27,7 +27,7 @@ sealed class MenuItems(
 
     object UserScreen: MenuItems(
         Icons.Filled.Person,
-        "Account and Settings",
+        "Account",
         "User_Screen"
     )
 }

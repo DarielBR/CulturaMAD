@@ -14,6 +14,9 @@ class AuthenticationRepository {
 
     fun getUserId(): String = Firebase.auth.currentUser?.uid.orEmpty()
 
+    suspend fun getCurrentUserMail(): String = withContext(Dispatchers.IO){
+        return@withContext Firebase.auth.currentUser?.email.orEmpty()
+    }
     suspend fun createUser(
         email: String,
         password: String,

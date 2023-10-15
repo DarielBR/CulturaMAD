@@ -7,28 +7,24 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.maps.android.compose.MapsComposeExperimentalApi
-import com.upmgeoinfo.culturamad.MainScreen
 import com.upmgeoinfo.culturamad.viewmodels.main.MainViewModel
 import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems
 import com.upmgeoinfo.culturamad.ui.composables.ClusterMapScreen
 import com.upmgeoinfo.culturamad.ui.composables.DetailViewScreen
+import com.upmgeoinfo.culturamad.ui.composables.LoginScreen
 import com.upmgeoinfo.culturamad.ui.composables.OverviewScreen
+import com.upmgeoinfo.culturamad.ui.composables.SignupScreen
 import com.upmgeoinfo.culturamad.ui.composables.SplashScreen
 import com.upmgeoinfo.culturamad.ui.composables.UserScreen
+import com.upmgeoinfo.culturamad.viewmodels.auth.AuthenticationViewModel
 
-/**
- * <<NOT IN USE CURRENTLY>>
- * Handles the navigation within the application. Will show at first the Splash Screen followed by
- * the main activity. Also cleanses the views while navigates towards the main activity.
- */
-//TODO: Rewrite this functionality in order to have all routes homogeneously coded.
+/*@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @MapsComposeExperimentalApi
 @Composable
-fun AppNavigation(fuseLocationClient: FusedLocationProviderClient, viewModel: MainViewModel){
+fun AppNavigation(fuseLocationClient: FusedLocationProviderClient, viewModel: MainViewModel, authenticationViewModel: AuthenticationViewModel){
     val navController = rememberNavController()
     NavHost(
         navController = navController,
@@ -47,11 +43,33 @@ fun AppNavigation(fuseLocationClient: FusedLocationProviderClient, viewModel: Ma
                 OverviewScreen()
             }
             composable(MenuItems.UserScreen.route){
-                UserScreen(onNavToSignupScreen = {}, onNavToLoginScreen = {})
+                UserScreen(
+                    onNavToSignupScreen = {
+                        navController.navigate(AppScreens.SignupScreen.route){}
+                    },
+                    onNavToLoginScreen = {
+                        navController.navigate(AppScreens.LoginScreen.route){}
+                    }
+                )
+            }
+            composable(AppScreens.DetailViewScreen.route){
+                DetailViewScreen(
+                    mainViewModel = viewModel,
+                    onNavBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+            composable(AppScreens.LoginScreen.route){
+                LoginScreen(
+                    authenticationViewModel = authenticationViewModel ,
+                    onNavToSignupScreen = {},
+                    onNavBack = {}
+                )
             }
         }
     )
-}
+}*/
 /**
  * (Alternatively using a navigation bottom bar)Handles the navigation within the application. Will show at first the Splash Screen followed by
  * the main activity. Also cleanses the views while navigates towards the main activity.
@@ -62,7 +80,8 @@ fun AppNavigation(fuseLocationClient: FusedLocationProviderClient, viewModel: Ma
 fun AlternateNavigation(
     navController: NavHostController,
     fusedLocationClient: FusedLocationProviderClient,
-    viewModel: MainViewModel
+    viewModel: MainViewModel,
+    authenticationViewModel: AuthenticationViewModel
 ){
     NavHost(
         navController = navController,
@@ -86,10 +105,52 @@ fun AlternateNavigation(
             )
         }
         composable(MenuItems.UserScreen.route){
-            UserScreen(onNavToSignupScreen = {}, onNavToLoginScreen = {})
+            UserScreen(
+                authenticationViewModel = authenticationViewModel,
+                onNavToSignupScreen = {
+                    navController.navigate(AppScreens.SignupScreen.route){}
+                },
+                onNavToLoginScreen = {
+                    navController.navigate(AppScreens.LoginScreen.route){}
+                }
+            )
         }
         composable(AppScreens.DetailViewScreen.route){
-            DetailViewScreen(culturalEvent = viewModel.getCurrentEvent())
+            DetailViewScreen(
+                mainViewModel = viewModel,
+                onNavBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(AppScreens.LoginScreen.route){
+            LoginScreen(
+                authenticationViewModel = authenticationViewModel ,
+                onNavToSignupScreen = {
+                    navController.navigate(AppScreens.SignupScreen.route){
+                        popUpTo(AppScreens.LoginScreen.route){inclusive = true}
+                    }
+                },
+                onNavBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(AppScreens.SignupScreen.route){
+            SignupScreen(
+                authenticationViewModel = authenticationViewModel,
+                onNavToLoginScreen = {
+                    navController.navigate(AppScreens.LoginScreen.route){
+                        popUpTo(AppScreens.SignupScreen.route){inclusive = true}
+                    }
+                },
+                onNavBack = {
+                    navController.navigate(MenuItems.UserScreen.route){
+                        popUpTo(AppScreens.SignupScreen.route){inclusive = true}
+                    }
+                    //navController.popBackStack()
+                }
+            )
         }
     }
 }

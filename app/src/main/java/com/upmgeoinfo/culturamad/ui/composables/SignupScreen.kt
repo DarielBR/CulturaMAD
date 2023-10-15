@@ -26,11 +26,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.ui.composables.prefab.ConfirmPasswordSignupTextField
+import com.upmgeoinfo.culturamad.ui.composables.prefab.NavBackButton
 import com.upmgeoinfo.culturamad.ui.composables.prefab.PasswordSignupTextField
 import com.upmgeoinfo.culturamad.ui.composables.prefab.PasswordTextField
 import com.upmgeoinfo.culturamad.ui.composables.prefab.UserNameSignupTextField
 import com.upmgeoinfo.culturamad.ui.composables.prefab.UserNameTextField
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
+import com.upmgeoinfo.culturamad.ui.theme.md_theme_dark_onBackground
 import com.upmgeoinfo.culturamad.viewmodels.auth.AuthenticationViewModel
 
 @Composable
@@ -61,6 +63,9 @@ fun SignupScreen(
                     .fillMaxWidth()
             ) {
                 Column {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    NavBackButton(onClick = onNavBack)
+                    Spacer(modifier = Modifier.height(24.dp))
                     Text(
                         text = "Signup",
                         color = MaterialTheme.colorScheme.primary,
@@ -75,7 +80,10 @@ fun SignupScreen(
                     )
                     Spacer(modifier = Modifier.height(32.dp))
                     if (isError){
-                        Text(text = loginUiState?.loginError ?: "Unknown error.")
+                        Text(
+                            text = loginUiState?.loginError ?: "Unknown error.",
+                            color = Color.Red
+                        )
                     }
                     UserNameSignupTextField(authenticationViewModel)
                     Spacer(modifier = Modifier.height(8.dp))
@@ -84,7 +92,13 @@ fun SignupScreen(
                     ConfirmPasswordSignupTextField(authenticationViewModel)
                     Spacer(modifier = Modifier.height(24.dp))
                     Button(
-                        onClick = { authenticationViewModel?.createUser(context) },
+                        onClick = {
+                            authenticationViewModel?.createUser(context){success ->
+                                if (success) {
+                                    onNavBack.invoke()
+                                }
+                            }
+                        },
                         shape = MaterialTheme.shapes.medium,
                         elevation = ButtonDefaults.buttonElevation(1.dp),
                         colors = ButtonDefaults.buttonColors(

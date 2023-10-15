@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.upmgeoinfo.culturamad.R
+import com.upmgeoinfo.culturamad.ui.composables.prefab.NavBackButton
 import com.upmgeoinfo.culturamad.ui.composables.prefab.PasswordTextField
 import com.upmgeoinfo.culturamad.ui.composables.prefab.UserNameTextField
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
@@ -61,6 +62,9 @@ fun LoginScreen(
                     .fillMaxWidth()
             ) {
                 Column {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    NavBackButton(onClick = onNavBack)
+                    Spacer(modifier = Modifier.height(24.dp))
                     Text(
                         text = "Login",
                         color = MaterialTheme.colorScheme.primary,
@@ -75,14 +79,24 @@ fun LoginScreen(
                     )
                     Spacer(modifier = Modifier.height(32.dp))
                     if (isError){
-                        Text(text = loginUiState?.loginError ?: "Unknown error.")
+                        Text(
+                            text = loginUiState?.loginError ?: "Unknown error.",
+                            color = Color.Red
+                        )
                     }
                     UserNameTextField(authenticationViewModel)
                     Spacer(modifier = Modifier.height(8.dp))
                     PasswordTextField(authenticationViewModel)
                     Spacer(modifier = Modifier.height(24.dp))
                     Button(
-                        onClick = { authenticationViewModel?.loginUser(context) },
+                        onClick = {
+                            authenticationViewModel?.loginUser(context){success ->
+                                if (success) {
+                                    //authenticationViewModel?.onCurrentUserChange()
+                                    onNavBack.invoke()
+                                }
+                            }
+                        },
                         shape = MaterialTheme.shapes.medium,
                         elevation = ButtonDefaults.buttonElevation(1.dp),
                         colors = ButtonDefaults.buttonColors(

@@ -30,6 +30,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.maps.android.compose.MapsComposeExperimentalApi
+import com.upmgeoinfo.culturamad.services.authentication.AuthenticationRepository
 import com.upmgeoinfo.culturamad.viewmodels.main.MainViewModel
 import com.upmgeoinfo.culturamad.services.room.CulturalEventDatabase
 import com.upmgeoinfo.culturamad.services.room.CulturalEventRepository
@@ -37,6 +38,7 @@ import com.upmgeoinfo.culturamad.services.json_parse.reposiroty.ApiEventsReposit
 import com.upmgeoinfo.culturamad.ui.composables.ClusterMapScreen
 import com.upmgeoinfo.culturamad.ui.composables.ScaffoldedScreen
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
+import com.upmgeoinfo.culturamad.viewmodels.auth.AuthenticationViewModel
 
 class MainActivity : ComponentActivity() {
     private lateinit var fuseLocationClient: FusedLocationProviderClient
@@ -63,13 +65,15 @@ class MainActivity : ComponentActivity() {
         val culturalEventRepository = CulturalEventRepository(dao)
 
         val apiEventsRepository = ApiEventsRepository()
+        val authenticationRepository = AuthenticationRepository()
         /**
-         * Creating the ViewModel
+         * Creating the ViewModel and the authenticationViewModel
          */
         val viewModel= MainViewModel(
             culturalEventRepository,
             apiEventsRepository
         )
+        val authenticationViewModel = AuthenticationViewModel(authenticationRepository)
         /**
          * Firebase analytics
          * this is for testing purposes only, may be disposed in the future.
@@ -94,7 +98,8 @@ class MainActivity : ComponentActivity() {
                  */
                 ScaffoldedScreen(
                     fusedLocationClient = fuseLocationClient,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    authenticationViewModel = authenticationViewModel
                 )
             }
         }
