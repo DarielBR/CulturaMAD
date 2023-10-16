@@ -2,7 +2,6 @@ package com.upmgeoinfo.culturamad.navigation
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -75,7 +74,7 @@ fun AppNavigation(fuseLocationClient: FusedLocationProviderClient, viewModel: Ma
  * the main activity. Also cleanses the views while navigates towards the main activity.
  */
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class, MapsComposeExperimentalApi::class)
+@OptIn(MapsComposeExperimentalApi::class)
 @Composable
 fun AlternateNavigation(
     navController: NavHostController,

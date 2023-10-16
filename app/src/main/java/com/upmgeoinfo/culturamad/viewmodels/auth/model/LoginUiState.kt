@@ -1,7 +1,5 @@
 package com.upmgeoinfo.culturamad.viewmodels.auth.model
 
-import com.google.firebase.auth.FirebaseUser
-
 data class LoginUiState(
     val userName: String = "",
     val password: String = "",

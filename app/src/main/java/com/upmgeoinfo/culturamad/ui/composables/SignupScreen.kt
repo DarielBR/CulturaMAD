@@ -28,11 +28,8 @@ import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.ui.composables.prefab.ConfirmPasswordSignupTextField
 import com.upmgeoinfo.culturamad.ui.composables.prefab.NavBackButton
 import com.upmgeoinfo.culturamad.ui.composables.prefab.PasswordSignupTextField
-import com.upmgeoinfo.culturamad.ui.composables.prefab.PasswordTextField
 import com.upmgeoinfo.culturamad.ui.composables.prefab.UserNameSignupTextField
-import com.upmgeoinfo.culturamad.ui.composables.prefab.UserNameTextField
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
-import com.upmgeoinfo.culturamad.ui.theme.md_theme_dark_onBackground
 import com.upmgeoinfo.culturamad.viewmodels.auth.AuthenticationViewModel
 
 @Composable

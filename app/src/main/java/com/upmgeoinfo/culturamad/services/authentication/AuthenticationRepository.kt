@@ -12,8 +12,6 @@ class AuthenticationRepository {
 
     fun hasUser(): Boolean = Firebase.auth.currentUser != null
 
-    fun getUserId(): String = Firebase.auth.currentUser?.uid.orEmpty()
-
     suspend fun getCurrentUserMail(): String = withContext(Dispatchers.IO){
         return@withContext Firebase.auth.currentUser?.email.orEmpty()
     }
