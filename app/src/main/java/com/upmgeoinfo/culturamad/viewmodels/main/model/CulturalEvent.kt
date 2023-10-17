@@ -1,4 +1,4 @@
-package com.upmgeoinfo.culturamad.datamodel
+package com.upmgeoinfo.culturamad.viewmodels.main.model
 
 /**
  * This dataclass has bean created to bring data persistent to the app and to work with the Room

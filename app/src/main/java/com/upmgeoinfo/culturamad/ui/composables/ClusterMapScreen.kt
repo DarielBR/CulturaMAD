@@ -70,7 +70,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.upmgeoinfo.culturamad.R
-import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
+import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 import com.upmgeoinfo.culturamad.viewmodels.main.MainViewModel
 import com.upmgeoinfo.culturamad.ui.composables.prefab.MapButton
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme

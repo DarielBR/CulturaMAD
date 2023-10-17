@@ -32,7 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.upmgeoinfo.culturamad.R
-import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
+import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 import com.upmgeoinfo.culturamad.viewmodels.main.MainViewModel
 import com.upmgeoinfo.culturamad.ui.composables.prefab.GeneralSearchBar
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme

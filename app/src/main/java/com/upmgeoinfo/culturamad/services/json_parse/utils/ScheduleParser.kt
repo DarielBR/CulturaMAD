@@ -2,7 +2,7 @@ package com.upmgeoinfo.culturamad.services.json_parse.utils
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
+import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime

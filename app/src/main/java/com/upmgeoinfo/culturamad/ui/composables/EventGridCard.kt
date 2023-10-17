@@ -1,7 +1,6 @@
 package com.upmgeoinfo.culturamad.ui.composables
 
 import android.content.res.Configuration
-import android.graphics.drawable.shapes.Shape
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -32,7 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.upmgeoinfo.culturamad.R
-import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
+import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 @Composable

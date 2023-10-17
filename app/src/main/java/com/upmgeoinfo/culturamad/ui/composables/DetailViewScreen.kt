@@ -49,7 +49,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
@@ -61,7 +60,7 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.upmgeoinfo.culturamad.R
-import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
+import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 import com.upmgeoinfo.culturamad.services.json_parse.utils.ScheduleParser
 import com.upmgeoinfo.culturamad.ui.composables.prefab.CategoryTag
 import com.upmgeoinfo.culturamad.ui.composables.prefab.PriceTag

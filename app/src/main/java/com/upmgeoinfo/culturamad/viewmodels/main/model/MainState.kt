@@ -1,7 +1,5 @@
 package com.upmgeoinfo.culturamad.viewmodels.main.model
 
-import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
-
 data class MainState (
     val currentItem: String = "",
     val items: MutableList<CulturalEvent> = emptyList<CulturalEvent>().toMutableList(),

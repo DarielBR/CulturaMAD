@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
+import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 import com.upmgeoinfo.culturamad.services.room.CulturalEventRepository
 import com.upmgeoinfo.culturamad.viewmodels.main.model.MainState
 import com.upmgeoinfo.culturamad.services.json_parse.reposiroty.ApiEventsRepository

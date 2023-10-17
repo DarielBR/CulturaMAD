@@ -1,7 +1,7 @@
 package com.upmgeoinfo.culturamad.datamodel
 
 import com.google.gson.annotations.SerializedName
-import com.upmgeoinfo.culturamad.services.json_parse.`interface`.JsonParseException
+import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 import kotlinx.coroutines.runBlocking
 
 data class CulturalEventMadrid(

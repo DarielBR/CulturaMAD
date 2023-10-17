@@ -1,16 +1,11 @@
 package com.upmgeoinfo.culturamad.services.json_parse.reposiroty
 
-import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
-import com.upmgeoinfo.culturamad.services.json_parse.api_model.ApiJsonFile
+import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 import com.upmgeoinfo.culturamad.services.json_parse.`interface`.ApiService
-import com.upmgeoinfo.culturamad.services.json_parse.`interface`.parseJsonString
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
 
 class ApiEventsRepository(){
     suspend fun parseJasonFile(): List<CulturalEvent> = withContext(Dispatchers.IO){

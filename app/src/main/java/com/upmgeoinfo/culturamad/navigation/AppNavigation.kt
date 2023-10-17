@@ -19,56 +19,6 @@ import com.upmgeoinfo.culturamad.ui.composables.SplashScreen
 import com.upmgeoinfo.culturamad.ui.composables.UserScreen
 import com.upmgeoinfo.culturamad.viewmodels.auth.AuthenticationViewModel
 
-/*@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
-@MapsComposeExperimentalApi
-@Composable
-fun AppNavigation(fuseLocationClient: FusedLocationProviderClient, viewModel: MainViewModel, authenticationViewModel: AuthenticationViewModel){
-    val navController = rememberNavController()
-    NavHost(
-        navController = navController,
-        startDestination = AppScreens.SplashScreen.route,
-        builder = {
-            composable(AppScreens.SplashScreen.route){
-                SplashScreen(
-                    navController = navController,
-                    viewModel = viewModel
-                )
-            }
-            composable(AppScreens.MainScreen.route){
-                MainScreen(fuseLocationClient, viewModel)
-            }
-            composable(MenuItems.OverviewScreen.route){
-                OverviewScreen()
-            }
-            composable(MenuItems.UserScreen.route){
-                UserScreen(
-                    onNavToSignupScreen = {
-                        navController.navigate(AppScreens.SignupScreen.route){}
-                    },
-                    onNavToLoginScreen = {
-                        navController.navigate(AppScreens.LoginScreen.route){}
-                    }
-                )
-            }
-            composable(AppScreens.DetailViewScreen.route){
-                DetailViewScreen(
-                    mainViewModel = viewModel,
-                    onNavBack = {
-                        navController.popBackStack()
-                    }
-                )
-            }
-            composable(AppScreens.LoginScreen.route){
-                LoginScreen(
-                    authenticationViewModel = authenticationViewModel ,
-                    onNavToSignupScreen = {},
-                    onNavBack = {}
-                )
-            }
-        }
-    )
-}*/
 /**
  * (Alternatively using a navigation bottom bar)Handles the navigation within the application. Will show at first the Splash Screen followed by
  * the main activity. Also cleanses the views while navigates towards the main activity.

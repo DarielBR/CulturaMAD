@@ -1,7 +1,7 @@
 package com.upmgeoinfo.culturamad.services.json_parse.`interface`
 
 import com.google.gson.GsonBuilder
-import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
+import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 import com.upmgeoinfo.culturamad.services.json_parse.api_model.ApiJsonFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking

@@ -1,6 +1,6 @@
 package com.upmgeoinfo.culturamad.services.room
 
-import com.upmgeoinfo.culturamad.datamodel.CulturalEvent
+import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 
 class CulturalEventRepository(
     private val culturalEventDao: CulturalEventDao
@@ -150,7 +150,7 @@ class CulturalEventRepository(
         culturalEventDao.updateCulturalEvent(entity)
     }
 
-    suspend fun getCulturalEventEntityById(id: Int): CulturalEvent{
+    suspend fun getCulturalEventEntityById(id: Int): CulturalEvent {
         val entity = culturalEventDao.getCulturalEventEntityById(id)
         val resultado =  CulturalEvent(
             id = entity.id,

@@ -106,13 +106,12 @@ dependencies {
     //Firebase
     //Import the Firebase BoM
     implementation(platform('com.google.firebase:firebase-bom:32.2.3'))
-    // TODO: Add the dependencies for Firebase products you want to use
     //Analytics
     implementation("com.google.firebase:firebase-analytics-ktx")
-    //Firebase Authentication Library
+    //Firebase Authentication
     //implementation("com.google.firebase:firebase-auth:ktx")
     implementation("com.google.firebase:firebase-auth-ktx")
+    //Firebase Firestore
+    implementation("com.google.firebase:firebase-firestore-ktx")
 
-    //Extended Icons
-    //implementation "androidx.compose.material:material-icons-extended-ktx"
 }
