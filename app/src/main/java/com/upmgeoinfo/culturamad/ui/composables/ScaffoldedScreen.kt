@@ -21,11 +21,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
 import com.upmgeoinfo.culturamad.navigation.AlternateNavigation
 import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems
@@ -67,7 +69,9 @@ fun ScaffoldedScreen(
         scaffoldState = scaffoldState,
         bottomBar = {
             if(!viewModel.state.isSplashScreenOnRender){// Waiting for splash screen to finish
+
                 AppBottomNavigation(
+                    viewModel = viewModel,
                     navController = navController,
                     menuItems = navItems,
                     navigationBarVisible = isNavigationBarVisible
@@ -88,6 +92,7 @@ fun ScaffoldedScreen(
 
 @Composable
 fun AppBottomNavigation(
+    viewModel: MainViewModel,
     navController: NavHostController,
     menuItems: List<MenuItems>,
     navigationBarVisible: Boolean
@@ -117,10 +122,22 @@ fun AppBottomNavigation(
                     icon = {
                         Icon(
                             imageVector = item.icon,
-                            contentDescription = item.title
+                            contentDescription =
+                            if(item.title == "Account"){
+                                if(viewModel.hasUser) stringResource(id = R.string.ui_me)
+                                else stringResource(id = R.string.ui_anonymous)
+                            }else item.title
                         )
                     },
-                    label = { Text(text = item.title) }
+                    label = {
+                        Text(
+                            text =
+                                if(item.title == "Account"){
+                                    if(viewModel.hasUser) stringResource(id = R.string.ui_me)
+                                    else stringResource(id = R.string.ui_anonymous)
+                                }else item.title
+                        )
+                    }
                 )
             }
         }

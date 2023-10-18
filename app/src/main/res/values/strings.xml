@@ -55,5 +55,7 @@
     <string name="ui_account_information_not_logged">Se ha accedido de forma anónima, puedes acceder con tu cuenta \u0020</string>
     <string name="ui_go_to_signup">Si no tienes una cuenta, puede crear una</string>
     <string name="ui_here">Aquí</string>
+    <string name="ui_anonymous">Anónimo</string>
+    <string name="ui_me">Yo</string>
     <string name="tip">Tip: haga un tap sobre la información de un marcador para ir a la publicación o un tap largo para compartir.</string>
 </resources>

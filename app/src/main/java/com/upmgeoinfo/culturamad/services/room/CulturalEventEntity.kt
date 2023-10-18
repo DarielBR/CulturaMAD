@@ -29,7 +29,7 @@ data class CulturalEventEntity(
     val host: String,
     val price: String,
     val link: String,
-    val favorite: Boolean,
-    val review: String,
-    val rate: Float
+//    val favorite: Boolean,
+//    val review: String,
+//    val rate: Float
 )

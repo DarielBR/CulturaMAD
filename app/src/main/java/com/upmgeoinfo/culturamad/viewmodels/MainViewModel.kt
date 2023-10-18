@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseUser
 import com.upmgeoinfo.culturamad.services.authentication.AuthenticationRepository
 import com.upmgeoinfo.culturamad.services.firestoredb.FirestoredbRepository
@@ -15,6 +16,7 @@ import com.upmgeoinfo.culturamad.services.room.CulturalEventRepository
 import com.upmgeoinfo.culturamad.viewmodels.main.model.MainState
 import com.upmgeoinfo.culturamad.services.json_parse.reposiroty.ApiEventsRepository
 import com.upmgeoinfo.culturamad.viewmodels.auth.model.LoginUiState
+import com.upmgeoinfo.culturamad.viewmodels.firestoredb.model.EventReview
 import kotlinx.coroutines.launch
 
 class MainViewModel(
@@ -46,6 +48,7 @@ class MainViewModel(
      * refreshes the state items to those with location
      */
     private fun refreshItems(){
+        //TODO: Modify this function to provide state with information fetched from dbFi
         viewModelScope.launch {
             state = state.copy(
                 items = culturalEventRepository.getCulturalEventsWithLocation().toMutableList()
@@ -66,35 +69,16 @@ class MainViewModel(
      * updates a cultural event information in the dbLo
      */
     private fun updateCulturalEvent(
-        culturalEvent: CulturalEvent,
-        favorite: Boolean,
-        review: String,
-        rate: Float
+        culturalEvent: CulturalEvent
     ){
         viewModelScope.launch{
             culturalEventRepository.updateCulturalEvent(
-                culturalEvent = culturalEvent,
-                favorite = favorite,
-                review = review,
-                rate = rate
+                culturalEvent = culturalEvent
             )
         }
     }
 
-    /**
-     * updates only the favorite state for a cultural event at the dbLo
-     */
-    fun changeBookmarkState(
-        culturalEvent: CulturalEvent,
-        favorite: Boolean
-    ){
-        viewModelScope.launch {
-            culturalEventRepository.updateCulturalEvent(
-                culturalEvent = culturalEvent,
-                favorite = favorite
-            )
-        }
-    }
+
 
     /**
      * provides state for the current selected item
@@ -173,11 +157,11 @@ class MainViewModel(
         }else{//an upsert is needed
             eventsListFromJsonFile.forEach {jsonItem ->
                 val dbItem = state.items.find { dbItem -> dbItem.id == jsonItem.id}
-                if (dbItem != null) updateCulturalEvent(
+                if (dbItem != null) updateCulturalEvent(//Update only in the dbLo
                     culturalEvent = jsonItem,
-                    favorite = dbItem.favorite,
-                    rate = dbItem.rate ?: 0.0f,
-                    review = dbItem.review
+//                    favorite = dbItem.favorite,
+//                    rate = dbItem.rate ?: 0.0f,
+//                    review = dbItem.review
                 )
                 else saveCulturalEvent(jsonItem)
             }
@@ -306,8 +290,65 @@ class MainViewModel(
     fun logOutUser() = viewModelScope.launch {
         authenticationRepository.logOut()
     }
-}
 
 /****************Authentication Block***************************/
 
 /****************Firestore Block********************************/
+    fun addReview(
+        culturalEvent: CulturalEvent,
+        review: String,
+        rate: Float,
+        favorite: Boolean
+    ) = viewModelScope.launch {
+        if (hasUser){
+            firestoredbRepository.addReview(
+                userID = loginUiState.currentUserMail,
+                eventID = culturalEvent.id.toString(),
+                review = review,
+                favorite = review.toString(),
+                rate = rate.toString()
+            )
+        }
+    }
+
+    /**
+     * TODO:    Create getEventReviews()
+     *          Create deleteEventReviews()
+     */
+
+    fun getUserEventReview(
+        userID: Int,
+        eventID: Int
+    ): EventReview {
+        var result = EventReview()
+
+        viewModelScope.launch {
+            result = firestoredbRepository.getReview(
+                userID = userID.toString(),
+                eventID = eventID.toString()
+            )
+        }
+        return result
+    }
+
+    /**
+     * updates only the favorite state for a cultural event at the dbFi
+     */
+    fun changeBookmarkState(
+        culturalEvent: CulturalEvent,
+        favorite: Boolean
+    ){
+        viewModelScope.launch {
+            /*culturalEventRepository.updateCulturalEvent(
+                culturalEvent = culturalEvent,
+                favorite = favorite
+            )*/
+            firestoredbRepository.updateBookmark(
+                userID = loginUiState.currentUserMail,
+                eventID = culturalEvent.id.toString(),
+                favorite = favorite
+            )
+        }
+    }
+}
+

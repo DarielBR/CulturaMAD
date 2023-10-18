@@ -32,9 +32,9 @@ class CulturalEventRepository(
                 host = it.host,
                 price = it.price,
                 link = it.link,
-                favorite = it.favorite,
-                rate = it.rate,
-                review = it.review
+//                favorite = it.favorite,
+//                rate = it.rate,
+//                review = it.review
             )
         }
     }
@@ -67,9 +67,9 @@ class CulturalEventRepository(
                 host = it.host,
                 price = it.price,
                 link = it.link,
-                favorite = it.favorite,
-                rate = it.rate,
-                review = it.review
+//                favorite = it.favorite,
+//                rate = it.rate,
+//                review = it.review
             )
         }
         return toReturn
@@ -100,17 +100,17 @@ class CulturalEventRepository(
             host = culturalEvent.host,
             price = culturalEvent.price,
             link = culturalEvent.link,
-            favorite = culturalEvent.favorite,
-            review = culturalEvent.review,
-            rate = culturalEvent.rate ?: 0.0f
+//            favorite = culturalEvent.favorite,
+//            review = culturalEvent.review,
+//            rate = culturalEvent.rate ?: 0.0f
         )
         culturalEventDao.insertCulturalEvent(entity)
     }
 
-    /**
+   /* *//**
      * updates the information related to user interaction of a cultural event stored at dbLo
      * override: only the favorite state
-     */
+     *//*
     suspend fun updateCulturalEvent(
         culturalEvent: CulturalEvent,
         favorite: Boolean
@@ -141,17 +141,16 @@ class CulturalEventRepository(
             review = culturalEvent.review
         )
         culturalEventDao.updateCulturalEvent(entity)
-    }
+    }*/
 
     /**
      * updates the information related to user interaction of a cultural event stored at dbLo
-     * override: all user interaction related information
      */
     suspend fun updateCulturalEvent(
         culturalEvent: CulturalEvent,
-        favorite: Boolean,
-        review: String,
-        rate: Float
+//        favorite: Boolean,
+//        review: String,
+//        rate: Float
     ){
         val entity = CulturalEventEntity(
             id = culturalEvent.id!!,
@@ -174,9 +173,9 @@ class CulturalEventRepository(
             host = culturalEvent.host,
             price = culturalEvent.price,
             link = culturalEvent.link,
-            favorite = favorite,
-            review = review,
-            rate = rate
+//            favorite = favorite,
+//            review = review,
+//            rate = rate
         )
         culturalEventDao.updateCulturalEvent(entity)
     }
@@ -207,9 +206,9 @@ class CulturalEventRepository(
             host = entity.host,
             price = entity.price,
             link = entity.link,
-            favorite = entity.favorite,
-            rate = entity.rate,
-            review = entity.review
+//            favorite = entity.favorite,
+//            rate = entity.rate,
+//            review = entity.review
         )
         return resultado
     }

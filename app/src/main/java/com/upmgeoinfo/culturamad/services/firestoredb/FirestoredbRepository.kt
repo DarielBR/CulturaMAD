@@ -10,9 +10,11 @@ import kotlinx.coroutines.withContext
  *
  * current structure:
  *
- *  userID_eventID ->   "review" = "", :String
+ *  userID_eventID ->   "user_id" = "" :String
+ *                      "event_id" = "" :String
+ *                      "review" = "", :String
  *                      "rate" = 0.0f, :String
- *                      "bookmark" = false :Boolean
+ *                      "favorite" = false :Boolean
  *
  */
 
@@ -67,7 +69,7 @@ class FirestoredbRepository {
      * that event, the list will be empty.
      * @throws  exception an exception if the operation fails.
      */
-    suspend fun getEventsReviews(
+    suspend fun getEventReviews(
         eventID: String
     ): List<EventReview> = withContext(Dispatchers.IO){
         val reviewsList: MutableList<EventReview> = emptyList<EventReview>().toMutableList()
@@ -137,7 +139,7 @@ class FirestoredbRepository {
     suspend fun updateBookmark(
         userID: String,
         eventID: String,
-        bookmark: Boolean
+        favorite: Boolean
     ) = withContext(Dispatchers.IO){
         val docName = userID + "_" + eventID
 
@@ -145,7 +147,7 @@ class FirestoredbRepository {
             .document(docName)
             .update(
                 mapOf(
-                    FAVORITE to bookmark
+                    FAVORITE to favorite
                 )
             )
     }
