@@ -2,10 +2,10 @@ package com.upmgeoinfo.culturamad.services.room
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.android.gms.maps.model.LatLng
-import java.sql.Date
-import java.sql.Time
 
+/**
+ * Data class as model to dbLo single table
+ */
 @Entity
 data class CulturalEventEntity(
     @PrimaryKey
@@ -29,6 +29,7 @@ data class CulturalEventEntity(
     val host: String,
     val price: String,
     val link: String,
-    val bookmark: Boolean,
-    val review: Int
+    val favorite: Boolean,
+    val review: String,
+    val rate: Float
 )

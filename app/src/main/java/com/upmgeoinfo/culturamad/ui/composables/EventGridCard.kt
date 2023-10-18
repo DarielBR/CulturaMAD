@@ -231,8 +231,9 @@ private var mockEvent = CulturalEvent(
     host = "Ayuntamiento de Madrid",
     price = "",
     link = "https://www.miradormadrid.com/placa-del-kilometro-cero/",
-    bookmark = false,
-    review = 0
+    favorite = false,
+    rate = 0.0f,
+    review = ""
 )
 
 @Preview(showBackground = true, showSystemUi = true, uiMode = Configuration.UI_MODE_NIGHT_YES)

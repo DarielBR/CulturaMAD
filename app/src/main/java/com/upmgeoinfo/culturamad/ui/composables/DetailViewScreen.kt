@@ -65,7 +65,7 @@ import com.upmgeoinfo.culturamad.services.json_parse.utils.ScheduleParser
 import com.upmgeoinfo.culturamad.ui.composables.prefab.CategoryTag
 import com.upmgeoinfo.culturamad.ui.composables.prefab.PriceTag
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
-import com.upmgeoinfo.culturamad.viewmodels.main.MainViewModel
+import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -348,8 +348,9 @@ private var mockEvent = CulturalEvent(
     host = "Ayuntamiento de Madrid",
     price = "",
     link = "https://www.miradormadrid.com/placa-del-kilometro-cero/",
-    bookmark = false,
-    review = 0
+    favorite = false,
+    rate = 0.0f,
+    review = ""
 )
 
 @Composable

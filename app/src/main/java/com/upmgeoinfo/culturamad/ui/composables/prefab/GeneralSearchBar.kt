@@ -1,7 +1,6 @@
 package com.upmgeoinfo.culturamad.ui.composables.prefab
 
 import android.content.res.Configuration
-import android.widget.Space
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,7 +25,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.upmgeoinfo.culturamad.viewmodels.main.MainViewModel
+import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 @OptIn(ExperimentalComposeUiApi::class)

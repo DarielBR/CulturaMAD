@@ -51,7 +51,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.model.LatLng
 import com.upmgeoinfo.culturamad.R
-import com.upmgeoinfo.culturamad.viewmodels.main.MainViewModel
+import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 import java.util.Calendar
 
@@ -480,7 +480,7 @@ fun EventCard(
                             when(item.name){
                                 "bookmark" -> {
                                     var favorite by remember { mutableStateOf(false) }
-                                    favorite = culturalEvent.bookmark
+                                    favorite = culturalEvent.favorite
                                     ActionButton(//Bookmark
                                         icon = if (favorite) R.drawable.cmad_bookmark_true
                                         else R.drawable.cmad_bookmark_false,
@@ -488,7 +488,7 @@ fun EventCard(
                                             favorite = !favorite
                                             viewModel.changeBookmarkState(culturalEvent, favorite)
                                             val index = viewModel.state.items.indexOfFirst { it.id == viewModel.state.currentItem.toInt() }
-                                            viewModel.state.items[index].bookmark = favorite
+                                            viewModel.state.items[index].favorite = favorite
                                         }
                                     )
                                 }

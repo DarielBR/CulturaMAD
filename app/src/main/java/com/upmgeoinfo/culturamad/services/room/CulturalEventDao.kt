@@ -25,7 +25,7 @@ interface CulturalEventDao {
     @Query("SELECT * FROM CulturalEventEntity WHERE id = :id")
     suspend fun getCulturalEventEntityById(id: Int): CulturalEventEntity
 
-    @Delete
-    suspend fun deleteCulturalEvent(culturalEvent: CulturalEventEntity)
+    @Query("DELETE FROM CulturalEventEntity WHERE id = :id")
+    suspend fun deleteCulturalEvent(id: Int)
 
 }

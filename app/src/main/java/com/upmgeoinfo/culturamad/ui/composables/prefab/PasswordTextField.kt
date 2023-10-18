@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,13 +28,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
-import com.upmgeoinfo.culturamad.viewmodels.auth.AuthenticationViewModel
+import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
 
 @Composable
 fun PasswordTextField(
-    authenticationViewModel: AuthenticationViewModel? = null
+    viewModel: MainViewModel? = null
+    //authenticationViewModel: AuthenticationViewModel? = null
 ){
-    val loginUiState = authenticationViewModel?.loginUiState
+    val loginUiState = viewModel?.loginUiState
     val isError = loginUiState?.loginError != null
     var visibility by remember { mutableStateOf(false) }
     val trailingIcon = 
@@ -47,7 +47,7 @@ fun PasswordTextField(
 
     OutlinedTextField(
         value = loginUiState?.password ?: "",
-        onValueChange = { authenticationViewModel?.onUserPasswordChange(it) },
+        onValueChange = { viewModel?.onUserPasswordChange(it) },
         modifier = Modifier
             .fillMaxWidth()
             .shadow(
@@ -84,9 +84,10 @@ fun PasswordTextField(
 
 @Composable
 fun PasswordSignupTextField(
-    authenticationViewModel: AuthenticationViewModel? = null
+    viewModel: MainViewModel? = null
+    //authenticationViewModel: AuthenticationViewModel? = null
 ){
-    val loginUiState = authenticationViewModel?.loginUiState
+    val loginUiState = viewModel?.loginUiState
     val isError = loginUiState?.signupError != null
     var visibility by remember { mutableStateOf(false) }
     val trailingIcon =
@@ -98,7 +99,7 @@ fun PasswordSignupTextField(
 
     OutlinedTextField(
         value = loginUiState?.passwordSignup ?: "",
-        onValueChange = { authenticationViewModel?.onPasswordSignupChange(it) },
+        onValueChange = { viewModel?.onPasswordSignupChange(it) },
         modifier = Modifier
             .fillMaxWidth()
             .shadow(
@@ -135,9 +136,10 @@ fun PasswordSignupTextField(
 
 @Composable
 fun ConfirmPasswordSignupTextField(
-    authenticationViewModel: AuthenticationViewModel? = null
+    viewModel: MainViewModel? = null
+    //authenticationViewModel: AuthenticationViewModel? = null
 ){
-    val loginUiState = authenticationViewModel?.loginUiState
+    val loginUiState = viewModel?.loginUiState
     val isError = loginUiState?.signupError != null
     var visibility by remember { mutableStateOf(false) }
     val trailingIcon =
@@ -149,7 +151,7 @@ fun ConfirmPasswordSignupTextField(
 
     OutlinedTextField(
         value = loginUiState?.confirmPasswordSignup ?: "",
-        onValueChange = { authenticationViewModel?.onConfirmPasswordSignupChange(it) },
+        onValueChange = { viewModel?.onConfirmPasswordSignupChange(it) },
         modifier = Modifier
             .fillMaxWidth()
             .shadow(

@@ -10,7 +10,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -29,16 +28,14 @@ import com.google.accompanist.permissions.shouldShowRationale
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.upmgeoinfo.culturamad.services.authentication.AuthenticationRepository
-import com.upmgeoinfo.culturamad.viewmodels.main.MainViewModel
+import com.upmgeoinfo.culturamad.services.firestoredb.FirestoredbRepository
+import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
 import com.upmgeoinfo.culturamad.services.room.CulturalEventDatabase
 import com.upmgeoinfo.culturamad.services.room.CulturalEventRepository
 import com.upmgeoinfo.culturamad.services.json_parse.reposiroty.ApiEventsRepository
-import com.upmgeoinfo.culturamad.ui.composables.ClusterMapScreen
 import com.upmgeoinfo.culturamad.ui.composables.ScaffoldedScreen
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
-import com.upmgeoinfo.culturamad.viewmodels.auth.AuthenticationViewModel
 
 class MainActivity : ComponentActivity() {
     private lateinit var fuseLocationClient: FusedLocationProviderClient
@@ -63,17 +60,20 @@ class MainActivity : ComponentActivity() {
         val database = Room.databaseBuilder(this, CulturalEventDatabase::class.java, "culturalEvents_db").build()
         val dao = database.dao
         val culturalEventRepository = CulturalEventRepository(dao)
-
         val apiEventsRepository = ApiEventsRepository()
         val authenticationRepository = AuthenticationRepository()
+        val firestoredbRepository = FirestoredbRepository()
         /**
          * Creating the ViewModel and the authenticationViewModel
          */
         val viewModel= MainViewModel(
-            culturalEventRepository,
-            apiEventsRepository
+            apiEventsRepository = apiEventsRepository,
+            culturalEventRepository = culturalEventRepository,
+            firestoredbRepository = firestoredbRepository,
+            authenticationRepository = authenticationRepository
         )
-        val authenticationViewModel = AuthenticationViewModel(authenticationRepository)
+        //TODO: comment this line when AuthenticationViewModel has been merged with MainViewModel
+        //val authenticationViewModel = AuthenticationViewModel(authenticationRepository)
         /**
          * Firebase analytics
          * this is for testing purposes only, may be disposed in the future.
@@ -99,7 +99,8 @@ class MainActivity : ComponentActivity() {
                 ScaffoldedScreen(
                     fusedLocationClient = fuseLocationClient,
                     viewModel = viewModel,
-                    authenticationViewModel = authenticationViewModel
+                    //TODO: comment this line when AuthenticationViewModel has been merged with MainViewModel
+                    //authenticationViewModel = authenticationViewModel
                 )
             }
         }
@@ -260,6 +261,7 @@ private val categoriesData = listOf(
 /**
  * Will be called from the onCreate function. Works with NavController
  */
+/*
 @ExperimentalMaterial3Api
 @OptIn(ExperimentalPermissionsApi::class)
 @MapsComposeExperimentalApi
@@ -274,4 +276,4 @@ fun MainScreen(fuseLocationClient: FusedLocationProviderClient, viewModel: MainV
             viewModel = viewModel
         )
     }
-}
+}*/

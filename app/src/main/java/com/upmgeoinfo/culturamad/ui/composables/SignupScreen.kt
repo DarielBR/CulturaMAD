@@ -30,15 +30,16 @@ import com.upmgeoinfo.culturamad.ui.composables.prefab.NavBackButton
 import com.upmgeoinfo.culturamad.ui.composables.prefab.PasswordSignupTextField
 import com.upmgeoinfo.culturamad.ui.composables.prefab.UserNameSignupTextField
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
-import com.upmgeoinfo.culturamad.viewmodels.auth.AuthenticationViewModel
+import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
 
 @Composable
 fun SignupScreen(
-    authenticationViewModel: AuthenticationViewModel? = null,
+    viewModel: MainViewModel? = null,
+    //authenticationViewModel: AuthenticationViewModel? = null,
     onNavToLoginScreen: () -> Unit,
     onNavBack: () -> Unit
 ){
-    val loginUiState = authenticationViewModel?.loginUiState
+    val loginUiState = viewModel?.loginUiState
     val isError = loginUiState?.signupError != null
     val context = LocalContext.current
     Surface(
@@ -82,15 +83,15 @@ fun SignupScreen(
                             color = Color.Red
                         )
                     }
-                    UserNameSignupTextField(authenticationViewModel)
+                    UserNameSignupTextField(viewModel = viewModel)
                     Spacer(modifier = Modifier.height(8.dp))
-                    PasswordSignupTextField(authenticationViewModel)
+                    PasswordSignupTextField(viewModel = viewModel)
                     Spacer(modifier = Modifier.height(8.dp))
-                    ConfirmPasswordSignupTextField(authenticationViewModel)
+                    ConfirmPasswordSignupTextField(viewModel = viewModel)
                     Spacer(modifier = Modifier.height(24.dp))
                     Button(
                         onClick = {
-                            authenticationViewModel?.createUser(context){success ->
+                            viewModel?.createUser(context){success ->
                                 if (success) {
                                     onNavBack.invoke()
                                 }

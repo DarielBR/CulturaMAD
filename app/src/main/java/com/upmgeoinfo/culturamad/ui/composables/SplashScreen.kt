@@ -25,7 +25,7 @@ import androidx.navigation.NavHostController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.navigation.AppScreens
-import com.upmgeoinfo.culturamad.viewmodels.main.MainViewModel
+import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
 import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems
 import kotlinx.coroutines.launch
 

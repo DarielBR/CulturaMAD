@@ -18,18 +18,19 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
-import com.upmgeoinfo.culturamad.viewmodels.auth.AuthenticationViewModel
+import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
 
 @Composable
 fun UserNameTextField(
-    authenticationViewModel: AuthenticationViewModel? = null
+    viewModel: MainViewModel? = null
+    //authenticationViewModel: AuthenticationViewModel? = null
 ){
-    val loginUiState = authenticationViewModel?.loginUiState
+    val loginUiState = viewModel?.loginUiState
     val isError = loginUiState?.loginError != null
 
     OutlinedTextField(
         value = loginUiState?.userName ?: "",
-        onValueChange = { authenticationViewModel?.onUserNameChange(it) },
+        onValueChange = { viewModel?.onUserNameChange(it) },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Outlined.AccountCircle,
@@ -66,14 +67,15 @@ fun UserNameTextField(
 
 @Composable
 fun UserNameSignupTextField(
-    authenticationViewModel: AuthenticationViewModel? = null
+    viewModel: MainViewModel? = null
+    //authenticationViewModel: AuthenticationViewModel? = null
 ){
-    val loginUiState = authenticationViewModel?.loginUiState
+    val loginUiState = viewModel?.loginUiState
     val isError = loginUiState?.signupError != null
 
     OutlinedTextField(
-        value = authenticationViewModel?.loginUiState?.userNameSignup ?: "",
-        onValueChange = { authenticationViewModel?.onUserNameSignupChange(it) },
+        value = viewModel?.loginUiState?.userNameSignup ?: "",
+        onValueChange = { viewModel?.onUserNameSignupChange(it) },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Outlined.AccountCircle,

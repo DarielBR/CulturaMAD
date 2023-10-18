@@ -7,15 +7,56 @@ import kotlinx.coroutines.withContext
 
 /**
  * Just in case changes in Firestore collection are necessary in later states of development.
+ *
+ * current structure:
+ *
+ *  userID_eventID ->   "review" = "", :String
+ *                      "rate" = 0.0f, :String
+ *                      "bookmark" = false :Boolean
+ *
  */
+
 const val COLLECTION_NAME = "event_reviews"
 const val USERID_FIELD = "user_id"
 const val EVENTID_FIELD = "event_id"
 const val REVIEW = "review"
 const val RATE = "rate"
-const val BOOKMARK = "bookmark"
+const val FAVORITE = "favorite"
+
 class FirestoredbRepository {
     val firestoreInstance = FirebaseFirestore.getInstance()
+
+    /**
+     * creates a new document entry into the collection using as name, the user id and the event is.
+     * If the operation fails, throws the risen exception.
+     *
+     * @param userID a string with the user id
+     * @param eventID a string with the event id
+     *
+     *@throws exception if the operation fails.
+     */
+    suspend fun addReview(
+        userID: String,
+        eventID: String,
+        review: String,
+        rate: String,
+        favorite: String
+    ) = withContext(Dispatchers.IO){
+        val docName = userID + "_" + eventID
+        val data = hashMapOf(
+            USERID_FIELD to userID,
+            EVENTID_FIELD to eventID,
+            REVIEW to review,
+            RATE to rate,
+            FAVORITE to favorite
+        )
+
+        firestoreInstance.collection(COLLECTION_NAME)
+            .document(docName).set(data)
+            .addOnFailureListener { exception ->
+                throw exception
+            }
+    }
 
     /**
      * gets all review for a given event. If the operation is successful returns a list (may be empty
@@ -30,9 +71,9 @@ class FirestoredbRepository {
         eventID: String
     ): List<EventReview> = withContext(Dispatchers.IO){
         val reviewsList: MutableList<EventReview> = emptyList<EventReview>().toMutableList()
-
+        val paramSearch = "_" + eventID
         firestoreInstance.collection(COLLECTION_NAME)
-            .whereEqualTo(EVENTID_FIELD, eventID)
+            .whereArrayContains(EVENTID_FIELD, eventID)
             .get()
             .addOnSuccessListener { documents ->
                 if(!documents.isEmpty){
@@ -42,7 +83,7 @@ class FirestoredbRepository {
                             eventID = document.get(EVENTID_FIELD).toString(),
                             review = document.get(REVIEW).toString(),
                             rate = document.get(RATE).toString().toFloat(),
-                            bookmark = document.get(BOOKMARK).toString().toBoolean()
+                            bookmark = document.get(FAVORITE).toString().toBoolean()
                         )
                         reviewsList.add(eventReview)
                     }
@@ -82,7 +123,7 @@ class FirestoredbRepository {
                         eventID = result.documents[0].get(EVENTID_FIELD).toString(),
                         review = result.documents[0].get(REVIEW).toString(),
                         rate = result.documents[0].get(RATE).toString().toFloat(),
-                        bookmark = result.documents[0].get(BOOKMARK).toString().toBoolean(),
+                        bookmark = result.documents[0].get(FAVORITE).toString().toBoolean(),
                     )
                 }
             }
@@ -93,27 +134,19 @@ class FirestoredbRepository {
         return@withContext eventReview
     }
 
-    /**
-     * creates a new entry into the collection. If the operation fails, throws the risen exception.
-     */
-    suspend fun setReview(
+    suspend fun updateBookmark(
         userID: String,
         eventID: String,
-        review: String,
-        rate: String,
-        bookmark: String
+        bookmark: Boolean
     ) = withContext(Dispatchers.IO){
-        val data = hashMapOf(
-            USERID_FIELD to userID,
-            EVENTID_FIELD to eventID,
-            REVIEW to review,
-            RATE to rate,
-            BOOKMARK to bookmark
-        )
+        val docName = userID + "_" + eventID
+
         firestoreInstance.collection(COLLECTION_NAME)
-            .document().set(data)
-            .addOnFailureListener { exception ->
-                throw exception
-            }
+            .document(docName)
+            .update(
+                mapOf(
+                    FAVORITE to bookmark
+                )
+            )
     }
 }

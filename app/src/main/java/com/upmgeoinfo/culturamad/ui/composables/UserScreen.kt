@@ -27,17 +27,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
-import com.upmgeoinfo.culturamad.viewmodels.auth.AuthenticationViewModel
+import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
 
 @Composable
 fun UserScreen(
-    authenticationViewModel: AuthenticationViewModel? = null,
+    viewModel: MainViewModel? = null,
+    //authenticationViewModel: AuthenticationViewModel? = null,
     onNavToLoginScreen: () -> Unit,
     onNavToSignupScreen: () -> Unit
 ){
-    val loginUiState = authenticationViewModel?.loginUiState
+    val loginUiState = viewModel?.loginUiState
     //val currentUserMail = authenticationViewModel?.currentUser?.email ?: ""
-    val hasUser = authenticationViewModel?.hasUser ?: false
+    val hasUser = viewModel?.hasUser ?: false
 
 
     Surface(
@@ -55,7 +56,7 @@ fun UserScreen(
         ) {
             Spacer(modifier = Modifier.height(45.dp))
             if(hasUser){
-                authenticationViewModel?.refreshCurrentUserMail()
+                viewModel?.refreshCurrentUserMail()
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -93,9 +94,9 @@ fun UserScreen(
                         )
                         Button(
                             onClick = {
-                                authenticationViewModel?.clearStateValues()
-                                authenticationViewModel?.resetErrors()
-                                authenticationViewModel?.logOutUser()
+                                viewModel?.clearStateValues()
+                                viewModel?.resetErrors()
+                                viewModel?.logOutUser()
                                 onNavToLoginScreen.invoke()
                             },
                             colors = ButtonDefaults.buttonColors(
@@ -126,8 +127,8 @@ fun UserScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(
                         onClick = {
-                            authenticationViewModel?.clearStateValues()
-                            authenticationViewModel?.resetErrors()
+                            viewModel?.clearStateValues()
+                            viewModel?.resetErrors()
                             onNavToLoginScreen.invoke()
                         },
                         shape = MaterialTheme.shapes.medium,
@@ -153,8 +154,8 @@ fun UserScreen(
                         )
                         Button(
                             onClick = {
-                                authenticationViewModel?.clearStateValues()
-                                authenticationViewModel?.resetErrors()
+                                viewModel?.clearStateValues()
+                                viewModel?.resetErrors()
                                 onNavToSignupScreen.invoke()
                             },
                             colors = ButtonDefaults.buttonColors(

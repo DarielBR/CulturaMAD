@@ -168,8 +168,8 @@ object MarkerData {
             else it.organization.organizationName,
             price = it.price,
             link = it.link,
-            bookmark = false,
-            review = 0
+            favorite = false,
+            rate = 0.0f
         )
     }
 }

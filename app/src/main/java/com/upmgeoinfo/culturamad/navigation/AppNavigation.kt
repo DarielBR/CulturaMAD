@@ -8,7 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.maps.android.compose.MapsComposeExperimentalApi
-import com.upmgeoinfo.culturamad.viewmodels.main.MainViewModel
+import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
 import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems
 import com.upmgeoinfo.culturamad.ui.composables.ClusterMapScreen
 import com.upmgeoinfo.culturamad.ui.composables.DetailViewScreen
@@ -17,7 +17,6 @@ import com.upmgeoinfo.culturamad.ui.composables.OverviewScreen
 import com.upmgeoinfo.culturamad.ui.composables.SignupScreen
 import com.upmgeoinfo.culturamad.ui.composables.SplashScreen
 import com.upmgeoinfo.culturamad.ui.composables.UserScreen
-import com.upmgeoinfo.culturamad.viewmodels.auth.AuthenticationViewModel
 
 /**
  * (Alternatively using a navigation bottom bar)Handles the navigation within the application. Will show at first the Splash Screen followed by
@@ -30,7 +29,7 @@ fun AlternateNavigation(
     navController: NavHostController,
     fusedLocationClient: FusedLocationProviderClient,
     viewModel: MainViewModel,
-    authenticationViewModel: AuthenticationViewModel
+    //authenticationViewModel: AuthenticationViewModel
 ){
     NavHost(
         navController = navController,
@@ -55,7 +54,8 @@ fun AlternateNavigation(
         }
         composable(MenuItems.UserScreen.route){
             UserScreen(
-                authenticationViewModel = authenticationViewModel,
+                viewModel = viewModel,
+                //authenticationViewModel = authenticationViewModel,
                 onNavToSignupScreen = {
                     navController.navigate(AppScreens.SignupScreen.route){}
                 },
@@ -74,7 +74,8 @@ fun AlternateNavigation(
         }
         composable(AppScreens.LoginScreen.route){
             LoginScreen(
-                authenticationViewModel = authenticationViewModel ,
+                viewModel = viewModel,
+                //authenticationViewModel = authenticationViewModel ,
                 onNavToSignupScreen = {
                     navController.navigate(AppScreens.SignupScreen.route){
                         popUpTo(AppScreens.LoginScreen.route){inclusive = true}
@@ -87,7 +88,8 @@ fun AlternateNavigation(
         }
         composable(AppScreens.SignupScreen.route){
             SignupScreen(
-                authenticationViewModel = authenticationViewModel,
+                viewModel = viewModel,
+                //authenticationViewModel = authenticationViewModel,
                 onNavToLoginScreen = {
                     navController.navigate(AppScreens.LoginScreen.route){
                         popUpTo(AppScreens.SignupScreen.route){inclusive = true}

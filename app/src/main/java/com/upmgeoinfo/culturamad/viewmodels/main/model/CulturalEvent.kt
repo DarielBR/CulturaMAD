@@ -25,6 +25,7 @@ data class CulturalEvent(
     val host: String = "",
     val price: String = "",
     val link: String = "",
-    var bookmark: Boolean = false,
-    var review: Int? = null
+    var favorite: Boolean = false,
+    var rate: Float? = 0.0f,
+    var review: String = ""
 )

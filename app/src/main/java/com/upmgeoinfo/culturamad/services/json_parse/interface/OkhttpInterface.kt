@@ -9,6 +9,10 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
+/**
+ * This Interface is not in use in the current state of the project.
+ * DEPRECATED
+ */
 suspend fun getJsonStringFromUri(uri: String): String = withContext(Dispatchers.IO){
     try{
         val client = OkHttpClient()
@@ -95,8 +99,8 @@ object JsonFile {
             host = it.organization?.organizationName ?: "",
             price = it.price ?: "",
             link = it.link ?: "",
-            bookmark = false,
-            review = 0
+            favorite = false,
+            rate = 0.0f
         )
     }
 }

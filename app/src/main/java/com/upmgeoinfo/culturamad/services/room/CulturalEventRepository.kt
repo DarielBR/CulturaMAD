@@ -5,6 +5,9 @@ import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 class CulturalEventRepository(
     private val culturalEventDao: CulturalEventDao
 ) {
+    /**
+     * transforms the information contained in dbLo to a list of CulturalEvents
+     */
     suspend fun getCulturalEvents(): List<CulturalEvent>{
         val entities = culturalEventDao.getCulturalEvents()
         return entities.map{
@@ -29,12 +32,17 @@ class CulturalEventRepository(
                 host = it.host,
                 price = it.price,
                 link = it.link,
-                bookmark = it.bookmark,
+                favorite = it.favorite,
+                rate = it.rate,
                 review = it.review
             )
         }
     }
 
+    /**
+     * transforms the information contained in dbLo to a list of CulturalEvents,
+     * but only those with location.
+     */
     suspend fun getCulturalEventsWithLocation(): List<CulturalEvent>{
         val entities = culturalEventDao.getCulturalEventsWithLocation()
         val toReturn = entities.map{
@@ -59,13 +67,17 @@ class CulturalEventRepository(
                 host = it.host,
                 price = it.price,
                 link = it.link,
-                bookmark = it.bookmark,
+                favorite = it.favorite,
+                rate = it.rate,
                 review = it.review
             )
         }
         return toReturn
     }
 
+    /**
+     * inserts a new cultural event into the dbLo
+     */
     suspend fun insertCulturalEvent(culturalEvent: CulturalEvent){
         val entity = CulturalEventEntity(
             id = culturalEvent.id!!,
@@ -79,7 +91,7 @@ class CulturalEventRepository(
             neighborhood = culturalEvent.neighborhood,
             days = culturalEvent.days,
             frequency = culturalEvent.frequency,
-            interval = culturalEvent.interval!!,
+            interval = culturalEvent.interval ?: 0,
             dateStart = culturalEvent.dateStart,
             dateEnd = culturalEvent.dateEnd,
             hours = culturalEvent.hours,
@@ -88,13 +100,21 @@ class CulturalEventRepository(
             host = culturalEvent.host,
             price = culturalEvent.price,
             link = culturalEvent.link,
-            bookmark = false,
-            review = 0
+            favorite = culturalEvent.favorite,
+            review = culturalEvent.review,
+            rate = culturalEvent.rate ?: 0.0f
         )
         culturalEventDao.insertCulturalEvent(entity)
     }
 
-    suspend fun updateCulturalEvent(culturalEvent: CulturalEvent, bookmark: Boolean){
+    /**
+     * updates the information related to user interaction of a cultural event stored at dbLo
+     * override: only the favorite state
+     */
+    suspend fun updateCulturalEvent(
+        culturalEvent: CulturalEvent,
+        favorite: Boolean
+    ){
         val entity = CulturalEventEntity(
             id = culturalEvent.id!!,
             category = culturalEvent.category,
@@ -116,13 +136,23 @@ class CulturalEventRepository(
             host = culturalEvent.host,
             price = culturalEvent.price,
             link = culturalEvent.link,
-            bookmark = bookmark,
-            review = culturalEvent.review!!
+            favorite = favorite,
+            rate = culturalEvent.rate ?: 0.0f,
+            review = culturalEvent.review
         )
         culturalEventDao.updateCulturalEvent(entity)
     }
 
-    suspend fun updateCulturalEvent(culturalEvent: CulturalEvent, bookmark: Boolean, review: Int){
+    /**
+     * updates the information related to user interaction of a cultural event stored at dbLo
+     * override: all user interaction related information
+     */
+    suspend fun updateCulturalEvent(
+        culturalEvent: CulturalEvent,
+        favorite: Boolean,
+        review: String,
+        rate: Float
+    ){
         val entity = CulturalEventEntity(
             id = culturalEvent.id!!,
             category = culturalEvent.category,
@@ -144,12 +174,16 @@ class CulturalEventRepository(
             host = culturalEvent.host,
             price = culturalEvent.price,
             link = culturalEvent.link,
-            bookmark = bookmark,
-            review = review
+            favorite = favorite,
+            review = review,
+            rate = rate
         )
         culturalEventDao.updateCulturalEvent(entity)
     }
 
+    /**
+     * search an item at the dbLo by its id and return it transformed into a CulturalEvent
+     */
     suspend fun getCulturalEventEntityById(id: Int): CulturalEvent {
         val entity = culturalEventDao.getCulturalEventEntityById(id)
         val resultado =  CulturalEvent(
@@ -173,37 +207,17 @@ class CulturalEventRepository(
             host = entity.host,
             price = entity.price,
             link = entity.link,
-            bookmark = entity.bookmark,
+            favorite = entity.favorite,
+            rate = entity.rate,
             review = entity.review
         )
         return resultado
     }
 
-    suspend fun deleteCulturalEvent(culturalEvent: CulturalEvent){
-        val entity = CulturalEventEntity(
-            id = culturalEvent.id!!,
-            category = culturalEvent.category,
-            title = culturalEvent.title,
-            description = culturalEvent.description,
-            latitude = culturalEvent.latitude,
-            longitude = culturalEvent.longitude,
-            address = culturalEvent.address,
-            district = culturalEvent.district,
-            neighborhood = culturalEvent.neighborhood,
-            days = culturalEvent.days,
-            frequency = culturalEvent.frequency,
-            interval = culturalEvent.interval!!,
-            dateStart = culturalEvent.dateStart,
-            dateEnd = culturalEvent.dateEnd,
-            hours = culturalEvent.hours,
-            excludedDays = culturalEvent.excludedDays,
-            place = culturalEvent.place,
-            host = culturalEvent.host,
-            price = culturalEvent.price,
-            link = culturalEvent.link,
-            bookmark = culturalEvent.bookmark,
-            review = culturalEvent.review!!
-        )
-        culturalEventDao.deleteCulturalEvent(entity)
+    /**
+     * deletes a cultural event from the dbLo
+     */
+    suspend fun deleteCulturalEvent(eventID: Int){
+        culturalEventDao.deleteCulturalEvent(id = eventID)
     }
 }

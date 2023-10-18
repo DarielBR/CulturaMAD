@@ -26,11 +26,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.upmgeoinfo.culturamad.viewmodels.main.MainViewModel
+import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
 import com.upmgeoinfo.culturamad.navigation.AlternateNavigation
 import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems
 import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems.*
-import com.upmgeoinfo.culturamad.viewmodels.auth.AuthenticationViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -38,7 +37,7 @@ import com.upmgeoinfo.culturamad.viewmodels.auth.AuthenticationViewModel
 fun ScaffoldedScreen(
     fusedLocationClient: FusedLocationProviderClient,
     viewModel: MainViewModel,
-    authenticationViewModel: AuthenticationViewModel
+    //authenticationViewModel: AuthenticationViewModel
 ){
     val navController = rememberNavController()//this is the app navHostController
     val scaffoldState = rememberScaffoldState()
@@ -82,7 +81,7 @@ fun ScaffoldedScreen(
             navController = navController,
             fusedLocationClient = fusedLocationClient,
             viewModel = viewModel,
-            authenticationViewModel = authenticationViewModel
+            //authenticationViewModel = authenticationViewModel
         )
     }
 }
