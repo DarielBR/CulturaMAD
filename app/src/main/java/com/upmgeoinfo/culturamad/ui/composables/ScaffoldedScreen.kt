@@ -69,7 +69,6 @@ fun ScaffoldedScreen(
         scaffoldState = scaffoldState,
         bottomBar = {
             if(!viewModel.state.isSplashScreenOnRender){// Waiting for splash screen to finish
-
                 AppBottomNavigation(
                     viewModel = viewModel,
                     navController = navController,

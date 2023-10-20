@@ -12,6 +12,7 @@ import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
 import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems
 import com.upmgeoinfo.culturamad.ui.composables.ClusterMapScreen
 import com.upmgeoinfo.culturamad.ui.composables.DetailViewScreen
+import com.upmgeoinfo.culturamad.ui.composables.ErrorScreen
 import com.upmgeoinfo.culturamad.ui.composables.LoginScreen
 import com.upmgeoinfo.culturamad.ui.composables.OverviewScreen
 import com.upmgeoinfo.culturamad.ui.composables.SignupScreen
@@ -37,6 +38,12 @@ fun AlternateNavigation(
     ){//this is the builder parameter
         composable(AppScreens.SplashScreen.route){
             SplashScreen(
+                navController = navController,
+                viewModel = viewModel
+            )
+        }
+        composable(AppScreens.ErrorScreen.route){
+            ErrorScreen(
                 navController = navController,
                 viewModel = viewModel
             )

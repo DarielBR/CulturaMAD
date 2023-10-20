@@ -486,7 +486,7 @@ fun EventCard(
                                         else R.drawable.cmad_bookmark_false,
                                         onClick = {
                                             favorite = !favorite
-                                            viewModel.changeBookmarkState(culturalEvent, favorite)
+                                            viewModel.changeFavoriteState(culturalEvent, favorite)
                                             val index = viewModel.state.items.indexOfFirst { it.id == viewModel.state.currentItem.toInt() }
                                             viewModel.state.items[index].favorite = favorite
                                         }

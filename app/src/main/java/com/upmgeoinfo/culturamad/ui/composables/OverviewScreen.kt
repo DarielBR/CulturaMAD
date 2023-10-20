@@ -41,6 +41,7 @@ import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 fun OverviewScreen(
     viewModel: MainViewModel? = null
 ){
+    viewModel?.changeSplashScreenState(false)
     Surface(
         color = MaterialTheme.colorScheme.surface,
         modifier = Modifier

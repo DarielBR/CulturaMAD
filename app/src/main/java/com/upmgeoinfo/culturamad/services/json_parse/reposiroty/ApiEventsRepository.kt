@@ -1,5 +1,7 @@
 package com.upmgeoinfo.culturamad.services.json_parse.reposiroty
 
+import android.util.Log
+import androidx.compose.animation.core.animateFloatAsState
 import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 import com.upmgeoinfo.culturamad.services.json_parse.`interface`.ApiService
 import kotlinx.coroutines.Dispatchers
@@ -8,7 +10,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class ApiEventsRepository(){
-    suspend fun parseJasonFile(): List<CulturalEvent> = withContext(Dispatchers.IO){
+    suspend fun parseJasonFile(
+        onSuccess: (Boolean) -> Unit
+    ): List<CulturalEvent> = withContext(Dispatchers.IO){
         val culturalEventList = emptyList<CulturalEvent>().toMutableList()
         val retrofit = Retrofit.Builder()
             .baseUrl("https://datos.madrid.es/egob/catalogo/")
@@ -51,8 +55,11 @@ class ApiEventsRepository(){
                         )
                     )
                 }
+                onSuccess.invoke(true)
             }else{
-                throw Exception("Error while parsing Json file -> " + response.code().toString())
+                onSuccess.invoke(false)
+                //Log.e("Parsing", response.code().toString())
+                //throw Exception("Error while parsing Json file -> " + response.code().toString())
             }
         }
         return@withContext culturalEventList.toList()

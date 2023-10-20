@@ -5,5 +5,5 @@ data class EventReview(
     val userID: String = "",
     val review: String = "",
     val rate: Float = 0.0f,
-    val bookmark: Boolean = false
+    val favorite: Boolean = false
 )

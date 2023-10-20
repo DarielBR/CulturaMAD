@@ -7,4 +7,5 @@ sealed class AppScreens (val route: String){
     object AdvancedFilterScreen: AppScreens("advanced_filter_screen")
     object LoginScreen: AppScreens("login_screen")
     object SignupScreen: AppScreens("signup_screen")
+    object ErrorScreen: AppScreens("error_screen")
 }

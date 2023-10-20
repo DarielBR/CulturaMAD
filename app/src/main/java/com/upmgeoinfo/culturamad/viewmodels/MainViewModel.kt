@@ -7,7 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseUser
 import com.upmgeoinfo.culturamad.services.authentication.AuthenticationRepository
 import com.upmgeoinfo.culturamad.services.firestoredb.FirestoredbRepository
@@ -41,6 +40,7 @@ class MainViewModel(
             state = state.copy(
                 items = culturalEventRepository.getCulturalEventsWithLocation().toMutableList()
             )
+            refreshCurrentUserMail()
         }
     }
 
@@ -77,8 +77,6 @@ class MainViewModel(
             )
         }
     }
-
-
 
     /**
      * provides state for the current selected item
@@ -146,31 +144,51 @@ class MainViewModel(
      * Fetches the list of Events from the URI resource and makes an upsert into the app local database.
      * While doing this, updates the review and favorites information stores at dbFi.
      */
-    fun fetchCulturalEventsFormJsonFile() = viewModelScope.launch{
-        //TODO: Get the userID information from the state: MainState
-        //      Update the information stored at dbFi
+    fun setupEventsData(
+        onSuccess: (Boolean) -> Unit
+    ) = viewModelScope.launch{
 
+        //Fetching data from API End Point
+        var connectionSuccessful = false
         val eventsListFromJsonFile = apiEventsRepository.parseJasonFile()
-
-        if (state.items.isEmpty()){//There are no entries at the dbLo
-            eventsListFromJsonFile.forEach { jsonEntry -> saveCulturalEvent(jsonEntry) }
-        }else{//an upsert is needed
-            eventsListFromJsonFile.forEach {jsonItem ->
-                val dbItem = state.items.find { dbItem -> dbItem.id == jsonItem.id}
-                if (dbItem != null) updateCulturalEvent(//Update only in the dbLo
-                    culturalEvent = jsonItem,
-//                    favorite = dbItem.favorite,
-//                    rate = dbItem.rate ?: 0.0f,
-//                    review = dbItem.review
-                )
-                else saveCulturalEvent(jsonItem)
+            {isSuccessful -> connectionSuccessful = isSuccessful}
+        if (connectionSuccessful){//Load data into dbLo
+            if (state.items.isEmpty()){//There are no entries at the dbLo
+                eventsListFromJsonFile.forEach { jsonEntry -> saveCulturalEvent(jsonEntry) }
+            }else{//There are entries ar dbLo so, and upsert is required
+                eventsListFromJsonFile.forEach {jsonItem -> //first we update with the API data
+                    val dbItem = state.items.find { dbItem -> dbItem.id == jsonItem.id}
+                    if (dbItem != null) updateCulturalEvent(//Update only in the dbLo
+                        culturalEvent = jsonItem,
+                    )else saveCulturalEvent(jsonItem)
+                }
+                state.items.forEach {dbItem -> //then eliminate old entries from dbLo
+                    val jsonItem = eventsListFromJsonFile.find { jsonItem -> jsonItem.id == dbItem.id }
+                    if (jsonItem == null) deleteCulturalEvent(dbItem.id ?: 0)
+                }
             }
-            state.items.forEach {dbItem ->
-                val jsonItem = eventsListFromJsonFile.find { jsonItem -> jsonItem.id == dbItem.id }
-                if (jsonItem == null) deleteCulturalEvent(dbItem.id ?: 0)
+            //with the dbLo updated we must provide state
+            refreshItems()
+            //now we must load data from dbFi
+            if (hasUser) {
+                //TODO: Get the userID information from the state: MainState
+                //      Update the information stored at dbFi
+                loadUserEventsReviews()
+            }
+            onSuccess.invoke(true)
+        }else{//not a successful connection
+            if (state.items.isEmpty()){//there is no data to work with
+                onSuccess.invoke(false)
+            }else {
+                refreshItems()//use the dbLo data
+                if (hasUser){
+                    //TODO: Get the userID information from the state: MainState
+                    //      Update the information stored at dbFi
+                    loadUserEventsReviews()
+                }
+                onSuccess.invoke(true)
             }
         }
-        refreshItems()
     }
 
 /****************API consumption Block**************************/
@@ -317,24 +335,38 @@ class MainViewModel(
      */
 
     fun getUserEventReview(
-        userID: Int,
+        userID: String,
         eventID: Int
     ): EventReview {
         var result = EventReview()
 
         viewModelScope.launch {
             result = firestoredbRepository.getReview(
-                userID = userID.toString(),
+                userID = userID,
                 eventID = eventID.toString()
             )
         }
         return result
     }
 
+    fun loadUserEventsReviews(){
+        if (hasUser){
+            state.items.forEach { stateEvent ->
+                val eventReview = getUserEventReview(
+                    userID = loginUiState.currentUserMail,
+                    eventID = stateEvent.id ?: 0
+                )
+                stateEvent.review = eventReview.review
+                stateEvent.favorite = eventReview.favorite
+                stateEvent.rate = eventReview.rate
+            }
+        }
+    }
+
     /**
      * updates only the favorite state for a cultural event at the dbFi
      */
-    fun changeBookmarkState(
+    fun changeFavoriteState(
         culturalEvent: CulturalEvent,
         favorite: Boolean
     ){
@@ -343,11 +375,16 @@ class MainViewModel(
                 culturalEvent = culturalEvent,
                 favorite = favorite
             )*/
-            firestoredbRepository.updateBookmark(
+            firestoredbRepository.updateFavorite(
                 userID = loginUiState.currentUserMail,
                 eventID = culturalEvent.id.toString(),
                 favorite = favorite
-            )
+            ){isSuccessful ->
+                if (isSuccessful){//provide state
+                    val index = state.items.indexOfFirst { it.id == state.currentItem.toInt() }
+                    state.items[index].favorite = favorite
+                }
+            }
         }
     }
 }

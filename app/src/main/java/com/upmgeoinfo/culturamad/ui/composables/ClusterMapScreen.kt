@@ -85,6 +85,7 @@ fun ClusterMapScreen(
     fusedLocationClient: FusedLocationProviderClient,
     viewModel: MainViewModel
 ){
+    viewModel.changeSplashScreenState(false)
     CulturaMADTheme {
         /**
          * Filter values

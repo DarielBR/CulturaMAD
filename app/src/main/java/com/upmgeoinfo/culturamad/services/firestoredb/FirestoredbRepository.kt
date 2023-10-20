@@ -85,7 +85,7 @@ class FirestoredbRepository {
                             eventID = document.get(EVENTID_FIELD).toString(),
                             review = document.get(REVIEW).toString(),
                             rate = document.get(RATE).toString().toFloat(),
-                            bookmark = document.get(FAVORITE).toString().toBoolean()
+                            favorite = document.get(FAVORITE).toString().toBoolean()
                         )
                         reviewsList.add(eventReview)
                     }
@@ -125,7 +125,7 @@ class FirestoredbRepository {
                         eventID = result.documents[0].get(EVENTID_FIELD).toString(),
                         review = result.documents[0].get(REVIEW).toString(),
                         rate = result.documents[0].get(RATE).toString().toFloat(),
-                        bookmark = result.documents[0].get(FAVORITE).toString().toBoolean(),
+                        favorite = result.documents[0].get(FAVORITE).toString().toBoolean(),
                     )
                 }
             }
@@ -136,19 +136,21 @@ class FirestoredbRepository {
         return@withContext eventReview
     }
 
-    suspend fun updateBookmark(
+    suspend fun updateFavorite(
         userID: String,
         eventID: String,
-        favorite: Boolean
+        favorite: Boolean,
+        onSuccess: (Boolean) -> Unit
     ) = withContext(Dispatchers.IO){
         val docName = userID + "_" + eventID
 
         firestoreInstance.collection(COLLECTION_NAME)
             .document(docName)
-            .update(
+            .set(
                 mapOf(
                     FAVORITE to favorite
                 )
             )
+            .addOnFailureListener { onSuccess.invoke(false) }
     }
 }

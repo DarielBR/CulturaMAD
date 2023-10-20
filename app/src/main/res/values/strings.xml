@@ -57,5 +57,7 @@
     <string name="ui_here">Aquí</string>
     <string name="ui_anonymous">Anónimo</string>
     <string name="ui_me">Yo</string>
+    <string name="ui_connection_error">Al parecer, existe un problema de coenxión, vuelve a intentarlo más tarde.</string>
+    <string name="ui_retry">¡Intentarlo de nuevo!</string>
     <string name="tip">Tip: haga un tap sobre la información de un marcador para ir a la publicación o un tap largo para compartir.</string>
 </resources>

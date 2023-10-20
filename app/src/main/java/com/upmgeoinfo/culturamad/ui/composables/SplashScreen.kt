@@ -44,16 +44,27 @@ fun SplashScreen(
 ){
     val scope = rememberCoroutineScope()
 
+    viewModel.changeSplashScreenState(true)
     LaunchedEffect(key1 = true){
         scope.launch{
-            viewModel.fetchCulturalEventsFormJsonFile()
+            viewModel.setupEventsData(){ success ->
+                navController.popBackStack()
+                if (success){
+                    navController.navigate(MenuItems.OverviewScreen.route){
+                        popUpTo(AppScreens.SplashScreen.route){inclusive = true}
+                    }
+                }else{
+                    navController.navigate(AppScreens.ErrorScreen.route){
+                        popUpTo(AppScreens.SplashScreen.route){inclusive = true}
+                    }
+                }
+            }
         }
-        navController.popBackStack()
-        viewModel.changeSplashScreenState(false)
-        //navController.navigate(MenuItems.FullMapScreen.route)
-        navController.navigate(MenuItems.OverviewScreen.route){
-            popUpTo(AppScreens.SplashScreen.route){inclusive = true}
-        }
+        /*navController.popBackStack()
+
+        navController.navigate(MenuItems.OverviewScreen.route) {
+            popUpTo(AppScreens.SplashScreen.route) { inclusive = true }
+        }*/
     }
     Splash()
 }
@@ -67,7 +78,9 @@ fun Splash(){
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
-            .background(color = colorResource(id = R.color.cmad_background))
+            .background(
+                color = colorResource(id = R.color.cmad_background)
+            )
             .fillMaxSize()
     ){
         var darkTheme by remember { mutableStateOf(false) }
