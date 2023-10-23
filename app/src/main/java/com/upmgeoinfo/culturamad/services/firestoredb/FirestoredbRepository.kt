@@ -3,6 +3,7 @@ package com.upmgeoinfo.culturamad.services.firestoredb
 import com.google.firebase.firestore.FirebaseFirestore
 import com.upmgeoinfo.culturamad.viewmodels.firestoredb.model.EventReview
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 /**
@@ -136,6 +137,34 @@ class FirestoredbRepository {
         return@withContext eventReview
     }
 
+    /**
+     * returns the averaged rate of a given Cultural Event
+     */
+    suspend fun getEventRate(
+        eventID: String,
+        onSuccess: (Boolean) -> Unit
+    ): Float = withContext(Dispatchers.IO){
+        var averageRate: Float = 0.0f
+        var rateSum: Float = 0.0f
+
+        firestoreInstance.collection(COLLECTION_NAME)
+            .whereEqualTo(EVENTID_FIELD, eventID)
+            .get()
+            .addOnSuccessListener { result ->
+                if (!result.isEmpty){
+                    result.documents.forEach { document ->
+                        rateSum += document.get(RATE).toString().toFloat()
+                    }
+                    averageRate = rateSum/result.documents.size
+                    onSuccess.invoke(true)
+                }
+            }
+            .addOnFailureListener { onSuccess.invoke(false) }
+            .await()
+
+        return@withContext averageRate
+    }
+
     suspend fun updateFavorite(
         userID: String,
         eventID: String,
@@ -148,9 +177,54 @@ class FirestoredbRepository {
             .document(docName)
             .set(
                 mapOf(
+                    USERID_FIELD to userID,
+                    EVENTID_FIELD to eventID,
                     FAVORITE to favorite
                 )
             )
+            .addOnSuccessListener { onSuccess.invoke(true) }
+            .addOnFailureListener { onSuccess.invoke(false) }
+    }
+
+    suspend fun updateRate(
+        userID: String,
+        eventID: String,
+        rate: Float,
+        onSuccess: (Boolean) -> Unit
+    ) = withContext(Dispatchers.IO){
+        val docName = userID + "_" + eventID
+
+        firestoreInstance.collection(COLLECTION_NAME)
+            .document(docName)
+            .set(
+                mapOf(
+                    USERID_FIELD to userID,
+                    EVENTID_FIELD to eventID,
+                    RATE to rate
+                )
+            )
+            .addOnSuccessListener { onSuccess.invoke(true) }
+            .addOnFailureListener { onSuccess.invoke(false) }
+    }
+
+    suspend fun updateReview(
+        userID: String,
+        eventID: String,
+        review: String,
+        onSuccess: (Boolean) -> Unit
+    ) = withContext(Dispatchers.IO){
+        val docName = userID + "_" + eventID
+
+        firestoreInstance.collection(COLLECTION_NAME)
+            .document(docName)
+            .set(
+                mapOf(
+                    USERID_FIELD to userID,
+                    EVENTID_FIELD to eventID,
+                    REVIEW to review
+                )
+            )
+            .addOnSuccessListener { onSuccess.invoke(true) }
             .addOnFailureListener { onSuccess.invoke(false) }
     }
 }

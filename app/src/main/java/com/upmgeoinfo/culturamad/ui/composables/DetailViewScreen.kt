@@ -1,7 +1,9 @@
 package com.upmgeoinfo.culturamad.ui.composables
 
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
+import android.provider.CalendarContract
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -17,7 +19,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -25,8 +26,11 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -63,19 +67,22 @@ import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 import com.upmgeoinfo.culturamad.services.json_parse.utils.ScheduleParser
 import com.upmgeoinfo.culturamad.ui.composables.prefab.CategoryTag
+import com.upmgeoinfo.culturamad.ui.composables.prefab.DetailButton
 import com.upmgeoinfo.culturamad.ui.composables.prefab.PriceTag
+import com.upmgeoinfo.culturamad.ui.composables.prefab.RateTag
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
+import java.util.Calendar
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DetailViewScreen(
-    mainViewModel: MainViewModel? = null,
+    viewModel: MainViewModel? = null,
     //culturalEvent: CulturalEvent,
     onNavBack: () -> Unit
     //TODO: Here will be listed the navigation lambdas
 ){
-    val culturalEvent = mainViewModel?.getCurrentEvent() ?: mockEvent
+    val culturalEvent = viewModel?.getCurrentEvent() ?: mockEvent
     Surface(
         color = MaterialTheme.colorScheme.surface,
         modifier = Modifier
@@ -137,9 +144,44 @@ fun DetailViewScreen(
                             )
                         }
                     }
+                    Box(){
+                        Row{
+                            val context = LocalContext.current
+                            DetailButton(
+                                icon = Icons.Default.Share,
+                                modifier = Modifier
+                                    .padding(end = 5.dp)
+                            ) {
+                                val intent = Intent(Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(Intent.EXTRA_TITLE, culturalEvent.title)
+                                    putExtra(
+                                        Intent.EXTRA_TEXT,
+                                        culturalEvent.link
+                                    )
+                                }
+                                val title = context.resources.getString(R.string.event_share)
+                                context.startActivity(Intent.createChooser(intent, title))
+                            }
+                            var favorite by remember { mutableStateOf(false) }
+                            favorite = culturalEvent.favorite
+                            DetailButton(
+                                enabled = viewModel?.hasUser ?: false,
+                                icon =
+                                if (favorite) Icons.Default.Favorite
+                                else Icons.Default.FavoriteBorder
+                            ) {
+                                favorite = !favorite
+                                viewModel?.changeFavoriteState(
+                                    culturalEvent = culturalEvent,
+                                    favorite = favorite
+                                )
+                            }
+                        }
+                    }
 
-                    IconButton(
-                        onClick = { /*TODO favorite action.*/ },
+                    /*IconButton(
+                        onClick = { *//*TODO favorite action.*//* },
                         modifier = Modifier
                     ) {
                         Surface(
@@ -156,7 +198,7 @@ fun DetailViewScreen(
                                     .padding(4.dp)
                             )
                         }
-                    }
+                    }*/
                 }
                 Column(
                     verticalArrangement = Arrangement.SpaceEvenly,
@@ -192,10 +234,17 @@ fun DetailViewScreen(
                                 modifier = Modifier
                                     .padding(bottom = 12.dp)
                             )
-                            CategoryTag(
-                                category = culturalEvent.category,
-                                fontSize = 20.sp
-                            )
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            ){
+                                CategoryTag(
+                                    category = culturalEvent.category,
+                                    fontSize = 20.sp
+                                )
+                                RateTag(rate = culturalEvent.rate)
+                            }
                         }
                     }
                 }
@@ -260,14 +309,63 @@ fun DetailViewScreen(
                             .fillMaxWidth()
                     ) {
                         Column() {
-                            Icon(
+                            val context = LocalContext.current
+                            DetailButton(
+                                icon = Icons.Default.DateRange,
+                                onClick = {
+                                    val startYear = culturalEvent.dateStart.subSequence(0..3).toString()
+                                    val startMonth = culturalEvent.dateStart.subSequence(5..6).toString()
+                                    val startDay = culturalEvent.dateStart.subSequence(8..9).toString()
+                                    val hour: String
+                                    val minutes: String
+                                    if(culturalEvent.hours != ""){
+                                        hour = culturalEvent.hours.subSequence(0..1).toString()
+                                        minutes = culturalEvent.hours.subSequence(3..4).toString()
+                                    }else{
+                                        hour = "00"
+                                        minutes = "00"
+                                    }
+
+                                    val calendar = Calendar.getInstance()
+                                    calendar.set(Calendar.YEAR, startYear.toInt())
+                                    calendar.set(Calendar.MONTH, startMonth.toInt())
+                                    calendar.set(Calendar.DAY_OF_MONTH, startDay.toInt())
+                                    if(culturalEvent.hours != ""){
+                                        calendar.set(Calendar.HOUR_OF_DAY, hour.toInt())
+                                        calendar.set(Calendar.MINUTE, minutes.toInt())
+                                    }else{
+                                        calendar.set(Calendar.HOUR_OF_DAY, "00".toInt())
+                                        calendar.set(Calendar.MINUTE, "00".toInt())
+                                    }
+
+                                    val intent = Intent(Intent.ACTION_INSERT)
+                                    intent.data = CalendarContract.Events.CONTENT_URI
+                                    intent.putExtra(CalendarContract.Events.TITLE, culturalEvent.title)
+                                    intent.putExtra(CalendarContract.Events.EVENT_LOCATION, culturalEvent.address)
+                                    if(culturalEvent.hours != ""){
+                                        intent.putExtra(
+                                            CalendarContract.EXTRA_EVENT_BEGIN_TIME,
+                                            calendar.timeInMillis
+                                        )
+                                        intent.putExtra(
+                                            CalendarContract.EXTRA_EVENT_END_TIME,
+                                            calendar.timeInMillis + 60 * 60 * 1000
+                                        )
+                                    }else {
+                                        intent.putExtra(CalendarContract.Events.ALL_DAY, true)
+                                    }
+
+                                    context.startActivity(intent)
+                                }
+                            )
+                            /*Icon(
                                 imageVector = Icons.Default.DateRange,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier
                                     .padding(top = 2.dp, end = 4.dp)
-                                    .clickable { /*TODO intent to schedule*/ }
-                            )
+                                    .clickable { *//*TODO intent to schedule*//* }
+                            )*/
                         }
                         Column(
                             modifier = Modifier
@@ -502,6 +600,17 @@ fun Minimap(
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                DetailButton(
+                    icon = Icons.Default.Person
+                ) {
+
+                }
             }
         }
     }

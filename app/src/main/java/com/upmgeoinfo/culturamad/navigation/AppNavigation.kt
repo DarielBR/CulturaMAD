@@ -73,7 +73,7 @@ fun AlternateNavigation(
         }
         composable(AppScreens.DetailViewScreen.route){
             DetailViewScreen(
-                mainViewModel = viewModel,
+                viewModel = viewModel,
                 onNavBack = {
                     navController.popBackStack()
                 }

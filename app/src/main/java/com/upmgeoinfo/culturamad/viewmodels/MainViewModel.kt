@@ -334,6 +334,21 @@ class MainViewModel(
      *          Create deleteEventReviews()
      */
 
+    /**
+     * returns the averaged rate for a given cultural event, calculated with the data stored at dbFi.
+     */
+    fun getEventRate(
+        culturalEvent: CulturalEvent
+    ): Float{
+        var result: Float = 0.0f
+        viewModelScope.launch{
+            result = firestoredbRepository.getEventRate(
+                eventID = culturalEvent.id.toString()
+            ){}
+        }
+        return result
+    }
+
     fun getUserEventReview(
         userID: String,
         eventID: Int
@@ -381,11 +396,33 @@ class MainViewModel(
                 favorite = favorite
             ){isSuccessful ->
                 if (isSuccessful){//provide state
-                    val index = state.items.indexOfFirst { it.id == state.currentItem.toInt() }
+                    val index = state.items.indexOfFirst { it.id == culturalEvent.id }
                     state.items[index].favorite = favorite
                 }
             }
         }
     }
+
+    /**
+     * Writes into the dbFi a given rate value for a given cultural event.
+     */
+    fun setEventRate(
+        culturalEvent: CulturalEvent,
+        rate: Float
+    ){
+        viewModelScope.launch {
+            firestoredbRepository.updateRate(
+                userID = loginUiState.currentUserMail,
+                eventID = culturalEvent.id.toString(),
+                rate = rate
+            ){isSuccesful ->
+                //TODO: Must call getEventRate() and provide state accordingly
+                val index = state.items.indexOfFirst { it.id == culturalEvent.id }
+                state.items[index].rate = getEventRate(culturalEvent = culturalEvent)
+            }
+        }
+    }
+
+/****************Firestore Block********************************/
 }
 
