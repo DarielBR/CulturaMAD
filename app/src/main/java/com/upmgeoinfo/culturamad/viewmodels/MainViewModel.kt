@@ -16,6 +16,7 @@ import com.upmgeoinfo.culturamad.viewmodels.main.model.MainState
 import com.upmgeoinfo.culturamad.services.json_parse.reposiroty.ApiEventsRepository
 import com.upmgeoinfo.culturamad.viewmodels.auth.model.LoginUiState
 import com.upmgeoinfo.culturamad.viewmodels.firestoredb.model.EventReview
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class MainViewModel(
@@ -47,13 +48,57 @@ class MainViewModel(
     /**
      * refreshes the state items to those with location
      */
-    private fun refreshItems(){
+    suspend private fun refreshItems(){
         //TODO: Modify this function to provide state with information fetched from dbFi
-        viewModelScope.launch {
+        //new version
+        var localItems: List<CulturalEvent> = emptyList()
+        viewModelScope.async {
+            localItems = culturalEventRepository.getCulturalEventsWithLocation()
+        }.await()
+        if (hasUser){
+            localItems.forEach { localItem ->
+                var eventReview = EventReview()
+                var storedAverageRate: Float = 0.0f
+                viewModelScope.async {
+                    eventReview = firestoredbRepository.getReview(
+                        userID = loginUiState.currentUserMail,
+                        eventID = localItem.id.toString()
+                    )
+                    storedAverageRate = firestoredbRepository.getEventAverageRate(
+                        eventID = localItem.id.toString()
+                    ){}
+                }.await()
+                with(localItem) {
+                    review = eventReview.review
+                    rate = eventReview.rate
+                    favorite = eventReview.favorite
+                    averageRate = storedAverageRate
+                }
+            }
+            state = state.copy(
+                items = localItems.toMutableList()
+            )
+        }
+        else{
+            var storedAverageRate: Float = 0.0f
+            localItems.forEach{localItem ->
+                viewModelScope.async {
+                    storedAverageRate = firestoredbRepository.getEventAverageRate(
+                        eventID = localItem.id.toString()
+                    ){}
+                }.await()
+                localItem.averageRate = storedAverageRate
+            }
+            state = state.copy(
+                items = localItems.toMutableList()
+            )
+        }
+        //old version
+        /*viewModelScope.launch {
             state = state.copy(
                 items = culturalEventRepository.getCulturalEventsWithLocation().toMutableList()
             )
-        }
+        }*/
     }
 
     /**
@@ -88,14 +133,15 @@ class MainViewModel(
     }
 
     /**
-     * returns the event with the currentID at the state
+     * returns the event with the currentID at the state, or an empty event if it doesn't exist.
      */
-    fun getCurrentEvent(): CulturalEvent {
-        var currentEvent = CulturalEvent()
+    fun getCurrentEvent(): CulturalEvent? {
+        /*var currentEvent = CulturalEvent()
         viewModelScope.launch {
             currentEvent =  culturalEventRepository.getCulturalEventEntityById(state.currentItem.toInt())
         }
-        return currentEvent
+        return currentEvent*/
+        return state.items.find { it.id == state.currentItem.toInt() }
     }
 
     /**
@@ -110,7 +156,7 @@ class MainViewModel(
     /**
      * provides state to the splash screen state
      */
-    fun changeSplashScreenState(isDisplayed: Boolean) = viewModelScope.launch {
+    fun hideBottomNavBar(isDisplayed: Boolean) = viewModelScope.launch {
         state = state.copy(isSplashScreenOnRender = isDisplayed)
     }
 
@@ -170,22 +216,22 @@ class MainViewModel(
             //with the dbLo updated we must provide state
             refreshItems()
             //now we must load data from dbFi
-            if (hasUser) {
+            /*if (hasUser) {
                 //TODO: Get the userID information from the state: MainState
                 //      Update the information stored at dbFi
                 loadUserEventsReviews()
             }
-            onSuccess.invoke(true)
+            onSuccess.invoke(true)*/
         }else{//not a successful connection
             if (state.items.isEmpty()){//there is no data to work with
                 onSuccess.invoke(false)
             }else {
                 refreshItems()//use the dbLo data
-                if (hasUser){
+                /*if (hasUser){
                     //TODO: Get the userID information from the state: MainState
                     //      Update the information stored at dbFi
                     loadUserEventsReviews()
-                }
+                }*/
                 onSuccess.invoke(true)
             }
         }
@@ -337,16 +383,19 @@ class MainViewModel(
     /**
      * returns the averaged rate for a given cultural event, calculated with the data stored at dbFi.
      */
-    fun getEventRate(
+    suspend fun getEventAverageRate(
         culturalEvent: CulturalEvent
     ): Float{
-        var result: Float = 0.0f
+        return viewModelScope.async {
+            firestoredbRepository.getEventAverageRate(eventID = culturalEvent.id.toString()){}
+        }.await()
+        /*var result: Float = 0.0f
         viewModelScope.launch{
-            result = firestoredbRepository.getEventRate(
+            result = firestoredbRepository.getEventAverageRate(
                 eventID = culturalEvent.id.toString()
             ){}
         }
-        return result
+        return result*/
     }
 
     fun getUserEventReview(
@@ -364,19 +413,23 @@ class MainViewModel(
         return result
     }
 
-    fun loadUserEventsReviews(){
+    suspend fun loadUserEventsReviews() = viewModelScope.async{
         if (hasUser){
             state.items.forEach { stateEvent ->
                 val eventReview = getUserEventReview(
                     userID = loginUiState.currentUserMail,
                     eventID = stateEvent.id ?: 0
                 )
-                stateEvent.review = eventReview.review
-                stateEvent.favorite = eventReview.favorite
-                stateEvent.rate = eventReview.rate
+                val averageRate = getEventAverageRate(stateEvent)
+
+                state.items.find { it.id == stateEvent.id }?.review = eventReview.review
+                state.items.find { it.id == stateEvent.id }?.favorite = eventReview.favorite
+                state.items.find { it.id == stateEvent.id }?.rate = eventReview.rate
+                state.items.find { it.id == stateEvent.id }?.averageRate = averageRate
+
             }
         }
-    }
+    }.await()
 
     /**
      * updates only the favorite state for a cultural event at the dbFi
@@ -411,14 +464,19 @@ class MainViewModel(
         rate: Float
     ){
         viewModelScope.launch {
+            var success = false
             firestoredbRepository.updateRate(
                 userID = loginUiState.currentUserMail,
                 eventID = culturalEvent.id.toString(),
                 rate = rate
             ){isSuccesful ->
                 //TODO: Must call getEventRate() and provide state accordingly
+                success = isSuccesful
+            }
+            if (success){
                 val index = state.items.indexOfFirst { it.id == culturalEvent.id }
-                state.items[index].rate = getEventRate(culturalEvent = culturalEvent)
+                state.items[index].averageRate =
+                    getEventAverageRate(culturalEvent = culturalEvent)
             }
         }
     }

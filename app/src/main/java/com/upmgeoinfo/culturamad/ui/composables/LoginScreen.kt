@@ -61,7 +61,10 @@ fun LoginScreen(
             ) {
                 Column {
                     Spacer(modifier = Modifier.height(24.dp))
-                    NavBackButton(onClick = onNavBack)
+                    NavBackButton(
+                        color = MaterialTheme.colorScheme.onSurface,
+                        onClick = onNavBack
+                    )
                     Spacer(modifier = Modifier.height(24.dp))
                     Text(
                         text = "Login",

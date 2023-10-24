@@ -31,7 +31,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.upmgeoinfo.culturamad.R
+import com.upmgeoinfo.culturamad.navigation.AppScreens
 import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
 import com.upmgeoinfo.culturamad.ui.composables.prefab.GeneralSearchBar
@@ -39,9 +41,10 @@ import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 @Composable
 fun OverviewScreen(
-    viewModel: MainViewModel? = null
+    viewModel: MainViewModel? = null,
+    navController: NavHostController? = null
 ){
-    viewModel?.changeSplashScreenState(false)
+    viewModel?.hideBottomNavBar(false)
     Surface(
         color = MaterialTheme.colorScheme.surface,
         modifier = Modifier
@@ -125,7 +128,13 @@ fun OverviewScreen(
                     itemsList = newItemList.toList()
                 }
                 items(itemsList){ item ->
-                    EventGridCard(culturalEvent = item, onClick = {})
+                    EventGridCard(
+                        culturalEvent = item,
+                        onClick = {
+                            viewModel?.setCurrentItem(item.id.toString())
+                            navController?.navigate(AppScreens.DetailViewScreen.route)
+                        }
+                    )
                 }
             }
             Text(

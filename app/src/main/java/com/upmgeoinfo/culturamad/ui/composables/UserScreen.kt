@@ -40,7 +40,7 @@ fun UserScreen(
     //val currentUserMail = authenticationViewModel?.currentUser?.email ?: ""
     val hasUser = viewModel?.hasUser ?: false
 
-    viewModel?.changeSplashScreenState(false)
+    viewModel?.hideBottomNavBar(false)
     Surface(
         modifier = Modifier
             .fillMaxSize()

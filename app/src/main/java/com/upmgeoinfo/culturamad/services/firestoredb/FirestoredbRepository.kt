@@ -122,17 +122,18 @@ class FirestoredbRepository {
             .addOnSuccessListener { result ->
                 if (!result.isEmpty){
                     eventReview = EventReview(
-                        userID = result.documents[0].get(USERID_FIELD).toString(),
-                        eventID = result.documents[0].get(EVENTID_FIELD).toString(),
-                        review = result.documents[0].get(REVIEW).toString(),
-                        rate = result.documents[0].get(RATE).toString().toFloat(),
-                        favorite = result.documents[0].get(FAVORITE).toString().toBoolean(),
+                        userID = result.documents[0].get(USERID_FIELD)?.toString() ?: "",
+                        eventID = result.documents[0].get(EVENTID_FIELD)?.toString() ?: "",
+                        review = result.documents[0].get(REVIEW)?.toString() ?: "",
+                        rate = result.documents[0].get(RATE)?.toString()?.toFloat() ?: 0.0f,
+                        favorite = result.documents[0].get(FAVORITE)?.toString()?.toBoolean() ?: false,
                     )
                 }
             }
             .addOnFailureListener {exception ->
                 throw exception
             }
+            .await()
 
         return@withContext eventReview
     }
@@ -140,7 +141,7 @@ class FirestoredbRepository {
     /**
      * returns the averaged rate of a given Cultural Event
      */
-    suspend fun getEventRate(
+    suspend fun getEventAverageRate(
         eventID: String,
         onSuccess: (Boolean) -> Unit
     ): Float = withContext(Dispatchers.IO){
@@ -153,7 +154,8 @@ class FirestoredbRepository {
             .addOnSuccessListener { result ->
                 if (!result.isEmpty){
                     result.documents.forEach { document ->
-                        rateSum += document.get(RATE).toString().toFloat()
+                        if (document.get(RATE) != null)
+                            rateSum += document.get(RATE).toString().toFloat()
                     }
                     averageRate = rateSum/result.documents.size
                     onSuccess.invoke(true)

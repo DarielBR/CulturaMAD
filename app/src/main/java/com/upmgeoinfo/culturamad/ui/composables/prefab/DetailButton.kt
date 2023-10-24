@@ -1,5 +1,6 @@
 package com.upmgeoinfo.culturamad.ui.composables.prefab
 
+import android.content.Context
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -17,14 +18,20 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
+import com.upmgeoinfo.culturamad.ui.utils.IntentLauncher
+import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 
 @Composable
 fun DetailButton(
     icon: ImageVector? = null,
     enabled: Boolean = true,
-    modifier: Modifier? = null,
-    onClick: () -> Unit
+    type: DetailButtonType = DetailButtonType.DEFAULT,
+    context: Context? = null,
+    culturalEvent: CulturalEvent = CulturalEvent(),
+    modifier: Modifier? = Modifier,
+    defaultOnClick: () -> Unit
 ){
+    val intentLauncher = IntentLauncher(culturalEvent = culturalEvent, context = context)
     Surface(
         shape = MaterialTheme.shapes.small,
         color = MaterialTheme.colorScheme.surfaceVariant,
@@ -35,7 +42,16 @@ fun DetailButton(
     ) {
         IconButton(
             enabled = enabled,
-            onClick = { onClick },
+            onClick = {
+                when (type){
+                    DetailButtonType.MAPS -> intentLauncher.mapsIntent()
+                    DetailButtonType.SHARE -> intentLauncher.shareIntent()
+                    DetailButtonType.SCHEDULE -> intentLauncher.scheduleIntent()
+                    DetailButtonType.URL_LINK -> intentLauncher.browserUriIntent()
+                    DetailButtonType.DEFAULT -> defaultOnClick
+                    else -> defaultOnClick
+                }
+            },
             colors = IconButtonDefaults.iconButtonColors(
                 containerColor = Color.Transparent
             )
@@ -56,4 +72,13 @@ fun DetailButtonPreview(){
         Row{
             DetailButton {} }
     }
+}
+
+enum class DetailButtonType{
+    SHARE,
+    DIRECTIONS,
+    MAPS,
+    SCHEDULE,
+    URL_LINK,
+    DEFAULT
 }

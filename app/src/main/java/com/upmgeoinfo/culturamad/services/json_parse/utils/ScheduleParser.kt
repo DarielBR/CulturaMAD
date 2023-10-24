@@ -102,7 +102,7 @@ class ScheduleParser(
              *      one or more excluded days
              */
             var excludedDaysBlock: String? = null
-            if(excludedDays!!.isNotEmpty()){
+            if(excludedDays?.isNotEmpty() == true){
                 excludedDaysBlock = "Excepto "
                 for(i in 0..excludedDays.size - 1){
                     if(i == 0)
@@ -117,7 +117,7 @@ class ScheduleParser(
              * fullBlock:
              *
              */
-            var fullBlock = dateBlock
+            var fullBlock = dateBlock ?: ""
             if (daysHoursBlock != null )
                 fullBlock += daysHoursBlock
             if (excludedDaysBlock != null )

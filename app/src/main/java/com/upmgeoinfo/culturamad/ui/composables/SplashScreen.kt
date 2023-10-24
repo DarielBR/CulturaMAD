@@ -44,7 +44,7 @@ fun SplashScreen(
 ){
     val scope = rememberCoroutineScope()
 
-    viewModel.changeSplashScreenState(true)
+    viewModel.hideBottomNavBar(true)
     LaunchedEffect(key1 = true){
         scope.launch{
             viewModel.setupEventsData(){ success ->

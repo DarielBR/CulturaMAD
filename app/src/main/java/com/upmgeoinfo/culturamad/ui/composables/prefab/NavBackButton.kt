@@ -27,6 +27,7 @@ import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 @Composable
 fun NavBackButton(
+    color: Color,
     onClick: () -> Unit
 ){
     Button(
@@ -43,12 +44,12 @@ fun NavBackButton(
         ) {
             Icon(
                 imageVector = Icons.Default.KeyboardArrowLeft,
-                tint = MaterialTheme.colorScheme.onSurface,
+                tint = color,
                 contentDescription = null
             )
             Text(
                 text = stringResource(id = R.string.ui_nav_back),
-                color = MaterialTheme.colorScheme.onSurface,
+                color = color,
                 fontWeight = FontWeight.Light,
                 fontSize = 14.sp
             )
@@ -61,6 +62,9 @@ fun NavBackButton(
 @Composable
 fun NavBackButtonPreview(){
     CulturaMADTheme {
-        NavBackButton(onClick = {})
+        NavBackButton(
+            color = MaterialTheme.colorScheme.onSurface,
+            onClick = {}
+        )
     }
 }

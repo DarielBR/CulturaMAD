@@ -39,7 +39,7 @@ fun ErrorScreen(
     navController: NavHostController,
     viewModel: MainViewModel
 ){
-    viewModel.changeSplashScreenState(true)
+    viewModel.hideBottomNavBar(true)
     SplashError {
         navController.navigate(AppScreens.SplashScreen.route){
             popUpTo(AppScreens.ErrorScreen.route){inclusive = true}
