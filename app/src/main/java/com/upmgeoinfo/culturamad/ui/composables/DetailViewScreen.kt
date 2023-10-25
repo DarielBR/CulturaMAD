@@ -9,13 +9,16 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
@@ -25,10 +28,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.runtime.Composable
@@ -45,6 +52,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -68,6 +76,7 @@ import com.upmgeoinfo.culturamad.ui.composables.prefab.DetailButtonType
 import com.upmgeoinfo.culturamad.ui.composables.prefab.NavBackButton
 import com.upmgeoinfo.culturamad.ui.composables.prefab.PriceTag
 import com.upmgeoinfo.culturamad.ui.composables.prefab.RateTag
+import com.upmgeoinfo.culturamad.ui.composables.prefab.ReviewCard
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 import com.upmgeoinfo.culturamad.ui.utils.IntentLauncher
 import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
@@ -379,7 +388,10 @@ fun DetailViewScreen(
                             .padding(top = 24.dp)
                             .fillMaxWidth()
                     ){
-                        DetailsReviewTabRow(culturalEvent = culturalEvent)
+                        DetailsReviewTabRow(
+                            culturalEvent = culturalEvent,
+                            viewModel = viewModel
+                        )
                     }
                     Row(//final row
                         modifier = Modifier
@@ -433,7 +445,8 @@ private var mockEvent = CulturalEvent(
 
 @Composable
 fun DetailsReviewTabRow(
-    culturalEvent: CulturalEvent
+    culturalEvent: CulturalEvent,
+    viewModel: MainViewModel? = null
 ){
     var tabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf(
@@ -464,7 +477,10 @@ fun DetailsReviewTabRow(
         }
         when(tabIndex){
             0 -> DescriptionView(culturalEvent = culturalEvent)
-            1 -> ReviewDetailTab(culturalEvent = culturalEvent)
+            1 -> ReviewDetailTab(
+                culturalEvent = culturalEvent,
+                viewModel = viewModel
+            )
         }
     }
 }
@@ -589,14 +605,99 @@ fun Minimap(
 
 @Composable
 fun ReviewDetailTab(
-    culturalEvent: CulturalEvent? = null
+    culturalEvent: CulturalEvent? = null,
+    viewModel: MainViewModel? = null
 ){
+    val reviewList = viewModel?.getEventReviews(culturalEvent?.id!!)
+    var reviewText by remember { mutableStateOf("") }
     Surface(
+        color = MaterialTheme.colorScheme.surface,
         modifier = Modifier
             .padding(top = 2.dp, bottom = 2.dp)
     ) {
-        Column {
-
+        Column(
+            verticalArrangement = Arrangement.Bottom,
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            Row{
+                if (reviewList?.isEmpty() != true) {
+                    LazyColumn(
+                        contentPadding = PaddingValues(
+                            top = 2.dp,
+                            bottom = 2.dp,
+                            start = 1.dp,
+                            end = 1.dp
+                        )
+                    ) {
+                        items(reviewList!!) { item ->
+                            if (item.review != ""){
+                                ReviewCard(
+                                    userID = item.userID.substringBefore('@'),
+                                    review = item.review,
+                                    rate = item.rate
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    androidx.compose.material3.Text(
+                        text = stringResource(id = R.string.ui_no_reviews_so_far),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelMedium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(12.dp)
+                    )
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ){
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 4.dp, end = 4.dp)
+                ){
+                    OutlinedTextField(
+                        enabled = viewModel?.hasUser ?: false,
+                        value = reviewText,
+                        onValueChange = { reviewText = it },
+                        singleLine = false,
+                        placeholder = {
+                            Text(text = culturalEvent?.review
+                                    ?: stringResource(id = R.string.ui_write_your_review))
+                        },
+                        trailingIcon = {
+                            IconButton(onClick = {
+                                viewModel?.setEventReview(
+                                    culturalEvent = culturalEvent!!,
+                                    review = reviewText
+                                )
+                            }){
+                                Icon(
+                                    imageVector = Icons.Default.Send,
+                                    contentDescription = ""
+                                )
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                    Button(
+                        onClick = { /*TODO*/ },
+                        shape = MaterialTheme.shapes.extraSmall,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.ui_evaluate),
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                }
+            }
         }
     }
 }

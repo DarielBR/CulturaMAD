@@ -158,6 +158,17 @@ class MainViewModel(
             it.eventID == eventID.toString() && it.userID == loginUiState.currentUserMail
         } ?: EventReview()
     }
+
+    fun getEventReviews(eventID: Int): List<EventReview>{
+        val reviewsList: MutableList<EventReview> = emptyList<EventReview>().toMutableList()
+
+        state.reviews.forEach { storedReview ->
+            if (storedReview.eventID == eventID.toString())
+                reviewsList.add(storedReview)
+        }
+
+        return reviewsList.toList()
+    }
     private fun calculateAverageRate(
         eventId: String
     ): Float{
@@ -502,10 +513,6 @@ class MainViewModel(
         favorite: Boolean
     ){
         viewModelScope.launch {
-            /*culturalEventRepository.updateCulturalEvent(
-                culturalEvent = culturalEvent,
-                favorite = favorite
-            )*/
             firestoredbRepository.updateFavorite(
                 userID = loginUiState.currentUserMail,
                 eventID = culturalEvent.id.toString(),
@@ -540,6 +547,24 @@ class MainViewModel(
                 val index = state.items.indexOfFirst { it.id == culturalEvent.id }
                 state.items[index].averageRate =
                     getEventAverageRate(culturalEvent = culturalEvent)
+            }
+        }
+    }
+
+    fun setEventReview(
+        culturalEvent: CulturalEvent,
+        review: String
+    ){
+        viewModelScope.launch {
+            firestoredbRepository.updateReview(
+                userID = loginUiState.currentUserMail,
+                eventID = culturalEvent.id.toString(),
+                review = review
+            ){isSuccessful ->
+                if (isSuccessful){//provide state
+                    val index = state.items.indexOfFirst { it.id == culturalEvent.id }
+                    state.items[index].review = review
+                }
             }
         }
     }

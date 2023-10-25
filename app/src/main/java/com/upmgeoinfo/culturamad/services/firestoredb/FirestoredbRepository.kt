@@ -204,18 +204,38 @@ class FirestoredbRepository {
         onSuccess: (Boolean) -> Unit
     ) = withContext(Dispatchers.IO){
         val docName = userID + "_" + eventID
+        //var isCreated = false
 
         firestoreInstance.collection(COLLECTION_NAME)
             .document(docName)
-            .set(
-                mapOf(
-                    USERID_FIELD to userID,
-                    EVENTID_FIELD to eventID,
-                    FAVORITE to favorite
-                )
-            )
-            .addOnSuccessListener { onSuccess.invoke(true) }
-            .addOnFailureListener { onSuccess.invoke(false) }
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null){
+                    firestoreInstance.collection(COLLECTION_NAME)
+                        .document(docName)
+                        .update(
+                            mapOf(
+                                USERID_FIELD to userID,
+                                EVENTID_FIELD to eventID,
+                                FAVORITE to favorite
+                            )
+                        )
+                        .addOnSuccessListener { onSuccess.invoke(true) }
+                        .addOnFailureListener { onSuccess.invoke(false) }
+                }else{
+                    firestoreInstance.collection(COLLECTION_NAME)
+                        .document(docName)
+                        .set(
+                            mapOf(
+                                USERID_FIELD to userID,
+                                EVENTID_FIELD to eventID,
+                                FAVORITE to favorite
+                            )
+                        )
+                        .addOnSuccessListener { onSuccess.invoke(true) }
+                        .addOnFailureListener { onSuccess.invoke(false) }
+                }
+            }
     }
 
     suspend fun updateRate(
@@ -228,15 +248,34 @@ class FirestoredbRepository {
 
         firestoreInstance.collection(COLLECTION_NAME)
             .document(docName)
-            .set(
-                mapOf(
-                    USERID_FIELD to userID,
-                    EVENTID_FIELD to eventID,
-                    RATE to rate
-                )
-            )
-            .addOnSuccessListener { onSuccess.invoke(true) }
-            .addOnFailureListener { onSuccess.invoke(false) }
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null){
+                    firestoreInstance.collection(COLLECTION_NAME)
+                        .document(docName)
+                        .update(
+                            mapOf(
+                                USERID_FIELD to userID,
+                                EVENTID_FIELD to eventID,
+                                RATE to rate
+                            )
+                        )
+                        .addOnSuccessListener { onSuccess.invoke(true) }
+                        .addOnFailureListener { onSuccess.invoke(false) }
+                }else{
+                    firestoreInstance.collection(COLLECTION_NAME)
+                        .document(docName)
+                        .set(
+                            mapOf(
+                                USERID_FIELD to userID,
+                                EVENTID_FIELD to eventID,
+                                RATE to rate
+                            )
+                        )
+                        .addOnSuccessListener { onSuccess.invoke(true) }
+                        .addOnFailureListener { onSuccess.invoke(false) }
+                }
+            }
     }
 
     suspend fun updateReview(
@@ -249,14 +288,33 @@ class FirestoredbRepository {
 
         firestoreInstance.collection(COLLECTION_NAME)
             .document(docName)
-            .set(
-                mapOf(
-                    USERID_FIELD to userID,
-                    EVENTID_FIELD to eventID,
-                    REVIEW to review
-                )
-            )
-            .addOnSuccessListener { onSuccess.invoke(true) }
-            .addOnFailureListener { onSuccess.invoke(false) }
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null){
+                    firestoreInstance.collection(COLLECTION_NAME)
+                        .document(docName)
+                        .update(
+                            mapOf(
+                                USERID_FIELD to userID,
+                                EVENTID_FIELD to eventID,
+                                REVIEW to review
+                            )
+                        )
+                        .addOnSuccessListener { onSuccess.invoke(true) }
+                        .addOnFailureListener { onSuccess.invoke(false) }
+                }else{
+                    firestoreInstance.collection(COLLECTION_NAME)
+                        .document(docName)
+                        .set(
+                            mapOf(
+                                USERID_FIELD to userID,
+                                EVENTID_FIELD to eventID,
+                                REVIEW to review
+                            )
+                        )
+                        .addOnSuccessListener { onSuccess.invoke(true) }
+                        .addOnFailureListener { onSuccess.invoke(false) }
+                }
+            }
     }
 }
