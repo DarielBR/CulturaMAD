@@ -96,6 +96,7 @@ fun SignupScreen(
                         onClick = {
                             viewModel?.createUser(context){success ->
                                 if (success) {
+                                    viewModel.setupStateDataAfterUserChange()
                                     onNavBack.invoke()
                                 }
                             }

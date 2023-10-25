@@ -1,11 +1,14 @@
 package com.upmgeoinfo.culturamad.viewmodels.main.model
 
+import com.upmgeoinfo.culturamad.viewmodels.firestoredb.model.EventReview
+
 data class MainState (
     val currentItem: String = "",
     val items: MutableList<CulturalEvent> = emptyList<CulturalEvent>().toMutableList(),
     val isSplashScreenOnRender: Boolean = true,
     val searchValue: String = "",
-    val activeSearchCategories: MutableList<String> = emptyList<String>().toMutableList()
+    val activeSearchCategories: MutableList<String> = emptyList<String>().toMutableList(),
+    val reviews: MutableList<EventReview> = emptyList<EventReview>().toMutableList()
 )
 
 //private fun emptyCulturalEvent(): CulturalEvent{

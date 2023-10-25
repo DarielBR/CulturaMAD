@@ -47,7 +47,7 @@ fun SplashScreen(
     viewModel.hideBottomNavBar(true)
     LaunchedEffect(key1 = true){
         scope.launch{
-            viewModel.setupEventsData(){ success ->
+            viewModel.setupStateData{ success ->//before with setupEventData
                 navController.popBackStack()
                 if (success){
                     navController.navigate(MenuItems.OverviewScreen.route){

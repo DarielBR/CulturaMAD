@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
@@ -588,15 +589,23 @@ fun Minimap(
 
 @Composable
 fun ReviewDetailTab(
-    culturalEvent: CulturalEvent
+    culturalEvent: CulturalEvent? = null
 ){
     Surface(
         modifier = Modifier
-            .padding(top = 12.dp, start = 18.dp, end = 18.dp, bottom = 8.dp)
+            .padding(top = 2.dp, bottom = 2.dp)
     ) {
-        Text(
-            text = "In this tab will be allocated all reviews stored about this cultural event",
-            style = MaterialTheme.typography.bodyLarge,
-        )
+        Column {
+
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun ReviewDetailTabPreview(){
+    CulturaMADTheme {
+        ReviewDetailTab()
     }
 }

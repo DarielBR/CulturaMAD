@@ -2,6 +2,7 @@ package com.upmgeoinfo.culturamad.services.firestoredb
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.upmgeoinfo.culturamad.viewmodels.firestoredb.model.EventReview
+import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -61,6 +62,34 @@ class FirestoredbRepository {
             }
     }
 
+    suspend fun getAllReviews(
+        onSuccess: (Boolean) -> Unit
+    ): List<EventReview> {
+        var returnList: MutableList<EventReview> = emptyList<EventReview>().toMutableList()
+
+        withContext(Dispatchers.IO){
+            firestoreInstance.collection(COLLECTION_NAME)
+                .get()
+                .addOnSuccessListener {documents ->
+                    if (!documents.isEmpty){
+                        documents.forEach { document ->
+                            val eventReview = EventReview(
+                                userID = document.get(USERID_FIELD)?.toString() ?: "",
+                                eventID = document.get(EVENTID_FIELD)?.toString() ?: "",
+                                review = document.get(REVIEW)?.toString() ?: "",
+                                rate = document.get(RATE)?.toString()?.toFloat() ?: 0.0f,
+                                favorite = document.get(FAVORITE)?.toString().toBoolean() ?: false
+                            )
+                            returnList.add(eventReview)
+                        }
+                    }
+                }
+                .addOnFailureListener { onSuccess.invoke(false) }
+                .await()
+        }
+        return returnList
+    }
+
     /**
      * gets all review for a given event. If the operation is successful returns a list (may be empty
      * or not), if not, throws the raised exception.
@@ -82,11 +111,11 @@ class FirestoredbRepository {
                 if(!documents.isEmpty){
                     documents.forEach { document ->
                         val eventReview = EventReview(
-                            userID = document.get(USERID_FIELD).toString(),
-                            eventID = document.get(EVENTID_FIELD).toString(),
-                            review = document.get(REVIEW).toString(),
-                            rate = document.get(RATE).toString().toFloat(),
-                            favorite = document.get(FAVORITE).toString().toBoolean()
+                            userID = document.get(USERID_FIELD)?.toString() ?: "",
+                            eventID = document.get(EVENTID_FIELD)?.toString() ?: "",
+                            review = document.get(REVIEW)?.toString() ?: "",
+                            rate = document.get(RATE)?.toString()?.toFloat() ?: 0.0f,
+                            favorite = document.get(FAVORITE)?.toString().toBoolean() ?: false
                         )
                         reviewsList.add(eventReview)
                     }
@@ -95,6 +124,7 @@ class FirestoredbRepository {
             .addOnFailureListener {exception ->
                 throw exception
             }
+            .await()
 
         return@withContext reviewsList.toList()
     }

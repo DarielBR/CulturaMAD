@@ -64,4 +64,26 @@ class ApiEventsRepository(){
         }
         return@withContext culturalEventList.toList()
     }
+
+    /**
+     * returns a List of CulturalEvents obtained from and EndPoint, but only those with
+     * Geographical information.
+     */
+    suspend fun getEventsWithLocation(
+        onSuccess: (Boolean) -> Unit
+    ): List<CulturalEvent>{
+        val returnList: MutableList<CulturalEvent> = emptyList<CulturalEvent>().toMutableList()
+        var tempList: List<CulturalEvent> = emptyList()
+        var success = false
+        withContext(Dispatchers.IO){
+            tempList = parseJasonFile{isSuccessful -> success = isSuccessful}.toMutableList()
+        }
+        if (success){
+            tempList.forEach { event ->
+                if (event.latitude != "" && event.latitude != "") returnList.add(event)
+            }
+        }
+        else onSuccess.invoke(success)
+        return returnList.toList()
+    }
 }

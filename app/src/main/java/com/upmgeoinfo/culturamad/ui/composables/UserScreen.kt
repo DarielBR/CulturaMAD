@@ -97,6 +97,7 @@ fun UserScreen(
                                 viewModel?.clearStateValues()
                                 viewModel?.resetErrors()
                                 viewModel?.logOutUser()
+                                viewModel?.setupStateDataAfterUserChange()
                                 onNavToLoginScreen.invoke()
                             },
                             colors = ButtonDefaults.buttonColors(

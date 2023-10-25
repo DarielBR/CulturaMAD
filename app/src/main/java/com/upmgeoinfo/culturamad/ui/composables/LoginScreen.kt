@@ -93,7 +93,7 @@ fun LoginScreen(
                         onClick = {
                             viewModel?.loginUser(context){success ->
                                 if (success) {
-                                    //authenticationViewModel?.onCurrentUserChange()
+                                    viewModel.setupStateDataAfterUserChange()
                                     onNavBack.invoke()
                                 }
                             }
