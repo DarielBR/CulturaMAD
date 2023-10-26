@@ -20,7 +20,7 @@ import kotlinx.coroutines.withContext
  *
  */
 
-const val COLLECTION_NAME = "event_reviews"
+const val COLLECTION_NAME = "events_reviews"
 const val USERID_FIELD = "user_id"
 const val EVENTID_FIELD = "event_id"
 const val REVIEW = "review"
@@ -209,8 +209,8 @@ class FirestoredbRepository {
         firestoreInstance.collection(COLLECTION_NAME)
             .document(docName)
             .get()
-            .addOnSuccessListener { document ->
-                if (document != null){
+            .addOnSuccessListener { documentSnapShot ->
+                if (documentSnapShot.exists()){
                     firestoreInstance.collection(COLLECTION_NAME)
                         .document(docName)
                         .update(
@@ -250,7 +250,7 @@ class FirestoredbRepository {
             .document(docName)
             .get()
             .addOnSuccessListener { document ->
-                if (document != null){
+                if (document.exists()){
                     firestoreInstance.collection(COLLECTION_NAME)
                         .document(docName)
                         .update(
@@ -290,7 +290,7 @@ class FirestoredbRepository {
             .document(docName)
             .get()
             .addOnSuccessListener { document ->
-                if (document != null){
+                if (document.exists()){
                     firestoreInstance.collection(COLLECTION_NAME)
                         .document(docName)
                         .update(

@@ -70,9 +70,12 @@ fun UserScreen(
                             .fillMaxWidth()
                             .padding(top = 6.dp)
                     ){
+                        val userMail = loginUiState?.currentUserMail ?: ""
                         Text(
                             //text = authenticationViewModel?.currentUser?.email ?: "",
-                            text = loginUiState?.currentUserMail ?: "",
+                            text =
+                                if(userMail.isEmpty()) stringResource(id = R.string.ui_anonymous)
+                                else userMail,
                             //text = currentUserMail,
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.primary,

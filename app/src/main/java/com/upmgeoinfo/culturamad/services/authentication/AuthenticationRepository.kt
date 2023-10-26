@@ -10,11 +10,21 @@ import kotlinx.coroutines.withContext
 class AuthenticationRepository {
     val currentUser: FirebaseUser? = Firebase.auth.currentUser
 
-    fun hasUser(): Boolean = Firebase.auth.currentUser != null
+    fun hasUser(): Boolean = Firebase.auth.currentUser != null && !Firebase.auth.currentUser!!.isAnonymous
 
     suspend fun getCurrentUserMail(): String = withContext(Dispatchers.IO){
         return@withContext Firebase.auth.currentUser?.email.orEmpty()
     }
+
+    suspend fun signupAnonymously(
+        onComplete: (Boolean) -> Unit
+    ) = withContext(Dispatchers.IO){
+        Firebase.auth.signInAnonymously()
+            .addOnCompleteListener { result ->
+                onComplete.invoke(result.isSuccessful)
+            }.await()
+    }
+
     suspend fun createUser(
         email: String,
         password: String,

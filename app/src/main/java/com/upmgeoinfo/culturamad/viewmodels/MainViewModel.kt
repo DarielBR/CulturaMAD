@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseUser
 import com.upmgeoinfo.culturamad.services.authentication.AuthenticationRepository
 import com.upmgeoinfo.culturamad.services.firestoredb.FirestoredbRepository
@@ -18,6 +19,7 @@ import com.upmgeoinfo.culturamad.viewmodels.auth.model.LoginUiState
 import com.upmgeoinfo.culturamad.viewmodels.firestoredb.model.EventReview
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainViewModel(
     private val apiEventsRepository: ApiEventsRepository,//API REST resource consumption
@@ -38,6 +40,7 @@ class MainViewModel(
 /****************General-MainState Block************************/
     init {
         viewModelScope.launch {
+            signupAnonymously()
             state = state.copy(
                 items = culturalEventRepository.getCulturalEventsWithLocation().toMutableList(),
                 reviews = firestoredbRepository.getAllReviews{}.toMutableList()
@@ -46,80 +49,106 @@ class MainViewModel(
         }
     }
 
+    suspend fun signupAnonymously(){
+        viewModelScope.launch {
+            if (!hasUser){
+                authenticationRepository.signupAnonymously {  }
+                //authenticationRepository.logIn("usuario@correo.com","secreta"){}
+            }
+        }
+    }
+
     suspend fun setupStateData(
        onSuccess: (Boolean) -> Unit
-    ){
+    )= viewModelScope.launch{
         //fetch data from API EndPoint and Firestore Database (this is loaded at init block)
         val newStateList: MutableList<CulturalEvent> = emptyList<CulturalEvent>().toMutableList()
         var itemsEndPoint: List<CulturalEvent> = emptyList()
         var successOnEndPoint = false
         //fetching event from end point
-        viewModelScope.async {
-            itemsEndPoint = apiEventsRepository.getEventsWithLocation { successOnEndPoint = it }
-        }.await()
-        viewModelScope.launch{
-            //First, the dbLo tasks
-            //do we have data at dbLo?
-            if (state.items.isEmpty()){//No
-                //Do we have data from EndPoint
-                if (!successOnEndPoint) onSuccess.invoke(false)//No data available. This  must trigger actions at SplashScreen
-                else{//Yes
-                    //Insert operation into dbLo
-                    itemsEndPoint.forEach { culturalEventRepository.insertCulturalEvent(it) }
+        itemsEndPoint = apiEventsRepository.getEventsWithLocation { successful -> successOnEndPoint = successful }
+        //First, the dbLo tasks
+        //do we have data at dbLo?
+        if (state.items.isEmpty()){//No
+            //Do we have data from EndPoint
+            if (!successOnEndPoint) onSuccess.invoke(false)//No data available. This  must trigger actions at SplashScreen
+            else{//Yes
+                //Insert operation into dbLo
+                itemsEndPoint.forEach { culturalEventRepository.insertCulturalEvent(it) }
+            }
+            //As we have data from EndPoint we will use it to provide state
+            //dbFi task
+            itemsEndPoint.forEach {endPointItem ->
+                //calculating event's averageRate
+                endPointItem.averageRate = calculateAverageRate(endPointItem.id!!.toString())
+                //getting current user EventReview
+                if (hasUser){
+                    val storedReview = getUserReview(endPointItem.id!!)
+                    with(endPointItem){
+                        review = storedReview.review
+                        rate= storedReview.rate
+                        favorite= storedReview.favorite
+                    }
                 }
-            }else{//Yes
-                //Do we have data from EndPoint
-                if (successOnEndPoint){
-                    //Upsert operation into dbLo
-                    itemsEndPoint.forEach {endPointItem ->
-                        if (state.items.find { it.id == endPointItem.id } == null){
-                            culturalEventRepository.updateCulturalEvent(endPointItem)
-                        }else{
-                            culturalEventRepository.insertCulturalEvent(endPointItem)
-                        }
+                //Now this item is ready for state update
+                newStateList.add(endPointItem)
+            }
+            //Once the list is thoroughly examined, we are ready to update state
+            state = state.copy(items = newStateList)
+            onSuccess.invoke(true)
+
+        }else{//Yes
+            //Do we have data from EndPoint
+            if (successOnEndPoint){
+                //Upsert operation into dbLo
+                itemsEndPoint.forEach {endPointItem ->
+                    if (state.items.find { it.id == endPointItem.id } == null){
+                        culturalEventRepository.updateCulturalEvent(endPointItem)
+                    }else{
+                        culturalEventRepository.insertCulturalEvent(endPointItem)
                     }
-                    state.items.forEach { stateItem ->
-                        if (itemsEndPoint.find { it.id == stateItem.id } == null){
-                            culturalEventRepository.deleteCulturalEvent(stateItem.id!!)
-                        }
-                    }
-                    //As we have data from EndPoint we will use it to provide state
-                    //dbFi task
-                    itemsEndPoint.forEach {endPointItem ->
-                        //calculating event's averageRate
-                        endPointItem.averageRate = calculateAverageRate(endPointItem.id!!.toString())
-                        //getting current user EventReview
-                        if (hasUser){
-                            val storedReview = getUserReview(endPointItem.id!!)
-                            with(endPointItem){
-                                review = storedReview.review
-                                rate= storedReview.rate
-                                favorite= storedReview.favorite
-                            }
-                        }
-                        //Now this item is ready for state update
-                        newStateList.add(endPointItem)
-                    }
-                    //Once the list is thoroughly examined, we are ready to update state
-                    state = state.copy(items = newStateList)
-                    onSuccess.invoke(true)
-                }else{//No: local data only
-                    state.items.forEach {localItem ->
-                        //idem, but using local data
-                        localItem.averageRate = calculateAverageRate(localItem.id!!.toString())
-                        if (hasUser){
-                            val storedReview = getUserReview(localItem.id)
-                            with(localItem){
-                                review = storedReview.review
-                                rate = storedReview.rate
-                                favorite = storedReview.favorite
-                            }
-                            newStateList.add(localItem)
-                        }
-                    }
-                    state = state.copy(items = newStateList)
-                    onSuccess.invoke(true)
                 }
+                state.items.forEach { stateItem ->
+                    if (itemsEndPoint.find { it.id == stateItem.id } == null){
+                        culturalEventRepository.deleteCulturalEvent(stateItem.id!!)
+                    }
+                }
+                //As we have data from EndPoint we will use it to provide state
+                //dbFi task
+                itemsEndPoint.forEach {endPointItem ->
+                    //calculating event's averageRate
+                    endPointItem.averageRate = calculateAverageRate(endPointItem.id!!.toString())
+                    //getting current user EventReview
+                    if (hasUser){
+                        val storedReview = getUserReview(endPointItem.id!!)
+                        with(endPointItem){
+                            review = storedReview.review
+                            rate= storedReview.rate
+                            favorite= storedReview.favorite
+                        }
+                    }
+                    //Now this item is ready for state update
+                    newStateList.add(endPointItem)
+                }
+                //Once the list is thoroughly examined, we are ready to update state
+                state = state.copy(items = newStateList)
+                onSuccess.invoke(true)
+            }else{//No: local data only
+                state.items.forEach {localItem ->
+                    //idem, but using local data
+                    localItem.averageRate = calculateAverageRate(localItem.id!!.toString())
+                    if (hasUser){
+                        val storedReview = getUserReview(localItem.id)
+                        with(localItem){
+                            review = storedReview.review
+                            rate = storedReview.rate
+                            favorite = storedReview.favorite
+                        }
+                        newStateList.add(localItem)
+                    }
+                }
+                state = state.copy(items = newStateList)
+                onSuccess.invoke(true)
             }
         }
     }
