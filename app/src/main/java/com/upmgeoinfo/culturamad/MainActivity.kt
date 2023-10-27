@@ -25,6 +25,8 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.RequestConfiguration
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -82,6 +84,13 @@ class MainActivity : ComponentActivity() {
         val bundle = Bundle()
         bundle.putString("message", "Firebase integration successful")
         firebaseAnalytics.logEvent("culturaMAD_Start", bundle)
+        /**
+         * Initializing AdMob
+         */
+        MobileAds.initialize(this){}
+        /*MobileAds.setRequestConfiguration(
+            RequestConfiguration.Builder().setTestDeviceIds(listOf("ABCDEF012345")).build()
+        )*/
         /**
          * Composable content
          */

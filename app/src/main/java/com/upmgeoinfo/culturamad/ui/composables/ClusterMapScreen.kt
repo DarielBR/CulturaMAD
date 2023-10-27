@@ -59,6 +59,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.ClusterItem
 import com.google.maps.android.clustering.ClusterManager
 import com.google.maps.android.clustering.view.DefaultClusterRenderer
@@ -535,30 +536,6 @@ private fun getCulturalEventsFromDatabase(
     return culturalEventItems.toList()
 }
 
-/*fun createCulturalEventMadridItem(culturalEvent: CulturalEventMadrid): CulturalEventMadridItem {
-    return CulturalEventMadridItem(
-        eventID = culturalEvent.id,
-        eventLocation = LatLng(culturalEvent.location.latitude, culturalEvent.location.longitude),
-        eventTitle = culturalEvent.title,
-        eventDescription = culturalEvent.description,
-        eventCategory = culturalEvent.category,
-        eventAddress = culturalEvent.address.area.streetAddress,
-        eventDistrict = culturalEvent.address.district.Id,
-        eventNeighborhood = culturalEvent.address.area.Id,
-        eventDays = culturalEvent.recurrence.days,
-        eventFrequency = culturalEvent.recurrence.frequency,
-        eventInterval = culturalEvent.recurrence.interval,
-        eventStart = culturalEvent.dtstart,
-        eventEnd = culturalEvent.dtend,
-        eventExcludedDays = culturalEvent.excludedDays,
-        eventTime = culturalEvent.time,
-        eventPlace = culturalEvent.eventLocation,
-        eventHost = culturalEvent.organization.organizationName,
-        eventPrice = culturalEvent.price,
-        eventLink = culturalEvent.link
-    )
-}*/
-
 fun transformCulturalEventToClusterItem(culturalEvent: CulturalEvent): CulturalEventMadridItem{
     return CulturalEventMadridItem(
         eventID = culturalEvent.id.toString(),
@@ -724,7 +701,6 @@ class CulturalEventMadridItem(
         extraPlace = eventPlace
         extraPrice = eventPrice
         extraLink = eventLink
-
     }
 
 }
@@ -747,6 +723,11 @@ class CMADClusterMarkerRenderer(
         val vectorDrawable = VectorDrawableCompat.create(context.resources, vectorResId, null)
 
         return BitmapDescriptorFactory.fromBitmap(vectorDrawable!!.toBitmap())
+    }
+
+    override fun shouldRenderAsCluster(cluster: Cluster<CulturalEventMadridItem>): Boolean {
+        //return super.shouldRenderAsCluster(cluster)
+        return cluster.size > 25
     }
 
 }

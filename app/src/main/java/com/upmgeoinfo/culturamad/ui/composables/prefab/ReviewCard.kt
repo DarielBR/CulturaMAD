@@ -35,54 +35,50 @@ fun ReviewCard(
     Card(
         shape = MaterialTheme.shapes.extraSmall,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
         ),
         modifier = Modifier
             .padding(4.dp)
             .fillMaxWidth()
     ) {
-        Column {
-            Row{
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier
-                        .fillMaxWidth(0.20f)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.AccountCircle,
-                        contentDescription = null,
-                        tint = getRandomColor(),
+        Surface(
+            shape = MaterialTheme.shapes.small,
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 2.dp,
+        ){
+            Column {
+                Row {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.SpaceEvenly,
                         modifier = Modifier
-                            .padding(2.dp)
-                            .size(48.dp)
-                    )
-                    RateTag(rate = rate)
-                }
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Surface(
-                        shape = MaterialTheme.shapes.small,
-                        color = MaterialTheme.colorScheme.surface,
-                        tonalElevation = 2.dp,
+                            .fillMaxWidth(0.20f)
                     ) {
-                        Column(
+                        Icon(
+                            imageVector = Icons.Default.AccountCircle,
+                            contentDescription = null,
+                            tint = getRandomColor(),
+                            modifier = Modifier
+                                .padding(2.dp)
+                                .size(48.dp)
+                        )
+                        //RateTag(rate = rate)
+                    }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            text = userID,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(4.dp)
-                        ) {
-                            Text(
-                                text = userID,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                fontWeight = FontWeight.SemiBold,
-                                modifier = Modifier.padding(4.dp)
-                            )
-                            Text(
-                                text = review,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.padding(4.dp)
-                            )
-                        }
+                        )
+                        Text(
+                            text = review,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.padding(4.dp)
+                        )
                     }
                 }
             }

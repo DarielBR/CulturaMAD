@@ -7,7 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.firebase.auth.FirebaseUser
 import com.upmgeoinfo.culturamad.services.authentication.AuthenticationRepository
 import com.upmgeoinfo.culturamad.services.firestoredb.FirestoredbRepository
@@ -19,7 +18,6 @@ import com.upmgeoinfo.culturamad.viewmodels.auth.model.LoginUiState
 import com.upmgeoinfo.culturamad.viewmodels.firestoredb.model.EventReview
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MainViewModel(
     private val apiEventsRepository: ApiEventsRepository,//API REST resource consumption

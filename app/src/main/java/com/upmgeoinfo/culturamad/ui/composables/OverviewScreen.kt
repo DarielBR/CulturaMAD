@@ -116,7 +116,7 @@ fun OverviewScreen(
                 modifier = Modifier
                     .fillMaxWidth()
             ){
-                var itemsList = viewModel?.state?.items?.toList() ?: emptyList()
+                /*var itemsList = viewModel?.state?.items?.toList() ?: emptyList()
                 if (viewModel?.state?.searchValue != ""){
                     val newItemList = emptyList<CulturalEvent>().toMutableList()
                     val searchValue = viewModel?.state?.searchValue
@@ -126,15 +126,37 @@ fun OverviewScreen(
                         }
                     }
                     itemsList = newItemList.toList()
+                }*/
+                val itemsList: MutableList<CulturalEvent> = emptyList<CulturalEvent>().toMutableList()
+                var counter = 0 //to insert an ad every three (3) events
+                viewModel?.state?.items?.forEach { stateItem ->
+                    if (counter == 3){
+                        val adItem = CulturalEvent(id = 0)
+                        itemsList.add(adItem)
+                        counter = 0
+                    }else{
+                        if(viewModel?.state?.searchValue != ""){
+                            if (stateItem.title.contains(viewModel.state.searchValue, ignoreCase = true)){
+                                itemsList.add(stateItem)
+                            }
+                        }else{
+                            itemsList.add(stateItem)
+                        }
+                        counter++
+                    }
                 }
                 items(itemsList){ item ->
-                    EventGridCard(
-                        culturalEvent = item,
-                        onClick = {
-                            viewModel?.setCurrentItem(item.id.toString())
-                            navController?.navigate(AppScreens.DetailViewScreen.route)
-                        }
-                    )
+                    if (item.id == 0) {
+                        AdGridCard {}
+                    }else{
+                        EventGridCard(
+                            culturalEvent = item,
+                            onClick = {
+                                viewModel?.setCurrentItem(item.id.toString())
+                                navController?.navigate(AppScreens.DetailViewScreen.route)
+                            }
+                        )
+                    }
                 }
             }
             Text(

@@ -3,6 +3,7 @@ package com.upmgeoinfo.culturamad.ui.composables
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -30,6 +32,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
 import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
@@ -62,7 +68,7 @@ fun EventGridCard(
                         .fillMaxSize()
                 ) {
                     Image(painter =
-                        if (culturalEvent!!.category.contains("DanzaBaile"))
+                        if (culturalEvent.category.contains("DanzaBaile"))
                             painterResource(id = R.drawable.dance_image)
                         else if (culturalEvent.category.contains("Musica"))
                             painterResource(id = R.drawable.music_image)
@@ -210,6 +216,38 @@ fun EventGridCard(
     }
 }
 
+@Composable
+fun AdGridCard(
+    onClick: () -> Unit
+){
+    androidx.compose.material.Card(
+        shape = MaterialTheme.shapes.medium,
+        elevation = 5.dp,
+        backgroundColor = MaterialTheme.colorScheme.surface,
+        modifier = Modifier
+            .padding(8.dp)
+            .size(width = 240.dp, height = 150.dp)
+            .clickable { onClick.invoke() }
+    ) {
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ){
+            AndroidView(
+                modifier = Modifier
+                    .fillMaxSize(),
+                factory = { context ->
+                    AdView(context).apply {
+                        setAdSize(AdSize.MEDIUM_RECTANGLE)
+                        adUnitId = "ca-app-pub-3940256099942544/6300978111"
+                        loadAd(AdRequest.Builder().build())
+                    }
+                }
+            )
+        }
+    }
+}
+
 private var mockEvent = CulturalEvent(
     id = 1111111,
     category = "MOCK",
@@ -241,14 +279,19 @@ private var mockEvent = CulturalEvent(
 @Composable
 fun EventGridCardPreview(){
     CulturaMADTheme {
-        Column(
-        ){
-            Row{
+        Column{
+            Column(
+                modifier = Modifier
+                    .padding(top = 8.dp, bottom = 8.dp)
+            ){
                 EventGridCard(
                     culturalEvent = mockEvent,
                     onClick = {}
                 )
+                AdGridCard{}
+
             }
         }
     }
 }
+
