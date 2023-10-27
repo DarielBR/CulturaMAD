@@ -7,12 +7,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -51,7 +51,7 @@ fun EventGridCard(
         backgroundColor = MaterialTheme.colorScheme.surface,
         modifier = Modifier
             .padding(8.dp)
-            .size(width = 240.dp, height = 150.dp)
+            .size(width = 300.dp, height = 250.dp)//240-150
             .clickable { onClick.invoke() }
     ) {
         Column(
@@ -60,7 +60,9 @@ fun EventGridCard(
         ){
             Row(//Upper half
                 modifier = Modifier
-                    .size(width = 240.dp, height = 75.dp)
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.5f)
+                    //.size(width = 240.dp, height = 75.dp)
             ) {
                 Box(//Box containing the upper half
                     contentAlignment = Alignment.Center,
@@ -226,7 +228,7 @@ fun AdGridCard(
         backgroundColor = MaterialTheme.colorScheme.surface,
         modifier = Modifier
             .padding(8.dp)
-            .size(width = 240.dp, height = 150.dp)
+            .size(width = 300.dp, height = 250.dp)//240-150
             .clickable { onClick.invoke() }
     ) {
         Column(
@@ -288,7 +290,7 @@ fun EventGridCardPreview(){
                     culturalEvent = mockEvent,
                     onClick = {}
                 )
-                AdGridCard{}
+                //AdGridCard{}
 
             }
         }

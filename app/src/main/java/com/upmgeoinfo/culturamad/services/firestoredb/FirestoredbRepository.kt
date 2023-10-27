@@ -2,7 +2,6 @@ package com.upmgeoinfo.culturamad.services.firestoredb
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.upmgeoinfo.culturamad.viewmodels.firestoredb.model.EventReview
-import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -37,7 +36,6 @@ class FirestoredbRepository {
      * @param userID a string with the user id
      * @param eventID a string with the event id
      *
-     *@throws exception if the operation fails.
      */
     suspend fun addReview(
         userID: String,
@@ -65,7 +63,7 @@ class FirestoredbRepository {
     suspend fun getAllReviews(
         onSuccess: (Boolean) -> Unit
     ): List<EventReview> {
-        var returnList: MutableList<EventReview> = emptyList<EventReview>().toMutableList()
+        val returnList: MutableList<EventReview> = emptyList<EventReview>().toMutableList()
 
         withContext(Dispatchers.IO){
             firestoreInstance.collection(COLLECTION_NAME)
@@ -97,7 +95,6 @@ class FirestoredbRepository {
      * @param eventID the ID of the event whose reviews are required.
      * @return a list with the stored reviews for the event with eventID. If there is no reviews for
      * that event, the list will be empty.
-     * @throws  exception an exception if the operation fails.
      */
     suspend fun getEventReviews(
         eventID: String
@@ -137,7 +134,6 @@ class FirestoredbRepository {
      * @param userID the ID of the user whose review is required.
      * @return an EventReview object with the stored review for the event with eventID made by
      * the user with userID. If there is none, the objects will be empty.
-     * @throws  exception an exception if the operation fails.
      */
     suspend fun getReview(
         userID: String,
@@ -175,8 +171,8 @@ class FirestoredbRepository {
         eventID: String,
         onSuccess: (Boolean) -> Unit
     ): Float = withContext(Dispatchers.IO){
-        var averageRate: Float = 0.0f
-        var rateSum: Float = 0.0f
+        var averageRate = 0.0f
+        var rateSum = 0.0f
 
         firestoreInstance.collection(COLLECTION_NAME)
             .whereEqualTo(EVENTID_FIELD, eventID)
