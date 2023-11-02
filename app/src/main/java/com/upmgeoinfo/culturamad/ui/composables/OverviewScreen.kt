@@ -150,6 +150,7 @@ fun OverviewScreen(
                         AdGridCard {}
                     }else{
                         EventGridCard(
+                            viewModel = viewModel,
                             culturalEvent = item,
                             onClick = {
                                 viewModel?.setCurrentItem(item.id.toString())

@@ -1,5 +1,7 @@
 package com.upmgeoinfo.culturamad.viewmodels.main.model
 
+import android.location.Location
+import com.google.android.gms.maps.model.LatLng
 import com.upmgeoinfo.culturamad.viewmodels.firestoredb.model.EventReview
 
 data class MainState (
@@ -8,7 +10,9 @@ data class MainState (
     val isSplashScreenOnRender: Boolean = true,
     val searchValue: String = "",
     val activeSearchCategories: MutableList<String> = emptyList<String>().toMutableList(),
-    val reviews: MutableList<EventReview> = emptyList<EventReview>().toMutableList()
+    val reviews: MutableList<EventReview> = emptyList<EventReview>().toMutableList(),
+    var deviceLocation: LatLng? = null,
+    var isLocationPermissionGranted: Boolean = false//should be in false
 )
 
 //private fun emptyCulturalEvent(): CulturalEvent{

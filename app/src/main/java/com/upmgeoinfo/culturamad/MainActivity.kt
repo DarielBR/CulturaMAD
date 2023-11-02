@@ -26,7 +26,6 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.RequestConfiguration
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -40,7 +39,7 @@ import com.upmgeoinfo.culturamad.ui.composables.ScaffoldedScreen
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 
 class MainActivity : ComponentActivity() {
-    private lateinit var fuseLocationClient: FusedLocationProviderClient
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalPermissionsApi::class)
@@ -51,7 +50,7 @@ class MainActivity : ComponentActivity() {
          *
          * fuseLocationClient provides access to device location.
          */
-        fuseLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         /**
          * Displaying content Edge to Edge
          */
@@ -72,7 +71,9 @@ class MainActivity : ComponentActivity() {
             apiEventsRepository = apiEventsRepository,
             culturalEventRepository = culturalEventRepository,
             firestoredbRepository = firestoredbRepository,
-            authenticationRepository = authenticationRepository
+            authenticationRepository = authenticationRepository,
+            fusedLocationProviderClient = fusedLocationClient,
+            context = this
         )
         //TODO: comment this line when AuthenticationViewModel has been merged with MainViewModel
         //val authenticationViewModel = AuthenticationViewModel(authenticationRepository)
@@ -106,7 +107,7 @@ class MainActivity : ComponentActivity() {
                  * Composable content
                  */
                 ScaffoldedScreen(
-                    fusedLocationClient = fuseLocationClient,
+                    fusedLocationClient = fusedLocationClient,
                     viewModel = viewModel,
                     //TODO: comment this line when AuthenticationViewModel has been merged with MainViewModel
                     //authenticationViewModel = authenticationViewModel

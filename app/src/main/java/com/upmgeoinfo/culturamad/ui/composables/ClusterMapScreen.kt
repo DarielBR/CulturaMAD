@@ -112,6 +112,7 @@ fun ClusterMapScreen(
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 if (location != null) {
                     myLocation = LatLng(location.latitude, location.longitude)
+                    //provide state??
                 }
             }
         }

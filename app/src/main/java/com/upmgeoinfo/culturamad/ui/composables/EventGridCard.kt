@@ -39,9 +39,12 @@ import com.google.android.gms.ads.AdView
 import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
+import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
+import kotlin.math.roundToInt
 
 @Composable
 fun EventGridCard(
+    viewModel: MainViewModel? = null,
     culturalEvent: CulturalEvent,
     onClick: () -> Unit,
 ){
@@ -203,14 +206,20 @@ fun EventGridCard(
                             .padding(start = 6.dp)
                     ){
                         Text(
-                            text = culturalEvent.address + " | 1 Km" ,
+                            text =
+                                if (viewModel?.state?.isLocationPermissionGranted == true)
+                                    culturalEvent.address + " | " +
+                                            (viewModel.calculateDistanceOverEarth(
+                                                latitude = culturalEvent.latitude.toDouble(),
+                                                longitude = culturalEvent.longitude.toDouble()
+                                            )*10).roundToInt().toDouble()/10 + "Km"
+                                else culturalEvent.address,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
                             fontSize = 12.sp,
                             style = MaterialTheme.typography.labelSmall,
                             modifier = Modifier
                                 .padding(6.dp)
                         )
-
                     }
                 }
             }

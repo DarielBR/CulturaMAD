@@ -1,12 +1,16 @@
 package com.upmgeoinfo.culturamad.viewmodels
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseUser
 import com.upmgeoinfo.culturamad.services.authentication.AuthenticationRepository
 import com.upmgeoinfo.culturamad.services.firestoredb.FirestoredbRepository
@@ -18,12 +22,20 @@ import com.upmgeoinfo.culturamad.viewmodels.auth.model.LoginUiState
 import com.upmgeoinfo.culturamad.viewmodels.firestoredb.model.EventReview
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlin.math.PI
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 class MainViewModel(
     private val apiEventsRepository: ApiEventsRepository,//API REST resource consumption
     private val culturalEventRepository: CulturalEventRepository,//Local database (dbLo)
     private val firestoredbRepository: FirestoredbRepository,//Firebase Firestore data base (dbFi)
-    private val authenticationRepository: AuthenticationRepository
+    private val authenticationRepository: AuthenticationRepository,
+    private val fusedLocationProviderClient: FusedLocationProviderClient,
+    val context: Context? = null
     //TODO: other repos will be added here, ie. Firebase Auth and Firebase FireStore
 ): ViewModel() {
     val currentUser: FirebaseUser?
@@ -43,6 +55,16 @@ class MainViewModel(
                 items = culturalEventRepository.getCulturalEventsWithLocation().toMutableList(),
                 reviews = firestoredbRepository.getAllReviews{}.toMutableList()
             )
+            val locationPermissionState = ContextCompat.checkSelfPermission(context!!, android.Manifest.permission.ACCESS_FINE_LOCATION)
+            if (locationPermissionState == PackageManager.PERMISSION_GRANTED){
+                fusedLocationProviderClient.lastLocation
+                    .addOnSuccessListener { location ->
+                        state = state.copy(
+                            deviceLocation = LatLng(location.latitude, location.longitude),
+                            isLocationPermissionGranted = true
+                        )
+                    }
+            }
             refreshCurrentUserMail()
         }
     }
@@ -51,7 +73,6 @@ class MainViewModel(
         viewModelScope.launch {
             if (!hasUser){
                 authenticationRepository.signupAnonymously {  }
-                //authenticationRepository.logIn("usuario@correo.com","secreta"){}
             }
         }
     }
@@ -597,5 +618,35 @@ class MainViewModel(
     }
 
 /****************Firestore Block********************************/
+/****************Utils Block************************************/
+
+    /**
+     * Returns the distance in Km between two points give geographical coordinates. Uses the Earth's
+     * mean radius equal to 6'371Km.
+     *
+     * @param positionA first coordinate.
+     * @param position second coordinate.
+     *
+     * @return The distance between coordinates in Km
+     */
+    fun calculateDistanceOverEarth(
+        latitude: Double,
+        longitude: Double
+    ): Double{
+        val latA = state.deviceLocation!!.latitude * PI/180
+        val latB = latitude * PI/180
+
+        val deltaLat = (latitude - state.deviceLocation!!.latitude) * PI/180
+        val deltaLng = (longitude - state.deviceLocation!!.longitude) * PI/180
+
+        val earthRadius: Double = 6371.0 //in Km
+
+        val haversine =
+            sin(deltaLat/2).pow(2) + cos(latA) * cos(latB) * sin(deltaLng/2).pow(2)
+        val c = 2 * atan2(sqrt(haversine), sqrt(1 - haversine))
+
+        return earthRadius * c
+    }
+/****************Utils Block************************************/
 }
 
