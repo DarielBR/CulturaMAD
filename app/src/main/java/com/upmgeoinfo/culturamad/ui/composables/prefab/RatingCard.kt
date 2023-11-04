@@ -142,6 +142,8 @@ fun RatingCard(
 @Composable
 fun RatingStar(
     filled: Boolean = false,
+    color: Color? = null,
+    size: Int? = null,
     onClick: () -> Unit
 ){
     IconButton(
@@ -155,10 +157,11 @@ fun RatingStar(
         Icon(
             imageVector = Icons.Default.Star,
             contentDescription = null,
-            tint =  if(filled) Color(0xFFF9ED69)
-                    else MaterialTheme.colorScheme.outline,
+            tint = color ?:
+                if (filled) Color(0xFFF9ED69)
+                else MaterialTheme.colorScheme.outline,
             modifier = Modifier
-                .size(32.dp)
+                .size(size?.dp ?: 32.dp)
         )
     }
 }
