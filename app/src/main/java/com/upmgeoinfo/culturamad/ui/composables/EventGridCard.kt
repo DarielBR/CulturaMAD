@@ -17,7 +17,10 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,6 +43,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
+import com.google.android.gms.maps.model.Circle
 import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
@@ -127,21 +131,31 @@ fun EventGridCard(
                         modifier = Modifier
                             .align(alignment = Alignment.TopEnd)
                     ){
+                        var favorite by remember { mutableStateOf(false) }
+                        favorite = viewModel?.state?.items?.find { it.id == culturalEvent.id }?.favorite ?: false
                         Surface(
                             shape = CircleShape,
-                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            color = Color.White.copy(alpha = 0.8f),
                             modifier = Modifier
-                                .padding(4.dp)
+                                .padding(2.dp)
                                 .alpha(0.8f)
+                                .clickable {
+                                    favorite = !favorite
+                                    viewModel?.changeFavoriteState(
+                                        culturalEvent = culturalEvent,
+                                        favorite = favorite
+                                    )
+                                }
 
                         ) {
-                            Icon(
-                                imageVector = Icons.Filled.FavoriteBorder,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            androidx.compose.material3.Icon(
+                                imageVector =
+                                if (favorite) Icons.Default.Favorite
+                                else Icons.Default.FavoriteBorder,
+                                contentDescription = "",
+                                tint = Color.Gray,
                                 modifier = Modifier
-                                    .size(20.dp)
-                                    .padding(2.dp)
+                                    .padding(1.dp)
                             )
                         }
                     }
@@ -161,14 +175,14 @@ fun EventGridCard(
                                 fontWeight = FontWeight.ExtraBold,
                                 fontSize = 16.sp,
                                 overflow = TextOverflow.Ellipsis,
-                                color = MaterialTheme.colorScheme.surfaceVariant
+                                color = Color.White
                             )
                             Text(//Place
                                 text = culturalEvent.place,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 overflow = TextOverflow.Ellipsis,
-                                color = MaterialTheme.colorScheme.surfaceVariant
+                                color = Color.White
                             )
                         }
                     }

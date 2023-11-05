@@ -14,6 +14,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -25,6 +26,8 @@ import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 fun DetailButton(
     icon: ImageVector? = null,
     enabled: Boolean = true,
+    shape: Shape? = null,
+    color: Color? = null,
     type: DetailButtonType = DetailButtonType.DEFAULT,
     context: Context? = null,
     culturalEvent: CulturalEvent = CulturalEvent(),
@@ -33,8 +36,8 @@ fun DetailButton(
 ){
     val intentLauncher = IntentLauncher(culturalEvent = culturalEvent, context = context)
     Surface(
-        shape = MaterialTheme.shapes.small,
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        shape = shape ?: MaterialTheme.shapes.small,
+        color = color ?: MaterialTheme.colorScheme.surfaceVariant,
         shadowElevation = 1.dp,
         tonalElevation = 0.dp,
         modifier = Modifier

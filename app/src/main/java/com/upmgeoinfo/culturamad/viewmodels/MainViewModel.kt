@@ -676,6 +676,10 @@ class MainViewModel(
                 }
         }
     }
+
+    fun getStateDeviceLocation(): LatLng? {
+        return state.deviceLocation
+    }
 /****************Utils Block************************************/
 }
 

@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
@@ -73,11 +74,12 @@ import com.upmgeoinfo.culturamad.ui.composables.prefab.DetailButton
 import com.upmgeoinfo.culturamad.ui.composables.prefab.DetailButtonType
 import com.upmgeoinfo.culturamad.ui.composables.prefab.NavBackButton
 import com.upmgeoinfo.culturamad.ui.composables.prefab.PriceTag
-import com.upmgeoinfo.culturamad.ui.composables.prefab.RateTag
+import com.upmgeoinfo.culturamad.ui.composables.prefab.RateStarTag
 import com.upmgeoinfo.culturamad.ui.composables.prefab.ReviewCard
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 import com.upmgeoinfo.culturamad.ui.utils.IntentLauncher
 import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
+import kotlin.math.roundToInt
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -138,6 +140,8 @@ fun DetailViewScreen(
                                     culturalEvent = culturalEvent,
                                     context = context,
                                     type = DetailButtonType.SHARE,
+                                    shape = CircleShape,
+                                    color = Color.White.copy(alpha = 0.8f),
                                     modifier = Modifier
                                         .padding(end = 5.dp)
                                 ){}
@@ -145,8 +149,8 @@ fun DetailViewScreen(
                                 var favorite by remember { mutableStateOf(false) }
                                 favorite = viewModel?.state?.items?.find { it.id == culturalEvent.id }?.favorite ?: false
                                 androidx.compose.material3.Surface(
-                                    shape = MaterialTheme.shapes.small,
-                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                    shape = CircleShape,//MaterialTheme.shapes.small,
+                                    color = Color.White.copy(alpha = 0.8f),
                                     shadowElevation = 1.dp,
                                     tonalElevation = 0.dp,
                                     modifier = Modifier
@@ -211,7 +215,7 @@ fun DetailViewScreen(
                             ){
                                 Column(
                                     modifier = Modifier
-                                        .fillMaxWidth(0.75f)
+                                        .fillMaxWidth(0.60f)
                                 ){
                                     CategoryTag(
                                         category = culturalEvent.category,
@@ -219,39 +223,15 @@ fun DetailViewScreen(
                                     )
                                 }
                                 Column{
-                                    RateTag(
-                                        rate = culturalEvent.averageRate
+                                    RateStarTag(
+                                        rate = culturalEvent.averageRate,
+                                        color = Color.White
                                     )
                                 }
                             }
                         }
                     }
                 }
-                /*
-                Row(
-                    //verticalArrangement = Arrangement.SpaceEvenly,
-                    modifier = Modifier
-                        //.align(alignment = Alignment.BottomStart)
-                        .fillMaxWidth()
-                        //.height(150.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .padding(
-                                start = 8.dp,
-                                end = 8.dp,
-                                top = 16.dp,
-                                bottom = 8.dp
-                            )
-                            .fillMaxWidth()
-                    ) {
-                        Column{
-
-
-
-                        }
-                    }
-                }*/
             }
             Row(//Second Half
                 modifier = Modifier
@@ -474,7 +454,10 @@ fun DetailsReviewTabRow(
             }
         }
         when(tabIndex){
-            0 -> DescriptionView(culturalEvent = culturalEvent)
+            0 -> DescriptionView(
+                culturalEvent = culturalEvent,
+                viewModel = viewModel
+            )
             1 -> ReviewDetailTab(
                 culturalEvent = culturalEvent,
                 viewModel = viewModel
@@ -484,7 +467,10 @@ fun DetailsReviewTabRow(
 }
 
 @Composable
-fun DescriptionView(culturalEvent: CulturalEvent){
+fun DescriptionView(
+    culturalEvent: CulturalEvent,
+    viewModel: MainViewModel? = null
+){
     Surface(
         color = MaterialTheme.colorScheme.surface,
         modifier = Modifier
@@ -493,28 +479,30 @@ fun DescriptionView(culturalEvent: CulturalEvent){
             modifier = Modifier
                 .fillMaxSize()
         ){
-            Row(
-                modifier = Modifier
-                    .padding(start = 18.dp, end = 18.dp, top = 16.dp)
-            ) {
-                Text(
-                    text = culturalEvent.description,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodyMedium,
+            if (culturalEvent.description != ""){
+                Row(
                     modifier = Modifier
-                        .height(80.dp)
-                        .verticalScroll(
-                            state = rememberScrollState(),
-                            enabled = true,
-                            reverseScrolling = false
-                        )
-                )
+                        .padding(start = 18.dp, end = 18.dp, top = 12.dp, bottom = 12.dp)
+                ) {
+                    Text(
+                        text = culturalEvent.description,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier
+                            .height(80.dp)
+                            .verticalScroll(
+                                state = rememberScrollState(),
+                                enabled = true,
+                                reverseScrolling = false
+                            )
+                    )
+                }
             }
-            Row(
-                modifier = Modifier
-                    .padding(top = 12.dp)
-            ) {
-                Minimap(culturalEvent = culturalEvent)
+            Row {
+                Minimap(
+                    culturalEvent = culturalEvent,
+                    viewModel = viewModel
+                )
             }
         }
     }
@@ -522,6 +510,7 @@ fun DescriptionView(culturalEvent: CulturalEvent){
 
 @Composable
 fun Minimap(
+    viewModel: MainViewModel? = null,
     culturalEvent: CulturalEvent
 ){
     Surface(
@@ -571,10 +560,16 @@ fun Minimap(
                     culturalEvent = culturalEvent,
                     context = context
                 )
+                viewModel?.refreshDeviceLocation()
                 GoogleMap(
-                    onMapClick = {myLocation ->
-                        //intentLauncher.directionsIntent(myLocation = myLocation)
-                        intentLauncher.mapsIntent()
+                    onMapClick = {
+                        if(viewModel?.getStateDeviceLocation() != null){
+                            intentLauncher.directionsIntent(
+                                myLocation = viewModel.getStateDeviceLocation()!!
+                            )
+                        }else{
+                            intentLauncher.mapsIntent()
+                        }
                     },
                     cameraPositionState = cameraPositionState,
                     uiSettings = uiSettings,
@@ -591,8 +586,16 @@ fun Minimap(
                     .padding(top = 12.dp, start = 18.dp, end = 18.dp, bottom = 8.dp)
                     .fillMaxWidth()
             ) {
+                var distanceToPoint: Double? by remember { mutableStateOf(null) }
+                distanceToPoint = viewModel?.calculateDistanceOverEarth(
+                    latitude = culturalEvent.latitude.toDouble(),
+                    longitude = culturalEvent.longitude.toDouble()
+                )
                 Text(
-                    text = culturalEvent.address,
+                    text =
+                    if (distanceToPoint != null)
+                        culturalEvent.address + " | " + (distanceToPoint!! * 10).roundToInt().toDouble()/10  + "Km"
+                    else culturalEvent.address,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
