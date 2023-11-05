@@ -2,8 +2,10 @@ package com.upmgeoinfo.culturamad.ui.composables.prefab
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
@@ -30,7 +32,8 @@ fun PriceTag(
         color = if (price == "") changeColorLuminosity(Color.Green, 0.9f)
                 else changeColorLuminosity(Color.White, 0.8f),
         modifier = Modifier
-            .size(55.dp)
+            .height(25.dp)
+            .width(55.dp)
     ) {
         Box(
             contentAlignment = Alignment.Center

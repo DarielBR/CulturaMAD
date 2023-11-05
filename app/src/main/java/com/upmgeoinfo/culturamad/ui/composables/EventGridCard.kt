@@ -1,6 +1,8 @@
 package com.upmgeoinfo.culturamad.ui.composables
 
 import android.content.res.Configuration
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +37,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,15 +48,19 @@ import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.maps.model.Circle
 import com.upmgeoinfo.culturamad.R
+import com.upmgeoinfo.culturamad.services.json_parse.utils.ScheduleParser
+import com.upmgeoinfo.culturamad.ui.composables.prefab.PriceTag
+import com.upmgeoinfo.culturamad.ui.composables.prefab.RateStarTag
 import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
 import kotlin.math.roundToInt
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun EventGridCard(
     viewModel: MainViewModel? = null,
-    culturalEvent: CulturalEvent,
+    culturalEvent: CulturalEvent = mockEvent,
     onClick: () -> Unit,
 ){
     viewModel?.refreshDeviceLocation()
@@ -73,7 +80,7 @@ fun EventGridCard(
             Row(//Upper half
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.5f)
+                    .fillMaxHeight(0.4f)
                     //.size(width = 240.dp, height = 75.dp)
             ) {
                 Box(//Box containing the upper half
@@ -155,7 +162,8 @@ fun EventGridCard(
                                 contentDescription = "",
                                 tint = Color.Gray,
                                 modifier = Modifier
-                                    .padding(1.dp)
+                                    .padding(2.dp)
+                                    .size(18.dp)
                             )
                         }
                     }
@@ -190,40 +198,64 @@ fun EventGridCard(
             }
             Row(//Lower half
                 modifier = Modifier
-                    .size(width = 240.dp, height = 75.dp)
+                    .fillMaxWidth()
+                    .fillMaxHeight()
             ) {
-                Box(//Box containing the lowe half
+                Column(
                     modifier = Modifier
-                        .fillMaxSize()
-                ){
-                    Box(
+                        .padding(top = 1.dp, start = 6.dp, end = 6.dp)
+                        .fillMaxWidth()
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier
-                            .align(alignment = Alignment.TopStart)
-                    ){
-                        val color = if(culturalEvent.price == "") Color.Green
-                        else MaterialTheme.colorScheme.surfaceVariant
-                        Surface(
-                            shape = MaterialTheme.shapes.extraSmall,
-                            color = color,
-                            modifier = Modifier
-                                .alpha(if (culturalEvent.price == "") 0.5f else 1.0f)
-                                .padding(4.dp)
-                        ) {
-                            Text(
-                                text = if(culturalEvent.price == "") "GRATIS"
-                                else "€ " + culturalEvent.price,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                style = MaterialTheme.typography.labelSmall,
-                                modifier = Modifier
-                                    .padding(2.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Column {
+                            PriceTag(price = culturalEvent.price)
+                        }
+                        Column {
+                            RateStarTag(
+                                rate = culturalEvent.rate,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
-                    Box(
+                    val scheduleBlock = ScheduleParser(
+                        culturalEvent = culturalEvent,
+                        txtDateBlock1 = stringResource(id = R.string.txt_date_block_1),
+                        txtDateBlock2 = stringResource(id = R.string.txt_date_block_2),
+                        txtParseDays1 = stringResource(id = R.string.txt_parse_days_1),
+                        txtParseDays2 = stringResource(id = R.string.txt_parse_days_2),
+                        txtMO = stringResource(id = R.string.txt_MO),
+                        txtTU = stringResource(id = R.string.txt_TU),
+                        txtWE = stringResource(id = R.string.txt_WE),
+                        txtTH = stringResource(id = R.string.txt_TH),
+                        txtFR = stringResource(id = R.string.txt_FR),
+                        txtSA = stringResource(id = R.string.txt_SA),
+                        txtSU = stringResource(id = R.string.txt_SU),
+                        txtDaysHoursBlock1 = stringResource(id = R.string.txt_day_hours_block_1),
+                        txtDaysHoursBlock2 = stringResource(id = R.string.txt_day_hours_block_2),
+                    )
+                    if (scheduleBlock.showParsedSchedule() != ""){
+                        Row(
+                            modifier = Modifier
+                                .padding(top = 1.dp, bottom = 1.dp)
+                        ) {
+                            Text(
+                                text = scheduleBlock.showParsedSchedule(),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 3,
+                                textAlign = TextAlign.Justify,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
+                    Row(
                         modifier = Modifier
-                            .align(alignment = Alignment.BottomStart)
-                            .padding(start = 6.dp)
-                    ){
+                            .padding(top = 1.dp, bottom = 2.dp)
+                    )  {
                         var distanceToPoint: Double? by remember { mutableStateOf(null) }
                         distanceToPoint = viewModel?.calculateDistanceOverEarth(
                             latitude = culturalEvent.latitude.toDouble(),
@@ -231,14 +263,14 @@ fun EventGridCard(
                         )
                         Text(
                             text =
-                                if (distanceToPoint != null)
-                                    culturalEvent.address + " | " + (distanceToPoint!! * 10).roundToInt().toDouble()/10  + "Km"
-                                else culturalEvent.address,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            if (distanceToPoint != null)
+                                culturalEvent.address + " | " + (distanceToPoint!! * 10).roundToInt().toDouble()/10  + "Km"
+                            else culturalEvent.address,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 12.sp,
                             style = MaterialTheme.typography.labelSmall,
                             modifier = Modifier
-                                .padding(6.dp)
+                                //.padding(6.dp)
                         )
                     }
                 }
@@ -305,6 +337,7 @@ private var mockEvent = CulturalEvent(
     review = ""
 )
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true, showSystemUi = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
