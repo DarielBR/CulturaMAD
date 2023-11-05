@@ -106,6 +106,7 @@ class MainActivity : ComponentActivity() {
                 /**
                  * Composable content
                  */
+                viewModel.refreshDeviceLocation()
                 ScaffoldedScreen(
                     fusedLocationClient = fusedLocationClient,
                     viewModel = viewModel,

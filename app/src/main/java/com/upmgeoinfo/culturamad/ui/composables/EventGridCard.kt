@@ -20,6 +20,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -48,6 +52,7 @@ fun EventGridCard(
     culturalEvent: CulturalEvent,
     onClick: () -> Unit,
 ){
+    viewModel?.refreshDeviceLocation()
     androidx.compose.material.Card(
         shape = MaterialTheme.shapes.medium,
         elevation = 5.dp,
@@ -205,14 +210,15 @@ fun EventGridCard(
                             .align(alignment = Alignment.BottomStart)
                             .padding(start = 6.dp)
                     ){
+                        var distanceToPoint: Double? by remember { mutableStateOf(null) }
+                        distanceToPoint = viewModel?.calculateDistanceOverEarth(
+                            latitude = culturalEvent.latitude.toDouble(),
+                            longitude = culturalEvent.longitude.toDouble()
+                        )
                         Text(
                             text =
-                                if (viewModel?.state?.isLocationPermissionGranted == true)
-                                    culturalEvent.address + " | " +
-                                            (viewModel.calculateDistanceOverEarth(
-                                                latitude = culturalEvent.latitude.toDouble(),
-                                                longitude = culturalEvent.longitude.toDouble()
-                                            )*10).roundToInt().toDouble()/10 + "Km"
+                                if (distanceToPoint != null)
+                                    culturalEvent.address + " | " + (distanceToPoint!! * 10).roundToInt().toDouble()/10  + "Km"
                                 else culturalEvent.address,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
                             fontSize = 12.sp,

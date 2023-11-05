@@ -1,14 +1,22 @@
 package com.upmgeoinfo.culturamad.viewmodels
 
+import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.widget.Toast
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCompositionContext
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseUser
@@ -22,6 +30,8 @@ import com.upmgeoinfo.culturamad.viewmodels.auth.model.LoginUiState
 import com.upmgeoinfo.culturamad.viewmodels.firestoredb.model.EventReview
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlin.coroutines.CoroutineContext
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -55,16 +65,7 @@ class MainViewModel(
                 items = culturalEventRepository.getCulturalEventsWithLocation().toMutableList(),
                 reviews = firestoredbRepository.getAllReviews{}.toMutableList()
             )
-            val locationPermissionState = ContextCompat.checkSelfPermission(context!!, android.Manifest.permission.ACCESS_FINE_LOCATION)
-            if (locationPermissionState == PackageManager.PERMISSION_GRANTED){
-                fusedLocationProviderClient.lastLocation
-                    .addOnSuccessListener { location ->
-                        state = state.copy(
-                            deviceLocation = LatLng(location.latitude, location.longitude),
-                            isLocationPermissionGranted = true
-                        )
-                    }
-            }
+            refreshDeviceLocation()
             refreshCurrentUserMail()
         }
     }
@@ -629,23 +630,51 @@ class MainViewModel(
      *
      * @return The distance between coordinates in Km
      */
+    @Composable
     fun calculateDistanceOverEarth(
         latitude: Double,
         longitude: Double
-    ): Double{
-        val latA = state.deviceLocation!!.latitude * PI/180
-        val latB = latitude * PI/180
+    ): Double? {
+        var deviceLatitude: Double? by remember { mutableStateOf(null) }
+        deviceLatitude = state.deviceLocation?.latitude ?: null
+        var deviceLongitude: Double? by remember { mutableStateOf(null) }
+        deviceLongitude = state.deviceLocation?.longitude ?: null
 
-        val deltaLat = (latitude - state.deviceLocation!!.latitude) * PI/180
-        val deltaLng = (longitude - state.deviceLocation!!.longitude) * PI/180
+        if(deviceLatitude != null && deviceLongitude != null){
+            val latA = state.deviceLocation!!.latitude * PI / 180
+            val latB = latitude * PI / 180
 
-        val earthRadius: Double = 6371.0 //in Km
+            val deltaLat = (latitude - state.deviceLocation!!.latitude) * PI / 180
+            val deltaLng = (longitude - state.deviceLocation!!.longitude) * PI / 180
 
-        val haversine =
-            sin(deltaLat/2).pow(2) + cos(latA) * cos(latB) * sin(deltaLng/2).pow(2)
-        val c = 2 * atan2(sqrt(haversine), sqrt(1 - haversine))
+            val earthRadius: Double = 6371.0 //in Km
 
-        return earthRadius * c
+            val haversine =
+                sin(deltaLat / 2).pow(2) + cos(latA) * cos(latB) * sin(deltaLng / 2).pow(2)
+            val c = 2 * atan2(sqrt(haversine), sqrt(1 - haversine))
+
+            return earthRadius * c
+        }else{
+            return null
+        }
+    }
+
+    fun refreshDeviceLocation(){
+        val locationPermissionState = ContextCompat.checkSelfPermission(
+            context!!,
+            android.Manifest.permission.ACCESS_FINE_LOCATION
+        )
+        if (locationPermissionState == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationProviderClient.lastLocation
+                .addOnSuccessListener { location ->
+                    if (location != null) {
+                        state = state.copy(
+                            deviceLocation = LatLng(location.latitude, location.longitude),
+                            isLocationPermissionGranted = true
+                        )
+                    }
+                }
+        }
     }
 /****************Utils Block************************************/
 }
