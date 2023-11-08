@@ -27,8 +27,11 @@
     <string name="ui_frequency">Frecuencia: %s</string>
     <string name="ui_hours">Horario: %s</string>
     <string name="ui_hours_variant">A partir de %s horas</string>
-    <string name="ui_recommended">Recomendado para ti</string>
+    <string name="ui_near_by">Cerca de ti</string>
+    <string name="ui_most_rated">con más rating</string>
+    <string name="ui_all_events">todos los eventos</string>
     <string name="ui_see_all">Ver todo</string>
+    <string name="ui_nav_forward">Adelante</string>
     <string name="ui_nav_back">Volver</string>
     <string name="txt_MO">Lunes</string>
     <string name="txt_TU">Martes</string>

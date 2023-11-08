@@ -1,22 +1,14 @@
 package com.upmgeoinfo.culturamad.viewmodels
 
-import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.widget.Toast
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCompositionContext
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseUser
@@ -30,8 +22,6 @@ import com.upmgeoinfo.culturamad.viewmodels.auth.model.LoginUiState
 import com.upmgeoinfo.culturamad.viewmodels.firestoredb.model.EventReview
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import kotlin.coroutines.CoroutineContext
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -630,15 +620,15 @@ class MainViewModel(
      *
      * @return The distance between coordinates in Km
      */
-    @Composable
+    //@Composable
     fun calculateDistanceOverEarth(
         latitude: Double,
         longitude: Double
     ): Double? {
-        var deviceLatitude: Double? by remember { mutableStateOf(null) }
-        deviceLatitude = state.deviceLocation?.latitude ?: null
-        var deviceLongitude: Double? by remember { mutableStateOf(null) }
-        deviceLongitude = state.deviceLocation?.longitude ?: null
+        //var deviceLatitude: Double? by remember { mutableStateOf(null) }
+        val deviceLatitude = state.deviceLocation?.latitude ?: null
+        //var deviceLongitude: Double? by remember { mutableStateOf(null) }
+        val deviceLongitude = state.deviceLocation?.longitude ?: null
 
         if(deviceLatitude != null && deviceLongitude != null){
             val latA = state.deviceLocation!!.latitude * PI / 180
@@ -679,6 +669,105 @@ class MainViewModel(
 
     fun getStateDeviceLocation(): LatLng? {
         return state.deviceLocation
+    }
+
+    fun getEventsAndAds(): List<CulturalEvent>{
+        val prevList: MutableList<CulturalEvent> = emptyList<CulturalEvent>().toMutableList()
+
+        state.items.forEach { event ->
+            if(state.searchValue != ""){
+                if (event.title.contains(state.searchValue, ignoreCase = true)){
+                    prevList.add(event)
+                }
+            }else{
+                prevList.add(event)
+            }
+        }
+        val resultList: MutableList<CulturalEvent> = emptyList<CulturalEvent>().toMutableList()
+        var counter = -1
+        prevList.forEach { event ->
+            if(counter == 2){
+                val adItem = CulturalEvent(id = 0)
+                resultList.add(adItem)
+                resultList.add(event)
+                counter = 0
+            }else {
+                resultList.add(event)
+                counter++
+            }
+        }
+        return resultList.toList()
+    }
+
+    //@Composable
+    fun getNearByEvents(
+        radius: Int = 5
+    ): List<CulturalEvent>{
+        val prevList: MutableList<CulturalEvent> = emptyList<CulturalEvent>().toMutableList()
+
+        state.items.forEach { event ->
+            if (calculateDistanceOverEarth(
+                    latitude = event.latitude.toDouble(),
+                    longitude = event.longitude.toDouble()
+                )!! <= radius.toDouble()){
+                if(state.searchValue != ""){
+                    if (event.title.contains(state.searchValue, ignoreCase = true)){
+                        prevList.add(event)
+                    }
+                }else{
+                    prevList.add(event)
+                }
+            }
+        }
+        val resultList: MutableList<CulturalEvent> = emptyList<CulturalEvent>().toMutableList()
+        var counter = 0
+        prevList.forEach { event ->
+            if(counter == 3){
+                val adItem = CulturalEvent(id = 0)
+                resultList.add(adItem)
+                resultList.add(event)
+                counter = 0
+            }else {
+                resultList.add(event)
+                counter++
+            }
+        }
+        resultList.sortBy { it.averageRate }
+        return resultList.toList()
+    }
+
+    fun getMostRatedEvents(
+        amount: Int = 50
+    ): List<CulturalEvent>{
+        val prevList: MutableList<CulturalEvent> = emptyList<CulturalEvent>().toMutableList()
+
+        state.items.forEach { event ->
+            if(state.searchValue != ""){
+                if (event.title.contains(state.searchValue, ignoreCase = true)){
+                    prevList.add(event)
+                }
+            }else{
+                prevList.add(event)
+            }
+        }
+        prevList.sortBy { it.averageRate }
+
+        val resultList: MutableList<CulturalEvent> = emptyList<CulturalEvent>().toMutableList()
+        var addCounter = -1
+        val limit = if (amount < prevList.size) amount else prevList.size
+
+        for(i in 0 until limit) {
+            if (addCounter == 2) {
+                val adItem = CulturalEvent(id = 0)
+                resultList.add(adItem)
+                resultList.add(prevList[i])
+                addCounter = 0
+            } else {
+                resultList.add(prevList[i])
+                addCounter++
+            }
+        }
+        return resultList.toList()
     }
 /****************Utils Block************************************/
 }

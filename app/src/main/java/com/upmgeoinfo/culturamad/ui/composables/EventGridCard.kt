@@ -218,7 +218,7 @@ fun EventGridCard(
                         Column {
                             RateStarTag(
                                 rate = culturalEvent.rate,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
