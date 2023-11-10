@@ -706,10 +706,11 @@ class MainViewModel(
         val prevList: MutableList<CulturalEvent> = emptyList<CulturalEvent>().toMutableList()
 
         state.items.forEach { event ->
-            if (calculateDistanceOverEarth(
+            if ((calculateDistanceOverEarth(
                     latitude = event.latitude.toDouble(),
                     longitude = event.longitude.toDouble()
-                )!! <= radius.toDouble()){
+                ) ?: 0.0) <= radius.toDouble()
+            ){
                 if(state.searchValue != ""){
                     if (event.title.contains(state.searchValue, ignoreCase = true)){
                         prevList.add(event)

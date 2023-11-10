@@ -96,7 +96,7 @@ fun OverViewRow(
                 id =
                     when(variant){
                         "NEARBY" -> R.string.ui_near_by
-                        "RATING" -> R.string.ui_most_rated
+                        "RATE" -> R.string.ui_most_rated
                         else -> R.string.ui_all_events
                     }
             ),
@@ -156,7 +156,6 @@ fun OverViewBarPreview(){
         Column{
             GeneralSearchBar(viewModel = null)
             GeneralSearchBar(viewModel = null)
-            //OverviewSearchBar2(viewModel = null)
         }
     }
 }

@@ -34,7 +34,6 @@ import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
 @Composable
 fun LoginScreen(
     viewModel: MainViewModel? = null,
-    //authenticationViewModel: AuthenticationViewModel? = null,
     onNavToSignupScreen: ()-> Unit,
     onNavBack: () -> Unit
 ){
