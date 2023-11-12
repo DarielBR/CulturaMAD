@@ -1,0 +1,34 @@
+# Data Safety and Privacy Statement
+
+## User Data Collection
+
+CulturaMAD respects the privacy of its users and is committed to protecting their personal information. The app collects the following data for the specified purposes:
+
+- **Geolocation data:** We collect Geolocation Data to provide location-specific services, like mapping, directions and local recommendations.
+    * Mapping and Navigation: geolocation data is used to provide users with accurate maps, locations, and directions.
+    * User's location: is used to display nearby events.
+- **Personal data: email, password and username:** This is the only personal data collected by the app with the only purpose of uniquely identify the users in case of registration.
+    * Email Address and User Name: this data is used to uniquely identify individuals within the platform. In future versions, we will use the email account for double authentication, important communications, and account recovery, but these features are still not implemented.
+    * Email Address and Password: are fundamentals for authentication. When a user logs in, the system checks the provided credentials against stored information to verify the user's identity.
+
+## Data Security
+
+We prioritize the security of your data and have implemented measures to prevent unauthorized access, disclosure, alteration, and destruction of your information.
+
+## Third-Party Services
+
+CulturaMAD may utilize third-party services for certain functionalities. These services may have their own privacy policies, and we encourage users to review them for a complete understanding of how their data is handled.
+
+## Consent
+
+By using CulturaMAD, you consent to the collection and use of your information as outlined in this Data Safety and Privacy Statement.
+
+## Contact Us
+
+If you have any questions or concerns about our data safety practices, please contact us at [your_contact_email@example.com].
+
+## Changes to This Statement
+
+We may update this Data Safety and Privacy Statement periodically to reflect changes in our practices. Please review this statement regularly for any updates.
+
+Thank you for trusting CulturaMAD with your data.

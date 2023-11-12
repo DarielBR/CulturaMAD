@@ -11,13 +11,17 @@ import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
 import com.upmgeoinfo.culturamad.navigation.navbar.MenuItems
 import com.upmgeoinfo.culturamad.ui.composables.ClusterMapScreen
+import com.upmgeoinfo.culturamad.ui.composables.ColumnEventView
 import com.upmgeoinfo.culturamad.ui.composables.DetailViewScreen
 import com.upmgeoinfo.culturamad.ui.composables.ErrorScreen
 import com.upmgeoinfo.culturamad.ui.composables.LoginScreen
 import com.upmgeoinfo.culturamad.ui.composables.OverviewScreen
 import com.upmgeoinfo.culturamad.ui.composables.SignupScreen
 import com.upmgeoinfo.culturamad.ui.composables.SplashScreen
+import com.upmgeoinfo.culturamad.ui.composables.StatementScreen
+import com.upmgeoinfo.culturamad.ui.composables.UserReviewScreen
 import com.upmgeoinfo.culturamad.ui.composables.UserScreen
+import com.upmgeoinfo.culturamad.viewmodels.main.model.LAZY_COLUMN_TYPE
 
 /**
  * (Alternatively using a navigation bottom bar)Handles the navigation within the application. Will show at first the Splash Screen followed by
@@ -51,7 +55,8 @@ fun AlternateNavigation(
         composable(MenuItems.FullMapScreen.route){
             ClusterMapScreen(
                 fusedLocationClient = fusedLocationClient,
-                viewModel = viewModel
+                viewModel = viewModel,
+                navController = navController
             )
         }
         composable(MenuItems.OverviewScreen.route){
@@ -63,21 +68,25 @@ fun AlternateNavigation(
         composable(MenuItems.UserScreen.route){
             UserScreen(
                 viewModel = viewModel,
-                //authenticationViewModel = authenticationViewModel,
                 onNavToSignupScreen = {
                     navController.navigate(AppScreens.SignupScreen.route){}
                 },
                 onNavToLoginScreen = {
                     navController.navigate(AppScreens.LoginScreen.route){}
+                },
+                onNavToStatement = {
+                    navController.navigate(AppScreens.StatementScreen.route){}
+                },
+                onNavToFavorites = {
+                    viewModel.changeLazyColumnType(LAZY_COLUMN_TYPE.FAVORITES)
+                    navController.navigate(AppScreens.ColumnEventView.route){}
                 }
             )
         }
         composable(AppScreens.DetailViewScreen.route){
             DetailViewScreen(
                 viewModel = viewModel,
-                onNavBack = {
-                    navController.popBackStack()
-                }
+                navController = navController
             )
         }
         composable(AppScreens.LoginScreen.route){
@@ -109,6 +118,25 @@ fun AlternateNavigation(
                     }
                     //navController.popBackStack()
                 }
+            )
+        }
+        composable(AppScreens.UserReviewScreen.route){
+            UserReviewScreen(
+                viewModel = viewModel,
+                onNavBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable(AppScreens.ColumnEventView.route){
+            ColumnEventView(
+                viewModel = viewModel,
+                navController = navController
+            )
+        }
+        composable(AppScreens.StatementScreen.route){
+            StatementScreen(
+                navController = navController
             )
         }
     }

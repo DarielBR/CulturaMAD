@@ -100,7 +100,7 @@ object JsonFile {
             price = it.price ?: "",
             link = it.link ?: "",
             favorite = false,
-            rate = 0.0f
+            rate = 0.0
         )
     }
 }

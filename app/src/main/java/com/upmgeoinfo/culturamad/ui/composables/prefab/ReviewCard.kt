@@ -4,7 +4,6 @@ import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -29,8 +28,7 @@ import kotlin.random.Random
 @Composable
 fun ReviewCard(
     userID: String = "usuario.de@prueba.com",
-    review: String = "Muy buena, me encantó, creo que vuelo a ir muy pronto. Hay mucho para ver y con uan sola visita no alcanza para verlo todo. Ir en familia es muy recomendable",
-    rate: Float = 9.0f
+    review: String = "Muy buena, me encantó, creo que vuelo a ir muy pronto. Hay mucho para ver y con uan sola visita no alcanza para verlo todo. Ir en familia es muy recomendable"
 ){
     Card(
         shape = MaterialTheme.shapes.extraSmall,

@@ -1,7 +1,5 @@
 package com.upmgeoinfo.culturamad.services.json_parse.reposiroty
 
-import android.util.Log
-import androidx.compose.animation.core.animateFloatAsState
 import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 import com.upmgeoinfo.culturamad.services.json_parse.`interface`.ApiService
 import kotlinx.coroutines.Dispatchers
@@ -50,7 +48,7 @@ class ApiEventsRepository(){
                             price = it.price ?: "",
                             link = it.link ?: "",
                             favorite = false,
-                            rate = 0.0f,
+                            rate = 0.0,
                             review = ""
                         )
                     )
@@ -112,7 +110,7 @@ class ApiEventsRepository(){
                                 price = it.price ?: "",
                                 link = it.link ?: "",
                                 favorite = false,
-                                rate = 0.0f,
+                                rate = 0.0,
                                 review = ""
                             )
                         )

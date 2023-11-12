@@ -26,7 +26,7 @@ data class CulturalEvent(
     val price: String = "",
     val link: String = "",
     var favorite: Boolean = false,
-    var rate: Float? = 0.0f,
-    var averageRate: Float? = 0.0f,
+    var rate: Double = 0.0,
+    var averageRate: Double = 0.0,
     var review: String = ""
 )

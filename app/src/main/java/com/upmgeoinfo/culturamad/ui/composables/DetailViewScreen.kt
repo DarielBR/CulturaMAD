@@ -28,13 +28,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.runtime.Composable
@@ -56,6 +54,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
@@ -67,6 +66,7 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.upmgeoinfo.culturamad.R
+import com.upmgeoinfo.culturamad.navigation.AppScreens
 import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 import com.upmgeoinfo.culturamad.services.json_parse.utils.ScheduleParser
 import com.upmgeoinfo.culturamad.ui.composables.prefab.CategoryTag
@@ -85,7 +85,7 @@ import kotlin.math.roundToInt
 @Composable
 fun DetailViewScreen(
     viewModel: MainViewModel? = null,
-    onNavBack: () -> Unit
+    navController: NavHostController? = null
 ){
     val culturalEvent = viewModel?.getCurrentEvent() ?: mockEvent
     val context = LocalContext.current
@@ -130,7 +130,8 @@ fun DetailViewScreen(
                         Column {
                             NavBackButton(
                                 color = Color.White,
-                                onClick = onNavBack
+                                //onClick = onNavBack,
+                                onClick = { navController?.popBackStack() }
                             )
                         }
                         Column {
@@ -223,8 +224,9 @@ fun DetailViewScreen(
                                     )
                                 }
                                 Column{
+                                    val rate = viewModel?.calculateAverageRate(culturalEvent.id!!.toString())
                                     RateStarTag(
-                                        rate = culturalEvent.averageRate,
+                                        rate = rate ?: 0.0,
                                         color = Color.White
                                     )
                                 }
@@ -368,7 +370,8 @@ fun DetailViewScreen(
                     ){
                         DetailsReviewTabRow(
                             culturalEvent = culturalEvent,
-                            viewModel = viewModel
+                            viewModel = viewModel,
+                            navController = navController
                         )
                     }
                     Row(//final row
@@ -390,7 +393,7 @@ fun DetailViewScreen(
 @Composable
 fun DetailViewScreenPreview(){
     CulturaMADTheme {
-        DetailViewScreen {}
+        DetailViewScreen()
     }
 }
 
@@ -417,14 +420,15 @@ private var mockEvent = CulturalEvent(
     price = "",
     link = "https://www.miradormadrid.com/placa-del-kilometro-cero/",
     favorite = false,
-    rate = 0.0f,
+    rate = 0.0,
     review = ""
 )
 
 @Composable
 fun DetailsReviewTabRow(
     culturalEvent: CulturalEvent,
-    viewModel: MainViewModel? = null
+    viewModel: MainViewModel? = null,
+    navController: NavHostController? = null
 ){
     var tabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf(
@@ -460,7 +464,8 @@ fun DetailsReviewTabRow(
             )
             1 -> ReviewDetailTab(
                 culturalEvent = culturalEvent,
-                viewModel = viewModel
+                viewModel = viewModel,
+                navController = navController
             )
         }
     }
@@ -607,10 +612,10 @@ fun Minimap(
 @Composable
 fun ReviewDetailTab(
     culturalEvent: CulturalEvent? = null,
-    viewModel: MainViewModel? = null
+    viewModel: MainViewModel? = null,
+    navController: NavHostController? = null
 ){
     val reviewList = viewModel?.getEventReviews(culturalEvent?.id!!)
-    var reviewText by remember { mutableStateOf("") }
     Surface(
         color = MaterialTheme.colorScheme.surface,
         modifier = Modifier
@@ -635,8 +640,7 @@ fun ReviewDetailTab(
                             if (item.review != ""){
                                 ReviewCard(
                                     userID = item.userID.substringBefore('@'),
-                                    review = item.review,
-                                    rate = item.rate
+                                    review = item.review
                                 )
                             }
                         }
@@ -661,39 +665,16 @@ fun ReviewDetailTab(
                         .fillMaxWidth()
                         .padding(start = 4.dp, end = 4.dp)
                 ){
-                    OutlinedTextField(
-                        enabled = viewModel?.hasUser ?: false,
-                        value = reviewText,
-                        onValueChange = { reviewText = it },
-                        singleLine = false,
-                        placeholder = {
-                            Text(text = culturalEvent?.review
-                                    ?: stringResource(id = R.string.ui_write_your_review))
-                        },
-                        trailingIcon = {
-                            IconButton(onClick = {
-                                viewModel?.setEventReview(
-                                    culturalEvent = culturalEvent!!,
-                                    review = reviewText
-                                )
-                            }){
-                                Icon(
-                                    imageVector = Icons.Default.Send,
-                                    contentDescription = ""
-                                )
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
                     Button(
-                        onClick = { /*TODO*/ },
+                        onClick = {
+                            navController?.navigate(AppScreens.UserReviewScreen.route)
+                        },
                         shape = MaterialTheme.shapes.extraSmall,
                         modifier = Modifier
                             .fillMaxWidth()
                     ) {
                         Text(
-                            text = stringResource(id = R.string.ui_evaluate),
+                            text = stringResource(id = R.string.ui_review_rate),
                             color = MaterialTheme.colorScheme.onPrimary
                         )
                     }

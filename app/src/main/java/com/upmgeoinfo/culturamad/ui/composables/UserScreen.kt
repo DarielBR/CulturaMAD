@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.upmgeoinfo.culturamad.R
+import com.upmgeoinfo.culturamad.ui.composables.prefab.MenuTextItem
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
 
@@ -34,7 +35,9 @@ fun UserScreen(
     viewModel: MainViewModel? = null,
     //authenticationViewModel: AuthenticationViewModel? = null,
     onNavToLoginScreen: () -> Unit,
-    onNavToSignupScreen: () -> Unit
+    onNavToSignupScreen: () -> Unit,
+    onNavToFavorites: () -> Unit,
+    onNavToStatement: () -> Unit
 ){
     val loginUiState = viewModel?.loginUiState
     //val currentUserMail = authenticationViewModel?.currentUser?.email ?: ""
@@ -176,6 +179,32 @@ fun UserScreen(
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(20.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(start = 5.dp, end = 5.dp)
+                        .fillMaxWidth()
+                ) {
+                    if (viewModel?.hasUser == true){
+                        MenuTextItem(
+                            text = stringResource(id = R.string.ui_favorite_events),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            icon = R.drawable.cmad_favorite,
+                            onClick = onNavToFavorites
+                        )
+                    }
+                    MenuTextItem(
+                        text = stringResource(id = R.string.ui_menu_item_statement),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        icon = R.drawable.cmad_statement,
+                        onClick = onNavToStatement
+                    )
+                }
+            }
         }
     }
 }
@@ -187,7 +216,9 @@ fun PreviewUserScree(){
     CulturaMADTheme {
         UserScreen(
             onNavToLoginScreen = {},
-            onNavToSignupScreen = {}
+            onNavToSignupScreen = {},
+            onNavToFavorites = {},
+            onNavToStatement = {}
         )
     }
 }

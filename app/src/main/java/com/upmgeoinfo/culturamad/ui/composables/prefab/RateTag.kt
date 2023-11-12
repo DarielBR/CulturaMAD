@@ -21,6 +21,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
+import java.math.RoundingMode
+import kotlin.math.roundToInt
 
 @Composable
 fun RateTag(
@@ -54,9 +56,10 @@ fun RateTag(
 
 @Composable
 fun RateStarTag(
-    rate: Float? = 1f,
+    rate: Double = 0.55,
     color: Color? = null
 ){
+    val roundedRate = rate.toBigDecimal().setScale(1,RoundingMode.UP)
     Card(
         colors = CardDefaults.cardColors(
             containerColor = Color.Transparent,
@@ -82,7 +85,7 @@ fun RateStarTag(
                     .padding(bottom = 3.dp)
             )
             Text(
-                text = rate.toString(),
+                text = roundedRate.toString(),
                 color = color ?: MaterialTheme.colorScheme.onSurface,
                 fontSize = 22.sp
             )

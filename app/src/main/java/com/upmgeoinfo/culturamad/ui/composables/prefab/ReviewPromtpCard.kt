@@ -3,6 +3,7 @@ package com.upmgeoinfo.culturamad.ui.composables.prefab
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -11,6 +12,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
@@ -25,8 +30,16 @@ import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 fun ReviewPromptCard(
     viewModel: MainViewModel? = null,
     culturalEvent: CulturalEvent? = null,
-    bundle: (String) -> Unit
+    bundleReview: (String) -> Unit
 ){
+    var reviewValue by remember { mutableStateOf("") }
+    if (viewModel?.hasUser == true){
+        /*reviewValue = viewModel.getUserEventReview(
+            userID = viewModel.loginUiState.currentUserMail,
+            eventID = culturalEvent?.id!!
+        ).review*/
+        reviewValue = culturalEvent?.review!!
+    }
     Card(
         shape = MaterialTheme.shapes.medium,
         elevation = CardDefaults.cardElevation(
@@ -45,21 +58,25 @@ fun ReviewPromptCard(
                 .fillMaxWidth()
         ) {
             OutlinedTextField(
-                value = "",
-                onValueChange = { bundle.invoke(it) },
+                value = reviewValue,
+                onValueChange = {
+                    reviewValue = it
+                    bundleReview.invoke(it)
+                },
                 placeholder = {
                     Text(text = stringResource(id = R.string.ui_write_your_review))
                 },
-
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onSecondary,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                     focusedContainerColor = MaterialTheme.colorScheme.surface,
                     unfocusedContainerColor = MaterialTheme.colorScheme.surface
                 ),
+                singleLine = false,
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.medium)
                     .fillMaxWidth()
+                    .height(240.dp)
             )
         }
     }

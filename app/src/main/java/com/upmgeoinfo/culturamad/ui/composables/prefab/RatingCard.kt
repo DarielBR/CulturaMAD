@@ -29,13 +29,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
-import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
-import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 
 @Composable
 fun RatingCard(
-    culturalEvent: CulturalEvent? = null,
-    viewModel: MainViewModel? = null
+    bundleRate: (Double) -> Unit
 ){
     Card(
         shape = MaterialTheme.shapes.medium,
@@ -77,10 +74,11 @@ fun RatingCard(
                     filled3 = false
                     filled4 = false
                     filled5 = false
-                    viewModel?.setEventRate(
+                    /*viewModel?.setEventRate(
                         culturalEvent = culturalEvent!!,
                         rate = 1.0f
-                    )
+                    )*/
+                    bundleRate.invoke(1.0)
                 }
                 RatingStar(
                     filled = filled2
@@ -90,10 +88,11 @@ fun RatingCard(
                     filled3 = false
                     filled4 = false
                     filled5 = false
-                    viewModel?.setEventRate(
+                    /*viewModel?.setEventRate(
                         culturalEvent = culturalEvent!!,
                         rate = 2.0f
-                    )
+                    )*/
+                    bundleRate.invoke(2.0)
                 }
                 RatingStar(
                     filled = filled3
@@ -103,10 +102,11 @@ fun RatingCard(
                     filled3 = true
                     filled4 = false
                     filled5 = false
-                    viewModel?.setEventRate(
+                    /*viewModel?.setEventRate(
                         culturalEvent = culturalEvent!!,
                         rate = 3.0f
-                    )
+                    )*/
+                    bundleRate.invoke(3.0)
                 }
                 RatingStar(
                     filled = filled4
@@ -116,10 +116,11 @@ fun RatingCard(
                     filled3 = true
                     filled4 = true
                     filled5 = false
-                    viewModel?.setEventRate(
+                    /*viewModel?.setEventRate(
                         culturalEvent = culturalEvent!!,
                         rate = 4.0f
-                    )
+                    )*/
+                    bundleRate.invoke(4.0)
                 }
                 RatingStar(
                     filled = filled5
@@ -129,10 +130,11 @@ fun RatingCard(
                     filled3 = true
                     filled4 = true
                     filled5 = true
-                    viewModel?.setEventRate(
+                    /*viewModel?.setEventRate(
                         culturalEvent = culturalEvent!!,
                         rate = 5.0f
-                    )
+                    )*/
+                    bundleRate.invoke(5.0)
                 }
             }
         }
@@ -175,7 +177,7 @@ fun RatingCardPreview(){
             modifier = Modifier
                 .padding(4.dp)
         ) {
-            RatingCard()
+            RatingCard{}
         }
     }
 }

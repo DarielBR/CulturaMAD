@@ -30,6 +30,7 @@
     <string name="ui_near_by">Cerca de ti</string>
     <string name="ui_most_rated">con más rating</string>
     <string name="ui_all_events">todos los eventos</string>
+    <string name="ui_favorite_events">tus eventos favoritos</string>
     <string name="ui_see_all">Ver todo</string>
     <string name="ui_nav_forward">Adelante</string>
     <string name="ui_nav_back">Volver</string>
@@ -65,6 +66,10 @@
     <string name="ui_no_reviews_so_far">No hay reseñas sobre este evento hasta el momento. ¿Te gustaría comentar?</string>
     <string name="ui_evaluate">Evaluar</string>
     <string name="ui_write_your_review">Escribe tu reseña aqui.</string>
+    <string name="ui_your_rating_for_this_event">Así has evaluado este evento</string>
     <string name="ui_how_was_your_experiance">¿Cómo evalúas este evento?</string>
+    <string name="ui_review_rate">Evaluar y Reseñar</string>
+    <string name="ui_publish_review">Publicar esta reseña</string>
+    <string name="ui_menu_item_statement">Declaración de Seguridad de Datos y Privacidad</string>
     <string name="tip">Tip: haga un tap sobre la información de un marcador para ir a la publicación o un tap largo para compartir.</string>
 </resources>

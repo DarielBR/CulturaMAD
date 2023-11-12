@@ -75,7 +75,7 @@ class FirestoredbRepository {
                                 userID = document.get(USERID_FIELD)?.toString() ?: "",
                                 eventID = document.get(EVENTID_FIELD)?.toString() ?: "",
                                 review = document.get(REVIEW)?.toString() ?: "",
-                                rate = document.get(RATE)?.toString()?.toFloat() ?: 0.0f,
+                                rate = document.get(RATE)?.toString()?.toDouble() ?: 0.0,
                                 favorite = document.get(FAVORITE)?.toString().toBoolean() ?: false
                             )
                             returnList.add(eventReview)
@@ -111,7 +111,7 @@ class FirestoredbRepository {
                             userID = document.get(USERID_FIELD)?.toString() ?: "",
                             eventID = document.get(EVENTID_FIELD)?.toString() ?: "",
                             review = document.get(REVIEW)?.toString() ?: "",
-                            rate = document.get(RATE)?.toString()?.toFloat() ?: 0.0f,
+                            rate = document.get(RATE)?.toString()?.toDouble() ?: 0.0,
                             favorite = document.get(FAVORITE)?.toString().toBoolean() ?: false
                         )
                         reviewsList.add(eventReview)
@@ -151,7 +151,7 @@ class FirestoredbRepository {
                         userID = result.documents[0].get(USERID_FIELD)?.toString() ?: "",
                         eventID = result.documents[0].get(EVENTID_FIELD)?.toString() ?: "",
                         review = result.documents[0].get(REVIEW)?.toString() ?: "",
-                        rate = result.documents[0].get(RATE)?.toString()?.toFloat() ?: 0.0f,
+                        rate = result.documents[0].get(RATE)?.toString()?.toDouble() ?: 0.0,
                         favorite = result.documents[0].get(FAVORITE)?.toString()?.toBoolean() ?: false,
                     )
                 }
@@ -179,11 +179,13 @@ class FirestoredbRepository {
             .get()
             .addOnSuccessListener { result ->
                 if (!result.isEmpty){
+                    var ratesCounter = 0
                     result.documents.forEach { document ->
-                        if (document.get(RATE) != null)
+                        if (document.get(RATE) != null && document.get(RATE) != "0.0")
                             rateSum += document.get(RATE).toString().toFloat()
+                        ratesCounter++
                     }
-                    averageRate = rateSum/result.documents.size
+                    averageRate = rateSum/ratesCounter
                     onSuccess.invoke(true)
                 }
             }
@@ -237,7 +239,7 @@ class FirestoredbRepository {
     suspend fun updateRate(
         userID: String,
         eventID: String,
-        rate: Float,
+        rate: Double,
         onSuccess: (Boolean) -> Unit
     ) = withContext(Dispatchers.IO){
         val docName = userID + "_" + eventID

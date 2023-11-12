@@ -3,6 +3,11 @@ package com.upmgeoinfo.culturamad.ui.composables
 import android.content.res.Configuration
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,14 +20,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Icon
+import androidx.compose.material.Card
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,7 +50,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
-import com.google.android.gms.maps.model.Circle
 import com.upmgeoinfo.culturamad.R
 import com.upmgeoinfo.culturamad.services.json_parse.utils.ScheduleParser
 import com.upmgeoinfo.culturamad.ui.composables.prefab.PriceTag
@@ -61,16 +64,18 @@ import kotlin.math.roundToInt
 fun EventGridCard(
     viewModel: MainViewModel? = null,
     culturalEvent: CulturalEvent = mockEvent,
+    width: Int = 300,
     onClick: () -> Unit,
 ){
     viewModel?.refreshDeviceLocation()
-    androidx.compose.material.Card(
+
+    Card(
         shape = MaterialTheme.shapes.medium,
         elevation = 5.dp,
         backgroundColor = MaterialTheme.colorScheme.surface,
         modifier = Modifier
             .padding(8.dp)
-            .size(width = 300.dp, height = 250.dp)//240-150
+            .size(width = width.dp, height = 250.dp)//240-150
             .clickable { onClick.invoke() }
     ) {
         Column(
@@ -153,9 +158,8 @@ fun EventGridCard(
                                         favorite = favorite
                                     )
                                 }
-
                         ) {
-                            androidx.compose.material3.Icon(
+                            Icon(
                                 imageVector =
                                 if (favorite) Icons.Default.Favorite
                                 else Icons.Default.FavoriteBorder,
@@ -216,8 +220,9 @@ fun EventGridCard(
                             PriceTag(price = culturalEvent.price)
                         }
                         Column {
+                            val rate = viewModel?.calculateAverageRate(culturalEvent.id!!.toString())!!
                             RateStarTag(
-                                rate = culturalEvent.rate,
+                                rate = rate,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -283,7 +288,7 @@ fun EventGridCard(
 fun AdGridCard(
     onClick: () -> Unit
 ){
-    androidx.compose.material.Card(
+    Card(
         shape = MaterialTheme.shapes.medium,
         elevation = 5.dp,
         backgroundColor = MaterialTheme.colorScheme.surface,
@@ -311,6 +316,205 @@ fun AdGridCard(
     }
 }
 
+@Composable
+fun MapGridCard(
+    viewModel: MainViewModel? = null,
+    culturalEvent: CulturalEvent = mockEvent,
+    width: Int = 300,
+    visibility: Boolean = false,
+    navigationBarVisible: Boolean = false,
+    onClick: () -> Unit,
+){
+    viewModel?.refreshDeviceLocation()
+
+    AnimatedVisibility(
+        visible = visibility,
+        enter = slideInVertically(
+            animationSpec = tween(200),
+            initialOffsetY = {1000}
+        ) + fadeIn(),
+        exit = fadeOut()
+    ){
+        Column(
+            verticalArrangement = Arrangement.Bottom,
+            modifier = Modifier
+                .padding(
+                    start = 8.dp,
+                    end = 8.dp,
+                    bottom = if (navigationBarVisible) 108.dp else 81.dp
+                )
+                .fillMaxSize()
+        ){
+            Card(
+                shape = MaterialTheme.shapes.medium,
+                elevation = 5.dp,
+                backgroundColor = MaterialTheme.colorScheme.surface,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .size(width = width.dp, height = 150.dp)//240-150
+                    .clickable { onClick.invoke() }
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    Row(//Upper half
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(0.6f)
+                        //.size(width = 240.dp, height = 75.dp)
+                    ) {
+                        Box(//Box containing the upper half
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .fillMaxSize()
+                        ) {
+                            Image(
+                                painter =
+                                if (culturalEvent.category.contains("DanzaBaile"))
+                                    painterResource(id = R.drawable.dance_image)
+                                else if (culturalEvent.category.contains("Musica"))
+                                    painterResource(id = R.drawable.music_image)
+                                else if (culturalEvent.category.contains("Exposiciones"))
+                                    painterResource(id = R.drawable.painting_image)
+                                else painterResource(id = R.drawable.teatro_image),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                            )
+
+                            Box(//For category label
+                                modifier = Modifier
+                                    .align(alignment = Alignment.TopStart)
+                            ) {
+                                Surface(
+                                    shape = MaterialTheme.shapes.medium,
+                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                    modifier = Modifier
+                                        .padding(2.dp)
+                                        .alpha(0.8f)
+                                ) {
+                                    Text(
+                                        text =
+                                        if (culturalEvent.category.contains("DanzaBaile"))
+                                            stringResource(id = R.string.category_dance)
+                                        else if (culturalEvent.category.contains("Musica"))
+                                            stringResource(id = R.string.category_music)
+                                        else if (culturalEvent.category.contains("Exposiciones"))
+                                            stringResource(id = R.string.category_painting)
+                                        else if (culturalEvent.category.contains("TeatroPerformance"))
+                                            stringResource(id = R.string.category_theatre)
+                                        else culturalEvent.category,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 8.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier
+                                            .padding(4.dp)
+                                    )
+                                }
+                            }
+
+                            Box(//For favorite button
+                                modifier = Modifier
+                                    .align(alignment = Alignment.TopEnd)
+                            ) {
+                                var favorite by remember { mutableStateOf(false) }
+                                favorite =
+                                    viewModel?.state?.items?.find { it.id == culturalEvent.id }?.favorite
+                                        ?: false
+                                Surface(
+                                    shape = CircleShape,
+                                    color = Color.White.copy(alpha = 0.8f),
+                                    modifier = Modifier
+                                        .padding(2.dp)
+                                        .alpha(0.8f)
+                                        .clickable {
+                                            favorite = !favorite
+                                            viewModel?.changeFavoriteState(
+                                                culturalEvent = culturalEvent,
+                                                favorite = favorite
+                                            )
+                                        }
+                                ) {
+                                    Icon(
+                                        imageVector =
+                                        if (favorite) Icons.Default.Favorite
+                                        else Icons.Default.FavoriteBorder,
+                                        contentDescription = "",
+                                        tint = Color.Gray,
+                                        modifier = Modifier
+                                            .padding(2.dp)
+                                            .size(18.dp)
+                                    )
+                                }
+                            }
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .align(alignment = Alignment.BottomStart)
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .padding(4.dp)
+                                        .align(alignment = Alignment.BottomStart)
+                                ) {
+                                    Text(//Title
+                                        text = culturalEvent.title,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        fontSize = 16.sp,
+                                        overflow = TextOverflow.Ellipsis,
+                                        color = Color.White
+                                    )
+                                    Text(//Place
+                                        text = culturalEvent.place,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        overflow = TextOverflow.Ellipsis,
+                                        color = Color.White
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    Row(//Lower half
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .padding(top = 1.dp, start = 6.dp, end = 6.dp)
+                                .fillMaxWidth()
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            ) {
+                                Column {
+                                    PriceTag(price = culturalEvent.price)
+                                }
+                                Column {
+                                    val rate =
+                                        viewModel?.calculateAverageRate(culturalEvent.id!!.toString())!!
+                                    RateStarTag(
+                                        rate = rate,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 private var mockEvent = CulturalEvent(
     id = 1111111,
     category = "MOCK",
@@ -333,7 +537,7 @@ private var mockEvent = CulturalEvent(
     price = "",
     link = "https://www.miradormadrid.com/placa-del-kilometro-cero/",
     favorite = false,
-    rate = 0.0f,
+    rate = 0.0,
     review = ""
 )
 
@@ -348,12 +552,10 @@ fun EventGridCardPreview(){
                 modifier = Modifier
                     .padding(top = 8.dp, bottom = 8.dp)
             ){
-                EventGridCard(
+                /*EventGridCard(
                     culturalEvent = mockEvent,
                     onClick = {}
-                )
-                //AdGridCard{}
-
+                )*/
             }
         }
     }

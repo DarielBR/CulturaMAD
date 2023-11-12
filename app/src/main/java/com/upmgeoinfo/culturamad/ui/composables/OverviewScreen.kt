@@ -20,6 +20,11 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -34,6 +39,8 @@ import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
 import com.upmgeoinfo.culturamad.ui.composables.prefab.GeneralSearchBar
 import com.upmgeoinfo.culturamad.ui.composables.prefab.NavForwardButton
 import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
+import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
+import com.upmgeoinfo.culturamad.viewmodels.main.model.LAZY_COLUMN_TYPE
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -42,6 +49,9 @@ fun OverviewScreen(
     navController: NavHostController? = null
 ){
     viewModel?.hideBottomNavBar(false)
+    LaunchedEffect(null) {
+        viewModel?.updateStateReviews()//update with the last state saved in dbFi(all users interactions).
+    }
     Surface(
         color = MaterialTheme.colorScheme.surface,
         modifier = Modifier
@@ -66,7 +76,7 @@ fun OverviewScreen(
                 contentPadding = PaddingValues(bottom = 100.dp)
             ){
                 items(rowItems){variant ->
-                    OverViewRow(
+                    OverviewRow(
                         viewModel = viewModel,
                         navController = navController,
                         variant = variant
@@ -79,11 +89,14 @@ fun OverviewScreen(
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun OverViewRow(
+fun OverviewRow(
     viewModel: MainViewModel? = null,
     navController: NavHostController? = null,
     variant: String
 ){
+    var nearBy by remember { mutableStateOf(emptyList<CulturalEvent>()) }
+    var rate by remember { mutableStateOf(emptyList<CulturalEvent>()) }
+    var allEvents by remember { mutableStateOf(emptyList<CulturalEvent>()) }
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -105,8 +118,18 @@ fun OverViewRow(
             fontWeight = FontWeight.SemiBold,
             fontSize = 14.sp
         )
-        NavForwardButton(text = stringResource(id = R.string.ui_see_all)) {}
+        NavForwardButton(text = stringResource(id = R.string.ui_see_all)) {
+            viewModel?.changeLazyColumnType(
+                newType = when(variant){
+                    "NEARBY" -> LAZY_COLUMN_TYPE.NEAR_BY
+                    "RATE" -> LAZY_COLUMN_TYPE.RATE
+                    else -> LAZY_COLUMN_TYPE.ALL_EVENTS
+                }
+            )
+            navController?.navigate(AppScreens.ColumnEventView.route)
+        }
     }
+
     LazyRow(
         contentPadding = PaddingValues(
             horizontal = 4.dp
@@ -115,11 +138,14 @@ fun OverViewRow(
         modifier = Modifier
             .fillMaxWidth()
     ){
+        nearBy = viewModel?.getNearByEvents(3) ?: emptyList()
+        rate = viewModel?.getMostRatedEvents(30) ?: emptyList()
+        allEvents = viewModel?.getEventsAndAds() ?: emptyList()
         items(
             when(variant){
-                "NEARBY" -> viewModel?.getNearByEvents(3) ?: emptyList()
-                "RATE" -> viewModel?.getMostRatedEvents(30) ?: emptyList()
-                else -> viewModel?.getEventsAndAds() ?: emptyList()
+                "NEARBY" -> nearBy
+                "RATE" -> rate
+                else -> allEvents
             }
         ){ item ->
             if (item.id == 0) {

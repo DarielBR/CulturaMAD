@@ -20,6 +20,7 @@ import com.upmgeoinfo.culturamad.viewmodels.main.model.MainState
 import com.upmgeoinfo.culturamad.services.json_parse.reposiroty.ApiEventsRepository
 import com.upmgeoinfo.culturamad.viewmodels.auth.model.LoginUiState
 import com.upmgeoinfo.culturamad.viewmodels.firestoredb.model.EventReview
+import com.upmgeoinfo.culturamad.viewmodels.main.model.LAZY_COLUMN_TYPE
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlin.math.PI
@@ -68,15 +69,21 @@ class MainViewModel(
         }
     }
 
+    /**
+     * Gather information from API Rest EndPoint and Firebase Firestore and Authentication to provide
+     * state and data to be use in the app.
+     * Performs an Insert/Upsert operation in the in-app database (dbLo), also loads up user data
+     * related to cultural events.
+     */
     suspend fun setupStateData(
        onSuccess: (Boolean) -> Unit
     )= viewModelScope.launch{
         //fetch data from API EndPoint and Firestore Database (this is loaded at init block)
         val newStateList: MutableList<CulturalEvent> = emptyList<CulturalEvent>().toMutableList()
-        var itemsEndPoint: List<CulturalEvent> = emptyList()
+        //var itemsEndPoint: List<CulturalEvent> = emptyList()
         var successOnEndPoint = false
         //fetching event from end point
-        itemsEndPoint = apiEventsRepository.getEventsWithLocation { successful -> successOnEndPoint = successful }
+        var itemsEndPoint = apiEventsRepository.getEventsWithLocation { successful -> successOnEndPoint = successful }
         //First, the dbLo tasks
         //do we have data at dbLo?
         if (state.items.isEmpty()){//No
@@ -93,7 +100,7 @@ class MainViewModel(
                 endPointItem.averageRate = calculateAverageRate(endPointItem.id!!.toString())
                 //getting current user EventReview
                 if (hasUser){
-                    val storedReview = getUserReview(endPointItem.id!!)
+                    val storedReview = getUserReview(endPointItem.id)
                     with(endPointItem){
                         review = storedReview.review
                         rate= storedReview.rate
@@ -130,7 +137,7 @@ class MainViewModel(
                     endPointItem.averageRate = calculateAverageRate(endPointItem.id!!.toString())
                     //getting current user EventReview
                     if (hasUser){
-                        val storedReview = getUserReview(endPointItem.id!!)
+                        val storedReview = getUserReview(endPointItem.id)
                         with(endPointItem){
                             review = storedReview.review
                             rate= storedReview.rate
@@ -163,6 +170,9 @@ class MainViewModel(
         }
     }
 
+    /**
+     * Updates the user related information in the events list at the application state.
+     */
     fun setupStateDataAfterUserChange(){
         val newStateList: MutableList<CulturalEvent> = emptyList<CulturalEvent>().toMutableList()
         if (hasUser){
@@ -180,7 +190,7 @@ class MainViewModel(
             state.items.forEach { localItem ->
                 with(localItem){
                     favorite = false
-                    rate = 0.0f
+                    rate = 0.0
                     review = ""
                 }
                 newStateList.add(localItem)
@@ -190,7 +200,37 @@ class MainViewModel(
     }
 
     /**
-     * gets a user review for a given event from the review list stored at the state
+     * Creates or Updates a review properties for given User into the application state review list
+     */
+    fun setUserReviewState(
+        eventID: Int,
+        review: String? = null,
+        rate: Double? = null,
+        favorite: Boolean? = null
+    ){
+        if(hasUser){//only do if there is a user logged in
+            val reviewIndex = state.reviews.indexOfFirst {it.eventID == eventID.toString() && it.userID == loginUiState.currentUserMail}
+            if(reviewIndex > -1){//Review entry already exists: perform update.
+                if (review != null) state.reviews[reviewIndex].review = review
+                if (rate != null) state.reviews[reviewIndex].rate = rate
+                if (favorite != null) state.reviews[reviewIndex].favorite = favorite
+            }else{//Review entry does not exist: insert required
+                val newReview = EventReview(
+                    userID = loginUiState.currentUserMail,
+                    eventID = eventID.toString()
+                )
+                if (review != null) newReview.review = review
+                if (rate != null) newReview.rate = rate
+                if (favorite != null) newReview.favorite = favorite
+
+                state.reviews.add(newReview)
+            }
+        }
+    }
+
+    /**
+     * Gets a user review for a given event from the review list stored at the state, if there is none,
+     * will return an empty review.
      */
     private fun getUserReview(eventID: Int): EventReview{
         return state.reviews.find {
@@ -198,6 +238,26 @@ class MainViewModel(
         } ?: EventReview()
     }
 
+    /**
+     * Updates the user related information in application state list of cultural event against
+     * the application state list.
+     */
+    fun updateEventsReviewState(){
+        if (hasUser){
+            state.items.forEach { event ->
+                val storedReview = getUserReview(eventID = event.id!!)
+                with(event) {
+                    review = storedReview.review
+                    rate = storedReview.rate
+                    favorite = storedReview.favorite
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns a list with all reviews in the application state for a given eventID
+     */
     fun getEventReviews(eventID: Int): List<EventReview>{
         val reviewsList: MutableList<EventReview> = emptyList<EventReview>().toMutableList()
 
@@ -208,19 +268,27 @@ class MainViewModel(
 
         return reviewsList.toList()
     }
-    private fun calculateAverageRate(
+
+    /**
+     * Calculates the average rate for a given cultural event, from all it's reviews in review list
+     * in application state.
+     */
+    fun calculateAverageRate(
         eventId: String
-    ): Float{
-        var averageSum = 0.0f
+    ): Double{
+        var averageSum = 0.0
+        var counter = 0
         state.reviews.forEach { review ->
-            if (review.eventID == eventId) averageSum += review.rate
+            if (review.eventID == eventId && review.rate > 0) {
+                averageSum += review.rate
+                counter++
+            }
         }
-        return averageSum/state.reviews.size
+        return if(counter > 0) averageSum/counter else averageSum
     }
 
     /**
      * refreshes the state items to those with location
-     */
     suspend private fun refreshItems(){
         //TODO: Modify this function to provide state with information fetched from dbFi
         //new version
@@ -266,21 +334,21 @@ class MainViewModel(
                 items = localItems.toMutableList()
             )
         }
-    }
+    }*/
 
     /**
      * Adds a new cultural event into the dbLo
      */
-    private fun saveCulturalEvent(culturalEvent: CulturalEvent){
+    /*private fun saveCulturalEvent(culturalEvent: CulturalEvent){
         viewModelScope.launch {
             culturalEventRepository.insertCulturalEvent(culturalEvent = culturalEvent)
         }
-    }
+    }*/
 
     /**
      * updates a cultural event information in the dbLo
      */
-    private fun updateCulturalEvent(
+    /*private fun updateCulturalEvent(
         culturalEvent: CulturalEvent
     ){
         viewModelScope.launch{
@@ -288,7 +356,7 @@ class MainViewModel(
                 culturalEvent = culturalEvent
             )
         }
-    }
+    }*/
 
     /**
      * provides state for the current selected item
@@ -314,11 +382,11 @@ class MainViewModel(
     /**
      * deletes a cultural event from the dbLo
      */
-    private fun deleteCulturalEvent(eventID: Int){
+    /*private fun deleteCulturalEvent(eventID: Int){
         viewModelScope.launch {
             culturalEventRepository.deleteCulturalEvent(eventID = eventID)
         }
-    }
+    }*/
 
     /**
      * provides state to the splash screen state
@@ -471,81 +539,30 @@ class MainViewModel(
 /****************Authentication Block***************************/
 
 /****************Firestore Block********************************/
-    fun addReview(
-        culturalEvent: CulturalEvent,
-        review: String,
-        rate: Float,
-        favorite: Boolean
-    ) = viewModelScope.launch {
-        if (hasUser){
-            firestoredbRepository.addReview(
-                userID = loginUiState.currentUserMail,
-                eventID = culturalEvent.id.toString(),
-                review = review,
-                favorite = review.toString(),
-                rate = rate.toString()
+    /**
+     * Updates the application state review list with the information gathered from dbFi and provides
+     * state accordingly.
+     */
+    suspend fun updateStateReviews(){
+        var successful = false
+        var reviewsList = emptyList<EventReview>()
+        viewModelScope.async {
+            reviewsList = firestoredbRepository.getAllReviews { isSuccessful -> successful = isSuccessful }
+        }.await()
+        if (successful){
+            state = state.copy(
+                reviews = reviewsList.toMutableList()
             )
+            updateEventsReviewState()
         }
     }
-
     /**
      * TODO:    Create getEventReviews()
      *          Create deleteEventReviews()
      */
 
     /**
-     * returns the averaged rate for a given cultural event, calculated with the data stored at dbFi.
-     */
-    suspend fun getEventAverageRate(
-        culturalEvent: CulturalEvent
-    ): Float{
-        return viewModelScope.async {
-            firestoredbRepository.getEventAverageRate(eventID = culturalEvent.id.toString()){}
-        }.await()
-        /*var result: Float = 0.0f
-        viewModelScope.launch{
-            result = firestoredbRepository.getEventAverageRate(
-                eventID = culturalEvent.id.toString()
-            ){}
-        }
-        return result*/
-    }
-
-    fun getUserEventReview(
-        userID: String,
-        eventID: Int
-    ): EventReview {
-        var result = EventReview()
-
-        viewModelScope.launch {
-            result = firestoredbRepository.getReview(
-                userID = userID,
-                eventID = eventID.toString()
-            )
-        }
-        return result
-    }
-
-    suspend fun loadUserEventsReviews() = viewModelScope.async{
-        if (hasUser){
-            state.items.forEach { stateEvent ->
-                val eventReview = getUserEventReview(
-                    userID = loginUiState.currentUserMail,
-                    eventID = stateEvent.id ?: 0
-                )
-                val averageRate = getEventAverageRate(stateEvent)
-
-                state.items.find { it.id == stateEvent.id }?.review = eventReview.review
-                state.items.find { it.id == stateEvent.id }?.favorite = eventReview.favorite
-                state.items.find { it.id == stateEvent.id }?.rate = eventReview.rate
-                state.items.find { it.id == stateEvent.id }?.averageRate = averageRate
-
-            }
-        }
-    }.await()
-
-    /**
-     * updates only the favorite state for a cultural event at the dbFi
+     * updates only the favorite state for a cultural event at the dbFi, if successful, provides state.
      */
     fun changeFavoriteState(
         culturalEvent: CulturalEvent,
@@ -557,36 +574,41 @@ class MainViewModel(
                 eventID = culturalEvent.id.toString(),
                 favorite = favorite
             ){isSuccessful ->
-                if (isSuccessful){//provide state
-                    val index = state.items.indexOfFirst { it.id == culturalEvent.id }
-                    state.items[index].favorite = favorite
+                if (isSuccessful){//provide state into the review list at application state
+                    setUserReviewState(
+                        culturalEvent.id!!,
+                        favorite = favorite
+                    )
+                    /*val index = state.items.indexOfFirst { it.id == culturalEvent.id }
+                    state.items[index].favorite = favorite*/
                 }
             }
         }
     }
 
     /**
-     * Writes into the dbFi a given rate value for a given cultural event.
+     * Writes into the dbFi a given rate value for a given cultural event,  if successful, provides state.
      */
     fun setEventRate(
         culturalEvent: CulturalEvent,
-        rate: Float
+        rate: Double
     ){
         viewModelScope.launch {
-            var success = false
             firestoredbRepository.updateRate(
                 userID = loginUiState.currentUserMail,
                 eventID = culturalEvent.id.toString(),
                 rate = rate
             ){isSuccesful ->
-                //TODO: Must call getEventRate() and provide state accordingly
-                success = isSuccesful
+                setUserReviewState(//providing state
+                    culturalEvent.id!!,
+                    rate = rate
+                )
             }
-            if (success){
+            /*if (success){
                 val index = state.items.indexOfFirst { it.id == culturalEvent.id }
                 state.items[index].averageRate =
                     getEventAverageRate(culturalEvent = culturalEvent)
-            }
+            }*/
         }
     }
 
@@ -601,8 +623,12 @@ class MainViewModel(
                 review = review
             ){isSuccessful ->
                 if (isSuccessful){//provide state
-                    val index = state.items.indexOfFirst { it.id == culturalEvent.id }
-                    state.items[index].review = review
+                    setUserReviewState(
+                        culturalEvent.id!!,
+                        review = review
+                    )
+                /*val index = state.items.indexOfFirst { it.id == culturalEvent.id }
+                    state.items[index].review = review*/
                 }
             }
         }
@@ -614,9 +640,6 @@ class MainViewModel(
     /**
      * Returns the distance in Km between two points give geographical coordinates. Uses the Earth's
      * mean radius equal to 6'371Km.
-     *
-     * @param positionA first coordinate.
-     * @param position second coordinate.
      *
      * @return The distance between coordinates in Km
      */
@@ -637,7 +660,7 @@ class MainViewModel(
             val deltaLat = (latitude - state.deviceLocation!!.latitude) * PI / 180
             val deltaLng = (longitude - state.deviceLocation!!.longitude) * PI / 180
 
-            val earthRadius: Double = 6371.0 //in Km
+            val earthRadius = 6371.0 //in Km
 
             val haversine =
                 sin(deltaLat / 2).pow(2) + cos(latA) * cos(latB) * sin(deltaLng / 2).pow(2)
@@ -668,7 +691,11 @@ class MainViewModel(
     }
 
     fun getStateDeviceLocation(): LatLng? {
-        return state.deviceLocation
+        var deviceLocation: LatLng? = null
+        viewModelScope.launch{
+            deviceLocation =  state.deviceLocation
+        }
+        return deviceLocation
     }
 
     fun getEventsAndAds(): List<CulturalEvent>{
@@ -720,6 +747,7 @@ class MainViewModel(
                 }
             }
         }
+        prevList.sortByDescending { it.averageRate }
         val resultList: MutableList<CulturalEvent> = emptyList<CulturalEvent>().toMutableList()
         var counter = 0
         prevList.forEach { event ->
@@ -733,7 +761,6 @@ class MainViewModel(
                 counter++
             }
         }
-        resultList.sortBy { it.averageRate }
         return resultList.toList()
     }
 
@@ -751,7 +778,7 @@ class MainViewModel(
                 prevList.add(event)
             }
         }
-        prevList.sortBy { it.averageRate }
+        prevList.sortByDescending { it.averageRate }
 
         val resultList: MutableList<CulturalEvent> = emptyList<CulturalEvent>().toMutableList()
         var addCounter = -1
@@ -769,6 +796,39 @@ class MainViewModel(
             }
         }
         return resultList.toList()
+    }
+
+    fun getFavoriteEvents(): List<CulturalEvent>{
+        val prevList: MutableList<CulturalEvent> = emptyList<CulturalEvent>().toMutableList()
+
+        if (hasUser){
+            state.items.forEach { event ->
+                if(state.reviews.find { it.eventID == event.id.toString() && it.userID == loginUiState.currentUserMail } != null){
+                    prevList.add(event)
+                }
+            }
+        }
+
+        val resultList: MutableList<CulturalEvent> = emptyList<CulturalEvent>().toMutableList()
+        var counter = -1
+        prevList.forEach { event ->
+            if(counter == 3){
+                val adItem = CulturalEvent(id = 0)
+                resultList.add(adItem)
+                resultList.add(event)
+                counter = 0
+            }else {
+                resultList.add(event)
+                counter++
+            }
+        }
+        return resultList.toList()
+    }
+
+    fun changeLazyColumnType(newType: LAZY_COLUMN_TYPE){
+        viewModelScope.launch {
+            state = state.copy(currentLazyColumType = newType)
+        }
     }
 /****************Utils Block************************************/
 }

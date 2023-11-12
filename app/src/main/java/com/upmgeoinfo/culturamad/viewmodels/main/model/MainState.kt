@@ -12,8 +12,16 @@ data class MainState (
     val activeSearchCategories: MutableList<String> = emptyList<String>().toMutableList(),
     val reviews: MutableList<EventReview> = emptyList<EventReview>().toMutableList(),
     var deviceLocation: LatLng? = null,
-    var isLocationPermissionGranted: Boolean = false//should be in false
+    var isLocationPermissionGranted: Boolean = false,//should be in false
+    var currentLazyColumType: LAZY_COLUMN_TYPE = LAZY_COLUMN_TYPE.ALL_EVENTS
 )
+
+enum class LAZY_COLUMN_TYPE{
+    NEAR_BY,
+    RATE,
+    ALL_EVENTS,
+    FAVORITES
+}
 
 //private fun emptyCulturalEvent(): CulturalEvent{
 //    return CulturalEvent(

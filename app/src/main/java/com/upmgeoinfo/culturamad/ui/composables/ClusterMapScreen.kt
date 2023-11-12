@@ -45,6 +45,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import androidx.navigation.NavHostController
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -71,6 +72,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.upmgeoinfo.culturamad.R
+import com.upmgeoinfo.culturamad.navigation.AppScreens
 import com.upmgeoinfo.culturamad.viewmodels.main.model.CulturalEvent
 import com.upmgeoinfo.culturamad.viewmodels.MainViewModel
 import com.upmgeoinfo.culturamad.ui.composables.prefab.MapButton
@@ -84,7 +86,8 @@ import com.upmgeoinfo.culturamad.ui.theme.CulturaMADTheme
 @Composable
 fun ClusterMapScreen(
     fusedLocationClient: FusedLocationProviderClient,
-    viewModel: MainViewModel
+    viewModel: MainViewModel,
+    navController: NavHostController? = null
 ){
     viewModel.hideBottomNavBar(false)
     CulturaMADTheme {
@@ -188,6 +191,10 @@ fun ClusterMapScreen(
          */
         var openEventCard by remember { mutableStateOf(false) }
         /**
+         * culturalEvent var creation as rememberable
+         */
+        var culturalEvent by remember { mutableStateOf(CulturalEvent()) }
+        /**
          * Applying correct size to our window attending to the navigation mode set in the device
          * * 0-> 3 button mode
          * 1-> 2 button mode
@@ -242,6 +249,7 @@ fun ClusterMapScreen(
 
                     clusterManager?.setOnClusterItemClickListener {
                         viewModel.setCurrentItem(it.getExtraID())
+                        culturalEvent = viewModel.state.items.find { it.id == viewModel.state.currentItem.toInt() }!!
                         openEventCard = true
                         return@setOnClusterItemClickListener false
                     }
@@ -431,13 +439,23 @@ fun ClusterMapScreen(
         /**
          * EventCard declaration
          */
-        EventCard(
+
+        MapGridCard(
+            viewModel = viewModel,
+            culturalEvent = culturalEvent,
+            visibility = openEventCard,
+            width = 400,
+            navigationBarVisible = isNavigationBarVisible
+        ) {
+            navController?.navigate(AppScreens.DetailViewScreen.route)
+        }
+        /*EventCard(
             viewModel = viewModel,
             closeClick = { openEventCard = false },
             visibility = openEventCard,
             navigationBarVisible = isNavigationBarVisible,
             myLocation = myLocation
-        )
+        )*/
     }
 }//CusterMapScreen function end
 
