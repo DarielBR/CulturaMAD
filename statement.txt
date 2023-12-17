@@ -15,6 +15,13 @@ CulturaMAD respects the privacy of its users and is committed to protecting thei
 
 We prioritize the security of your data and have implemented measures to prevent unauthorized access, disclosure, alteration, and destruction of your information.
 
+## Source of Data
+
+Source of Data:
+Ayuntamiento de Madrid (Madrid City Townhall)
+
+We acknowledge and appreciate the efforts of the Ayuntamiento de Madrid in maintaining a comprehensive and regularly updated dataset. This collaboration allows culturaMAD to deliver a rich and dynamic cultural experience to our users, aligning with our commitment to quality and accuracy.
+
 ## Third-Party Services
 
 CulturaMAD may utilize third-party services for certain functionalities. These services may have their own privacy policies, and we encourage users to review them for a complete understanding of how their data is handled.
