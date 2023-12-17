@@ -21,7 +21,7 @@
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713"/>
+            android:value="ca-app-pub-6163454916193288~5271009522"/>
         <!--"ca-app-pub-3940256099942544~3347511713" test adds-->
         <!--"ca-app-pub-6163454916193288~7176819883" mio(closed test)-->
         <!--"ca-app-pub-6163454916193288~5271009522" mio(production version)-->

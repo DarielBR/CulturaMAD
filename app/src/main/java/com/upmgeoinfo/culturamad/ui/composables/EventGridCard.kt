@@ -309,7 +309,7 @@ fun AdGridCard(
                         setAdSize(AdSize.MEDIUM_RECTANGLE)
                         adUnitId = "ca-app-pub-3940256099942544/6300978111" //pruebas
                         //adUnitId = "ca-app-pub-6163454916193288/5887329497"//mio(closed test)
-                        //adUnitId = "ca-app-pub-6163454916193288/6939314410"//mio(production version)
+                        //adUnitId = "ca-app-pub-6163454916193288/3320467751"//mio(production version)
                         loadAd(AdRequest.Builder().build())
                     }
                 }
